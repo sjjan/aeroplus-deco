@@ -2,7 +2,7 @@
 
 **A technical dive decompression planner for open-circuit and CCR diving.**
 
-Live app → [aeroplus-deco on GitHub Pages](https://yourusername.github.io/aeroplus-deco/AeroPlus-Deco.html)
+Live app → [aeroplus-deco on GitHub Pages](https://sjjan.github.io/aeroplus-deco/AeroPlus-Deco.html)
 
 ---
 
