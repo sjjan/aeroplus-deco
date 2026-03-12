@@ -980,6 +980,8 @@ function AP(){return _plans[_activePlan];}
 window.AP=AP;
 
 var STORE_KEY='aeroplusDeco_v1';
+// Bump this string whenever HARDCODED_O defaults change — forces migration for existing users
+var SETTINGS_VERSION='2026-03-12e';
 
 function savePlans(){
 try{
@@ -2444,6 +2446,18 @@ window.meCalc=function(){
   densEl.className='calc-result-val'+(dens>=6.2?' danger':dens>=5.2?' warn':' neutral');
 };
 
+// Settings version migration: if app was updated, reset changed defaults in all plans
+(function(){
+  var storedVer=localStorage.getItem('aeroplusSettingsVersion');
+  if(storedVer!==SETTINGS_VERSION){
+    // Keys whose defaults changed in this version — force to new HARDCODED_O value
+    var migrateKeys=['gfLo','gfHi','ccrO2Rate','autoGFLo','bailoutSwitchTime','salinity'];
+    _plans.forEach(function(p){
+      migrateKeys.forEach(function(k){p.O[k]=HARDCODED_O[k];});
+    });
+    localStorage.setItem('aeroplusSettingsVersion',SETTINGS_VERSION);
+  }
+})();
 // Backfill any missing option keys (e.g. CCR keys added after plan was saved)
 _plans.forEach(function(p){Object.keys(HARDCODED_O).forEach(function(k){if(p.O[k]===undefined)p.O[k]=HARDCODED_O[k];});});
 function _doInit(){
