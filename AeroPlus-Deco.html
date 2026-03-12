@@ -214,7 +214,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     </svg>
     <div>
       <div class="ttl" style="font-size:22px;letter-spacing:-.02em">AeroPlus <span style="color:#3451d1;font-weight:800">Deco</span></div>
-      <div class="sub">v2026-03-12e</div>
+      <div class="sub">v2026-03-12f</div>
     </div>
   </div>
   <div class="hdr-r">
@@ -239,7 +239,6 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
   </div>
   <div class="menu-group">
     <div class="menu-lbl">App</div>
-    <button class="menu-item" onclick="window.closeMenu();window.openSupport()"><span class="menu-icon">✉</span>Support</button>
     <button class="menu-item" onclick="window.closeMenu();window.openAbout()"><span class="menu-icon">ℹ</span>About</button>
   </div>
 </div>
@@ -411,7 +410,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
         <div class="cfg-row-name" style="color:#3451d1">Auto-set GF Low</div>
         <div class="cfg-row-desc">Automatically sets GF Low to match the first gas switch depth (Andy Davis method). GF Hi &minus; GF Lo is kept &ge; 10. Recalculates whenever gases or the plan change. <span id="cfg-autogf-lbl" style="color:#3451d1;font-weight:600"></span></div>
       </div>
-      <label class="tog-sw"><input type="checkbox" id="tog-autogf" onchange="window.AP().O.autoGFLo=this.checked;window.applyAutoGFLo();"><div class="tog-track"></div><div class="tog-knob"></div></label>
+      <label class="tog-sw"><input type="checkbox" id="tog-autogf" onchange="window.toggleAutoGFLo(this.checked)"><div class="tog-track"></div><div class="tog-knob"></div></label>
     </div>
     <div class="cfg-sec"><div class="cfg-sec-lbl">Environment</div></div>
     <div class="cfg-row" onclick="window.openSelEdit('salinity','Salinity','The type of water.',['fresh','en13319','salt','mediterranean','red','atlantic','baltic'],['Fresh (1000)','EN13319 (1020)','Salt (1025)','Mediterranean (1038)','Red Sea (1040)','Atlantic (1035)','Baltic Sea (1010)'])">
@@ -469,7 +468,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
       <div class="cfg-row-l"><div class="cfg-row-name">Switch deco gas at MOD</div><div class="cfg-row-desc">When enabled, switch to the richest available deco gas immediately upon reaching its MOD during ascent (optimal offgassing). When disabled, ascend on bottom gas and only switch when a required stop forces it.</div></div>
       <label class="tog-sw"><input type="checkbox" id="tog-sam" onchange="window.AP().O.switchAtMOD=this.checked;if(window.AP().result)try{window.runAll();}catch(e){console.error(e);}"><div class="tog-track"></div><div class="tog-knob"></div></label>
     </div>
-    <div class="cfg-sec"><div class="cfg-sec-lbl">CCR — O₂ & Hardware</div></div>
+    <div class="cfg-sec"><div class="cfg-sec-lbl">CCR — O₂ & Hardware (in development)</div></div>
     <div class="cfg-row notap" style="align-items:center">
       <div class="cfg-row-l"><div class="cfg-row-name">CCR mode</div><div class="cfg-row-desc">Enable Closed Circuit Rebreather planning. The algorithm uses setpoint-based O₂ fraction instead of cylinder gas fractions. No deco gas switching occurs on CCR.</div></div>
       <label class="tog-sw"><input type="checkbox" id="tog-ccr" onchange="AP().O.isCCR=this.checked;document.getElementById('ccr-settings').style.display=this.checked?'block':'none';refreshCCRCard();if(AP().result)try{window.runAll();}catch(e){console.error(e);}"><div class="tog-track"></div><div class="tog-knob"></div></label>
@@ -705,7 +704,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 
     <div style="background:#eef2ff;border-left:3px solid #3451d1;border-radius:0 10px 10px 0;padding:14px 16px;margin-bottom:20px;font-size:13px;color:#2a3a5a;line-height:1.75">
       <div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:#3451d1;margin-bottom:8px">TWO WORLDS, ONE DISCIPLINE</div>
-      The name <b>AeroPlus</b> is no accident. Its author is a bush pilot and owner of <b>African Flying Adventures</b>, flying low and slow across remote African wilderness, and a developer of aviation software solutions — as well as a technical diver who plans dives well below recreational limits.<br><br>
+      The name <b>AeroPlus</b> is no accident. Its author is a bush pilot and owner of <a href="https://africanflyingadventures.com" target="_blank" style="color:#3451d1;text-decoration:none"><b>African Flying Adventures</b></a>, flying low and slow across remote African wilderness, and a developer of aviation software solutions — as well as a technical diver who plans dives well below recreational limits.<br><br>
       Aviation and technical diving share far more than most people realise. Both operate at the mercy of <b>air pressure</b> — pilots manage it as altitude above sea level, divers as depth below the surface. In both worlds, pressure is not abstract: it governs how your body absorbs gases, how your equipment performs, and whether you come home.<br><br>
       Both disciplines demand deep respect for <b>the natural environment</b> — weather, currents, visibility, terrain. In the African bush or 60 metres underwater, nature does not negotiate. Both require <b>technical skill and situational awareness</b> maintained through continuous training, because in the moment when things go wrong, muscle memory and procedure are all you have.<br><br>
       Above all, both are built on <b>checklists, procedures and teamwork</b>. A pre-dive gas check and a pre-flight checklist serve the same purpose: to create a systematic defence against human error when the stakes are life and death. Neither a pilot nor a technical diver improvises when it matters.
@@ -716,14 +715,14 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
       ✓ &nbsp;Bühlmann ZHL-16C with gradient factors (GF Lo/Hi)<br>
       ✓ &nbsp;Multi-gas planning with automatic gas switching<br>
       ✓ &nbsp;Trimix support (N₂ + He + O₂)<br>
-      ✓ &nbsp;CCR closed-circuit rebreather planning<br>
+      ✓ &nbsp;CCR closed-circuit rebreather planning (in development)<br>
       ✓ &nbsp;CNS% and OTU oxygen toxicity tracking<br>
       ✓ &nbsp;Rock bottom gas reserves per cylinder<br>
       ✓ &nbsp;Consecutive dive planning with tissue offgassing<br>
       ✓ &nbsp;Contingency plans (deeper / longer)<br>
       ✓ &nbsp;Gas density warnings (5.2 / 6.2 g/ℓ thresholds)<br>
       ✓ &nbsp;Partial pressure gas blending calculator<br>
-      ✓ &nbsp;Auto GF Low matching first gas switch depth <a href="https://scubatechphilippines.com/scuba_blog/gradient-factors-application-use-settings-open-circuit-tech/" target="_blank" style="color:#3451d1;text-decoration:none">(Andy Davis)</a><br>
+      ✓ &nbsp;Auto GF Low matching first gas switch depth <a href="https://scubatechphilippines.com/scuba_blog/gradient-factors-application-use-settings-open-circuit-tech/" target="_blank" style="color:#3451d1;text-decoration:none">(Andy Davis method)</a><br>
       ✓ &nbsp;Export dive plan as text or printable report<br>
       ✓ &nbsp;Save &amp; restore plans via JSON
     </div>
@@ -733,6 +732,11 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
         <svg width="16" height="16" viewBox="0 0 24 24" fill="#3451d1" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
         View source on GitHub
       </a>
+    </div>
+    <div style="background:#f4f7ff;border:1px solid #3451d130;border-radius:10px;padding:14px 16px;margin-bottom:14px;font-size:13px;color:#2a3a5a;line-height:1.7">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:#3451d1;margin-bottom:8px">SUPPORT</div>
+      AeroPlus Deco is open source and community-supported. Found a bug or have a feature idea? Open an issue on GitHub — it's the best way to track requests and contribute to the project.<br><br>
+      <a href="https://github.com/sjjan/aeroplus-deco/issues" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid #3451d130;border-radius:8px;padding:7px 12px;color:#3451d1;font-weight:600;font-size:13px;text-decoration:none"><svg width="16" height="16" viewBox="0 0 16 16" fill="#3451d1"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>Open an issue on GitHub</a>
     </div>
     <div style="background:#fdeaea;border:1px solid #f0a0a0;border-radius:10px;padding:12px 14px;font-size:13px;color:#a02020;line-height:1.6">
       <b>⚠ Important disclaimer.</b> Always double-check your decompression calculations using a certified dive planning tool or qualified dive professional. This app is provided for educational and planning assistance only and must not be used as your sole source of decompression data. Diving involves serious risks — incorrect decompression can result in injury or death.
@@ -881,7 +885,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
   </div>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 (function(){
 'use strict';
 if(!Math.imul){Math.imul=function(a,b){var ah=(a>>>16)&0xffff,al=a&0xffff,bh=(b>>>16)&0xffff,bl=b&0xffff;return((al*bl)+((((ah*bl+al*bh)<<16)>>>0)|0))|0;};}
@@ -984,7 +988,7 @@ window.AP=AP;
 
 var STORE_KEY='aeroplusDeco_v1';
 // Bump this string whenever HARDCODED_O defaults change — forces migration for existing users
-var SETTINGS_VERSION='2026-03-12e';
+var SETTINGS_VERSION='2026-03-12f';
 
 function savePlans(){
 try{
@@ -1736,7 +1740,7 @@ document.getElementById('cfg-page').classList.add('open');
 refreshCfgDisplay();};
 window.closeCfg=function(){document.getElementById('cfg-page').classList.remove('open');};
 
-function refreshCfgDisplay(){
+var refreshCfgDisplay=window.refreshCfgDisplay=function refreshCfgDisplay(){
 var O=AP().O;
 document.getElementById('cfg-gf').textContent=Math.round(O.gfLo*100)+'/'+Math.round(O.gfHi*100);
 document.getElementById('cfg-sal').textContent=SLBL[O.salinity]||O.salinity;
@@ -1786,6 +1790,24 @@ var v=parseFloat(document.getElementById('num-inp').value.replace(',','.'));if(i
 AP().O[_numKey]=Math.max(_numMin,Math.min(_numMax,v));
 document.getElementById('num-ovl').classList.add('hidden');refreshCfgDisplay();};
 
+window.toggleAutoGFLo=function(on){
+try{
+  var O=AP().O;
+  if(on){
+    O._gfLoBeforeAuto=O.gfLo;
+    O.autoGFLo=true;
+    window.applyAutoGFLo();
+  } else {
+    O.autoGFLo=false;
+    if(O._gfLoBeforeAuto!==undefined){O.gfLo=O._gfLoBeforeAuto;}
+    var lbl=document.getElementById('cfg-autogf-lbl');
+    if(lbl)lbl.textContent='';
+    window.refreshCfgDisplay();
+    if(AP().result)try{window.runAll();}catch(e){}
+  }
+} catch(err){console.error('toggleAutoGFLo:',err);}
+};
+
 window.applyAutoGFLo=function(){
 var O=AP().O;
 if(!O.autoGFLo)return;
@@ -1801,6 +1823,7 @@ var maxD=AP().segs.length?Math.max.apply(null,AP().segs.map(function(s){return s
 if(!maxD){
   var lbl=document.getElementById('cfg-autogf-lbl');
   if(lbl)lbl.textContent='(add a dive segment first)';
+  window.refreshCfgDisplay();
   return;
 }
 if(!target||target<=0||target>=maxD)target=maxD*0.4; // fallback: 40% of max depth
@@ -1815,7 +1838,7 @@ var oldPct=Math.round(O.gfLo*100);
 O.gfLo=newGFLoPct/100;
 var lbl=document.getElementById('cfg-autogf-lbl');
 if(lbl)lbl.textContent='GF Low set to '+newGFLoPct+'% (switch @ '+Math.round(target)+'m, max '+Math.round(maxD)+'m)';
-refreshCfgDisplay();
+window.refreshCfgDisplay();
 if(AP().result)try{window.runAll();}catch(e){}
 };
 window.openGFEdit=function(){
@@ -1841,49 +1864,261 @@ window.saveSelEdit=function(){
 AP().O[_selKey]=document.getElementById('sel-inp').value;
 document.getElementById('sel-ovl').classList.add('hidden');refreshCfgDisplay();};
 
-function buildExportRows(){
-var r=AP().result;if(!r)return null;
-var O=AP().O,rows=[];var planNum=_activePlan+1;
-rows.push({label:'Dive #'+planNum+',  ZHL-16C-GF  '+Math.round(O.gfLo*100)+'/'+Math.round(O.gfHi*100)});
-rows.push({label:'Elevation = '+O.altitude+' m'});
-rows.push({label:'CNS = '+Math.round(r.cns)+'%'});
-rows.push({label:"OTU's = "+Math.round(r.otu)});
-if(!r.noStop)rows.push({label:'Decozone start = '+r.firstStopD+' m'});
-else rows.push({label:'NDL = '+r.ndl+' min remaining'});
-var bg=AP().cyls.find(function(c){return c.role==='bottom';});
-if(bg)rows.push({label:'Gas density = '+gdens(bg.fO2,bg.fHe,r.maxDepth,O.salinity,O.altitude)+' g/l'});
-AP().cyls.forEach(function(c){
-var used=Math.round((r.usage[c.id]||0));
-rows.push({label:'Gas  '+m2s(c.fO2,c.fHe)+' = '+used+' ltr.'});});
-rows.push({label:'TTS = '+r.tts+' min'});
-rows.push({label:'Run time = '+Math.round(r.runTime)+' min'});
-if(!r.noStop&&r.stops.length){
-rows.push({label:'── Deco stops ──',header:true});
-r.stops.forEach(function(s){
-var g=AP().cyls.find(function(c){return c.id===s.gasId;})||{fO2:.21,fHe:0};
-rows.push({label:s.depth+' m  ×  '+s.time+' min   ('+m2s(g.fO2,g.fHe)+')'});});}
-return rows;}
-
 function exportPlainText(){
 var r=AP().result;if(!r)return'';
-var rows=buildExportRows(),lines=[];
+var O=AP().O;var cyls=AP().cyls;var lines=[];
 lines.push('AEROPLUS DECO — '+AP().name);
-lines.push('─'.repeat(36));
-rows.forEach(function(row){lines.push(row.label);});
-lines.push('─'.repeat(36));
-lines.push('DISCLAIMER: Always verify with a certified dive planning tool.');
+lines.push('ZHL-16C-GF '+Math.round(O.gfLo*100)+'/'+Math.round(O.gfHi*100)+'  |  '+new Date().toLocaleDateString());
+lines.push('━'.repeat(42));
+lines.push('Max depth : '+r.maxDepth+' m      Avg depth : '+r.avgDepth.toFixed(1)+' m');
+lines.push('Run time  : '+Math.round(r.runTime)+' min    TTS       : '+r.tts+' min');
+lines.push('CNS       : '+Math.round(r.cns)+'%        OTU       : '+Math.round(r.otu));
+if(r.noStop){lines.push('NDL remaining: '+r.ndl+' min');}
+else{lines.push('Deco zone : '+r.firstStopD+' m    Total deco: '+fmtDur(r.totalDecoTime)+' min');}
+lines.push('');
+lines.push('RUNTIME');
+lines.push('─'.repeat(42));
+r.tblRows.forEach(function(row){
+var g=cyls.find(function(c){return c.id===row.gasId;})||{fO2:.21,fHe:0};
+lines.push(row.sym+' '+String(row.depth.toFixed(1)+'m').padEnd(8)+' RT:'+String(Math.round(row.rt)).padEnd(5)+' +'+fmtDur(row.dt).padEnd(8)+m2s(g.fO2,g.fHe));});
+if(!r.noStop&&r.stops.length){
+lines.push('');
+lines.push('DECO STOPS');
+lines.push('─'.repeat(42));
+r.stops.forEach(function(s){
+var g=cyls.find(function(c){return c.id===s.gasId;})||{fO2:.21,fHe:0};
+lines.push(String(s.depth+' m').padEnd(8)+' × '+String(Math.round(s.time)+' min').padEnd(10)+m2s(g.fO2,g.fHe));});}
+lines.push('');
+lines.push('GAS USAGE');
+lines.push('─'.repeat(42));
+cyls.forEach(function(c){
+var used=Math.round(r.usage[c.id]||0);
+var rb=window._lastRbBar&&window._lastRbBar[c.id]?window._lastRbBar[c.id]:0;
+lines.push(m2s(c.fO2,c.fHe).padEnd(10)+' Used: '+used+' ltr  Rock bottom: '+rb+' bar');});
+lines.push('');
+lines.push('━'.repeat(42));
+lines.push('⚠ Always verify with a certified dive planning tool.');
 return lines.join('\n');}
+
+function buildProfileSVG(profile){
+if(!profile||profile.length<2)return'';
+var W=560,H=180,PL=36,PR=10,PT=8,PB=24,pw=W-PL-PR,ph=H-PT-PB;
+var maxT=0,maxD=0;
+profile.forEach(function(p){if(p.t>maxT)maxT=p.t;if(p.d>maxD)maxD=p.d;});
+var dispMaxD=Math.ceil(maxD*1.1/5)*5;var avgD=0;
+profile.forEach(function(p){avgD+=p.d;});avgD/=profile.length;
+function tx(v){return (PL+v/maxT*pw).toFixed(1);}
+function ty(v){return (PT+v/dispMaxD*ph).toFixed(1);}
+var grid='';
+for(var i=0;i<=5;i++){var tv=Math.round(maxT/5*i),x=(PL+tv/maxT*pw).toFixed(0);
+grid+='<line x1="'+x+'" y1="'+PT+'" x2="'+x+'" y2="'+(PT+ph)+'" stroke="#e8ebf0" stroke-width="1" stroke-dasharray="3,3"/>'+
+'<text x="'+x+'" y="'+(H-5)+'" text-anchor="middle" font-size="9" fill="#9aa0aa">'+tv+'</text>';}
+for(var j=0;j<=4;j++){var dv=Math.round(dispMaxD/4*j),y=(PT+dv/dispMaxD*ph).toFixed(0);
+grid+='<text x="'+(PL-3)+'" y="'+y+'" text-anchor="end" dominant-baseline="middle" font-size="9" fill="#9aa0aa">'+dv+'</text>';}
+var depPath='M'+profile.map(function(p){return tx(p.t)+','+ty(p.d);}).join('L');
+var ceilPath='M'+profile.map(function(p){return tx(p.t)+','+ty(p.cM);}).join('L');
+var fillPts=profile.slice().reverse().map(function(p){return tx(p.t)+','+ty(p.d);});
+var fillPath=ceilPath+'L'+fillPts.join('L')+'Z';
+var avgY=ty(avgD);
+return '<svg width="100%" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" style="display:block;background:#fff;border-radius:8px">'+
+'<rect width="'+W+'" height="'+H+'" fill="white"/>'+grid+
+'<line x1="'+PL+'" y1="'+avgY+'" x2="'+(PL+pw)+'" y2="'+avgY+'" stroke="#b0b8c4" stroke-width="1.2" stroke-dasharray="6,4"/>'+
+'<path d="'+fillPath+'" fill="rgba(217,83,79,0.10)"/>'+
+'<path d="'+ceilPath+'" fill="none" stroke="#d9534f" stroke-width="1.8"/>'+
+'<path d="'+depPath+'" fill="none" stroke="#3451d1" stroke-width="2.4" stroke-linejoin="round"/>'+
+'<text x="'+(PL+pw/2)+'" y="'+(H-1)+'" text-anchor="middle" font-size="9" fill="#9aa0aa">Time (min)</text>'+
+'</svg>';}
+
+function buildRichExportHTML(){
+var r=AP().result;var O=AP().O;var cyls=AP().cyls;
+var rb=rbBar(r);window._lastRbBar=rb;
+var css='*{box-sizing:border-box;margin:0;padding:0}'+
+'body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,sans-serif;background:#eef1f6;padding:16px;color:#1a1a1a}'+
+'.card{background:#fff;border-radius:14px;border:1px solid #d8dde8;margin-bottom:12px;overflow:hidden}'+
+'.ch{background:linear-gradient(135deg,#3451d1 0%,#2a3fa8 100%);padding:16px 20px;color:#fff}'+
+'.ch h1{font-size:20px;font-weight:800;letter-spacing:-.03em;margin-bottom:2px}'+
+'.ch p{font-size:12px;opacity:.8}'+
+'.sec-lbl{font-size:10px;font-weight:700;letter-spacing:.1em;color:#3451d1;text-transform:uppercase;padding:12px 16px 0}'+
+'.stat-grid{display:flex;flex-wrap:wrap;gap:8px;padding:10px 16px 14px}'+
+'.stat{flex:1;min-width:70px;background:#eef2ff;border-radius:10px;padding:10px 12px;text-align:center}'+
+'.stat .lbl{font-size:9px;color:#3451d1;font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px}'+
+'.stat .val{font-size:22px;font-weight:800;color:#3451d1;line-height:1}'+
+'.stat .unit{font-size:10px;color:#6a7a9a;margin-top:1px}'+
+'.stat.warn .val,.stat.warn .lbl{color:#b56a00}.stat.warn{background:#fff8e1}'+
+'.stat.alert .val,.stat.alert .lbl{color:#c0392b}.stat.alert{background:#fef0f0}'+
+'.divider{height:1px;background:#eef1f6;margin:0 16px}'+
+'.row{display:flex;justify-content:space-between;align-items:center;padding:9px 16px;font-size:13px;border-top:1px solid #eef1f6}'+
+'.row .lbl{color:#5a6472}.row .val{font-weight:600;color:#1a1a1a}'+
+'.chart-wrap{padding:12px 14px}'+
+'.legend{display:flex;gap:14px;padding:8px 2px 0;font-size:11px;color:#5a6472}'+
+'.legend span{display:flex;align-items:center;gap:5px}'+
+'table{width:100%;border-collapse:collapse;font-size:13px}'+
+'thead th{background:#eef2ff;color:#3451d1;font-weight:700;padding:8px 12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.07em}'+
+'tbody td{padding:9px 12px;border-top:1px solid #eef1f6}'+
+'tbody tr:nth-child(even) td{background:#f8f9fc}'+
+'tbody tr.gsw td{background:#e8edff;font-weight:600}'+
+'.bar-group{padding:10px 16px 4px}'+
+'.bar-lbl{font-size:12px;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:8px}'+
+'.dens-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px}'+
+'.dens-ok{background:#e8f5e9;color:#2e7d32}.dens-warn{background:#fff8e1;color:#8a6000}.dens-danger{background:#fdeaea;color:#c0392b}'+
+'.bar-track{display:flex;height:24px;border-radius:6px;overflow:hidden;background:#e8ebf0}'+
+'.bar-seg{display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;white-space:nowrap;padding:0 4px}'+
+'.bar-ax{display:flex;justify-content:space-between;font-size:9px;color:#9aa0aa;margin-top:2px;padding:0 2px}'+
+'.disc{background:#fdeaea;border:1px solid #f0a0a0;border-radius:10px;padding:10px 14px;font-size:11px;color:#a02020;line-height:1.6;margin-bottom:10px}'+
+'.footer{text-align:center;font-size:10px;color:#9aa0aa;padding:4px 0 8px}'+
+'@media print{body{background:#fff;padding:4px}.card{break-inside:avoid;border:1px solid #ccc}}';
+
+/* ── Profile SVG ── */
+var profileSVG=buildProfileSVG(r.profile);
+
+/* ── Runtime table ── */
+var tblRows='';
+r.tblRows.forEach(function(row,i){
+var g=cyls.find(function(c){return c.id===row.gasId;})||{fO2:.21,fHe:0};
+var rt=Math.round(row.rt);
+var cls=row.gsw?'gsw':'';
+tblRows+='<tr class="'+cls+'"><td>'+row.sym+'</td><td>'+row.depth.toFixed(1)+' m</td><td>'+rt+' min</td><td>+'+fmtDur(row.dt)+'</td><td>'+m2s(g.fO2,g.fHe)+'</td></tr>';});
+
+/* ── Deco stops table ── */
+var stopsHtml='';
+if(!r.noStop&&r.stops&&r.stops.length){
+stopsHtml='<div class="sec-lbl" style="padding-top:10px">Deco stops</div>'+
+'<table style="margin-bottom:4px"><thead><tr><th>Depth</th><th>Time (min)</th><th>Gas</th></tr></thead><tbody>'+
+r.stops.map(function(s,i){
+var g=cyls.find(function(c){return c.id===s.gasId;})||{fO2:.21,fHe:0};
+return '<tr'+(i%2?' style="background:#f8f9fc"':'')+'><td>'+s.depth+' m</td><td>'+Math.round(s.time)+'</td><td>'+m2s(g.fO2,g.fHe)+'</td></tr>';
+}).join('')+'</tbody></table>';}
+
+/* ── Gas plan bars ── */
+function barSeg(pct,color,label){
+return '<div class="bar-seg" style="background:'+color+';width:'+pct.toFixed(1)+'%;min-width:'+(pct>2?'0':'0')+'px">'+
+(pct>8?label:'')+'</div>';}
+
+var gasBarsHtml='';
+cyls.forEach(function(c){
+var usedBar=Math.round((r.usage[c.id]||0)/c.size);
+var rbBar_v=rb[c.id]||0;
+var normUsed=Math.max(0,usedBar-rbBar_v),unused=Math.max(0,c.fill-usedBar),f=c.fill||1;
+function pct(v){return Math.min(100,Math.max(0,v/f*100));}
+var densV=parseFloat(gdens(c.fO2,c.fHe,r.maxDepth,O.salinity,O.altitude));
+var densClass=densV>=6.2?'dens-danger':densV>=5.2?'dens-warn':'dens-ok';
+var densLabel=densV+' g/ℓ';
+gasBarsHtml+=
+'<div class="bar-group">'+
+'<div class="bar-lbl">'+m2s(c.fO2,c.fHe)+
+'<span class="dens-tag '+densClass+'">⬤ '+densLabel+'</span>'+
+'<span style="font-weight:400;color:#5a6472;font-size:11px">'+c.fill+' \u2192 '+Math.max(0,c.fill-usedBar)+' bar  (used '+usedBar+' bar)</span>'+
+'</div>'+
+'<div class="bar-track">'+
+barSeg(pct(unused),'#b0b8c4',Math.round(unused)+'')+
+barSeg(pct(rbBar_v),'#d9534f',rbBar_v+'')+
+barSeg(pct(normUsed),'#3451d1',Math.round(normUsed)+'')+'</div>'+
+'<div class="bar-ax">'+[0,.25,.5,.75,1].map(function(x){return'<span>'+Math.round(c.fill*x)+'</span>';}).join('')+'</div>'+
+'</div>';});
+
+/* ── Rock bottom bars ── */
+var rbBarsHtml='';
+cyls.forEach(function(c){
+var bar=rb[c.id]||0,remaining=Math.max(0,c.fill-bar),f=c.fill||1;
+var pctRb=bar/f;
+var col=pctRb>0.55?'#d9534f':pctRb>0.3?'#e67e22':'#3451d1';
+rbBarsHtml+=
+'<div class="bar-group">'+
+'<div class="bar-lbl">'+m2s(c.fO2,c.fHe)+
+'<span style="font-weight:400;color:#5a6472;font-size:11px">Reserve: '+bar+' bar / '+Math.round(bar*14.504)+' psi</span>'+
+'</div>'+
+'<div class="bar-track">'+
+'<div class="bar-seg" style="background:#dde2ea;color:#5a6472;width:'+(remaining/f*100).toFixed(1)+'%">'+(remaining/f>0.15?Math.round(remaining):'')+'</div>'+
+'<div class="bar-seg" style="background:'+col+';width:'+(bar/f*100).toFixed(1)+'%">'+(bar>0?bar:'')+'</div>'+
+'</div>'+
+'<div class="bar-ax">'+[0,.25,.5,.75,1].map(function(x){return'<span>'+Math.round(c.fill*x)+'</span>';}).join('')+'</div>'+
+'</div>';});
+
+/* ── CNS / OTU stat colouring ── */
+var cnsClass=r.cns>=80?'alert':r.cns>=50?'warn':'';
+var otuClass=r.otu>=300?'alert':r.otu>=200?'warn':'';
+
+/* ── Assemble full HTML ── */
+var html=
+'<!DOCTYPE html><html><head><meta charset="UTF-8">'+
+'<title>'+escHtml(AP().name)+' — AeroPlus Deco</title>'+
+'<style>'+css+'</style></head><body>'+
+
+/* Header */
+'<div class="card">'+
+'<div class="ch"><h1>AeroPlus Deco</h1>'+
+'<p>'+escHtml(AP().name)+'  ·  ZHL-16C-GF '+Math.round(O.gfLo*100)+'/'+Math.round(O.gfHi*100)+'  ·  '+new Date().toLocaleDateString()+'  ·  Salt: '+(SLBL[O.salinity]||O.salinity)+'  ·  Alt: '+O.altitude+' m</p>'+
+'</div>'+
+
+/* Key stats */
+'<div class="stat-grid">'+
+'<div class="stat"><div class="lbl">Max depth</div><div class="val">'+r.maxDepth+'</div><div class="unit">m</div></div>'+
+'<div class="stat"><div class="lbl">Avg depth</div><div class="val">'+r.avgDepth.toFixed(1)+'</div><div class="unit">m</div></div>'+
+'<div class="stat"><div class="lbl">Run time</div><div class="val">'+Math.round(r.runTime)+'</div><div class="unit">min</div></div>'+
+'<div class="stat"><div class="lbl">TTS</div><div class="val">'+r.tts+'</div><div class="unit">min</div></div>'+
+'<div class="stat '+cnsClass+'"><div class="lbl">CNS</div><div class="val">'+Math.round(r.cns)+'</div><div class="unit">%</div></div>'+
+'<div class="stat '+otuClass+'"><div class="lbl">OTU</div><div class="val">'+Math.round(r.otu)+'</div><div class="unit"></div></div>'+
+'</div>'+
+
+/* Summary rows */
+(r.noStop?
+'<div class="row"><span class="lbl">NDL remaining</span><span class="val">'+r.ndl+' min</span></div>':
+'<div class="row"><span class="lbl">Deco zone starts</span><span class="val">'+r.firstStopD+' m</span></div>'+
+'<div class="row"><span class="lbl">Total deco time</span><span class="val">'+fmtDur(r.totalDecoTime)+' min</span></div>'+
+'<div class="row"><span class="lbl">First deco after</span><span class="val">'+Math.round(r.firstDecoAfter)+' min</span></div>'+
+'<div class="row"><span class="lbl">Deepest ceiling</span><span class="val">'+r.deepestCeiling.toFixed(2)+' m</span></div>'+
+'<div class="row"><span class="lbl">Max TTS</span><span class="val">'+r.maxTTS+' min @ '+Math.round(r.runTime)+' min runtime</span></div>')+
+'</div>'+
+
+/* Profile chart */
+'<div class="card">'+
+'<div class="sec-lbl">Dive Profile</div>'+
+'<div class="chart-wrap">'+profileSVG+
+'<div class="legend">'+
+'<span><svg width="18" height="6"><line x1="0" y1="3" x2="18" y2="3" stroke="#3451d1" stroke-width="2.5"/></svg>Depth</span>'+
+'<span><svg width="18" height="6"><line x1="0" y1="3" x2="18" y2="3" stroke="#d9534f" stroke-width="2"/></svg>GF ceiling</span>'+
+'<span><svg width="18" height="6"><line x1="0" y1="3" x2="18" y2="3" stroke="#b0b8c4" stroke-width="1.5" stroke-dasharray="5,3"/></svg>Avg depth</span>'+
+'</div></div></div>'+
+
+/* Runtime table */
+'<div class="card">'+
+'<div class="sec-lbl">Runtime Schedule</div>'+
+'<table><thead><tr><th></th><th>Depth</th><th>Runtime</th><th>Duration</th><th>Gas</th></tr></thead>'+
+'<tbody>'+tblRows+'</tbody></table>'+
+stopsHtml+
+'</div>'+
+
+/* Gas plan */
+'<div class="card">'+
+'<div class="sec-lbl">Gas Plan</div>'+
+'<div style="display:flex;gap:14px;padding:6px 16px 2px;font-size:11px;color:#5a6472">'+
+'<span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:10px;height:10px;background:#b0b8c4;border-radius:2px"></span>Unused</span>'+
+'<span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:10px;height:10px;background:#d9534f;border-radius:2px"></span>Rock bottom</span>'+
+'<span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:10px;height:10px;background:#3451d1;border-radius:2px"></span>Normal usage</span>'+
+'</div>'+gasBarsHtml+'</div>'+
+
+/* Rock bottom */
+'<div class="card">'+
+'<div class="sec-lbl">Rock Bottom Reserves</div>'+
+'<div style="font-size:11px;color:#5a6472;padding:4px 16px 2px">Minimum pressure needed to reach the surface in an emergency</div>'+
+rbBarsHtml+'</div>'+
+
+/* Disclaimer */
+'<div class="disc">⚠ <strong>Always verify</strong> decompression calculations using a certified dive planning tool or a qualified dive professional. Incorrect decompression can result in serious injury or death.</div>'+
+'<div class="footer">AeroPlus Deco · aeroplus-deco.com · Generated '+new Date().toLocaleString()+'</div>'+
+
+'<script>window.onload=function(){window.print();};<\/script>'+
+'</body></html>';
+return html;}
 
 window.doExport=function(){
 var r=AP().result;if(!r){alert('Calculate a dive plan first.');return;}
-var rows=buildExportRows();
-var html=rows.map(function(row,i){
-var bg=row.header?'#f4f6fb':i%2===0?'#fff':'#f8f9fc';
-var fw=row.header?'600':'400';var fc=row.header?'#8a9aaa':'#1a1a1a';
-var fs=row.header?'12px':'16px';var bb=i<rows.length-1?'border-bottom:1px solid #e8ebf0;':'';
-return '<div style="padding:13px 16px;background:'+bg+';'+bb+'font-size:'+fs+';font-weight:'+fw+';color:'+fc+'">'+row.label+'</div>';
-}).join('');
-document.getElementById('export-report').innerHTML=html;
+document.getElementById('export-report').innerHTML=
+'<div style="padding:16px;text-align:center;color:#5a6472;font-size:13px;line-height:1.6">'+
+'<div style="font-size:32px;margin-bottom:8px">📋</div>'+
+'<strong>Rich graphical report ready</strong><br>'+
+'Use <strong>Print / Save as PDF</strong> to get the full report with profile chart, runtime table, gas bars and rock bottom reserves.<br>'+
+'<em style="font-size:11px">Or use Copy for a plain-text version.</em></div>';
 document.getElementById('export-bg').classList.remove('hidden');};
 
 window.closeExportPanel=function(){document.getElementById('export-bg').classList.add('hidden');};
@@ -1901,24 +2136,11 @@ setTimeout(function(){btns[0].textContent='Copy to clipboard';},2000);
 document.body.removeChild(ta);};
 
 window.printExport=function(){
-var txt=exportPlainText();var rows=buildExportRows();
-var tableHtml=rows.map(function(row){
-return '<tr style="border-bottom:1px solid #e8ebf0"><td style="padding:11px 14px;font-size:15px;'+(row.header?'color:#8a9aaa;font-size:12px;text-align:center':'color:#1a1a1a')+'">'+row.label+'</td></tr>';}).join('');
-var content='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+escHtml(AP().name)+'</title>'
-+'<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,Helvetica,sans-serif;background:#f4f6fb;padding:20px}'
-+'.card{background:#fff;border-radius:14px;overflow:hidden;border:1px solid #e0e4eb;max-width:480px;margin:0 auto 20px}'
-+'.hdr{background:#3451d1;padding:16px 18px;color:#fff}.hdr h1{font-size:20px;font-weight:700}.hdr p{font-size:12px;opacity:.8;margin-top:2px}'
-+'.sec{font-size:11px;font-weight:700;color:#8a9aaa;text-transform:uppercase;letter-spacing:.06em;text-align:center;padding:10px 0}'
-+'table{width:100%;border-collapse:collapse}td{padding:11px 14px;font-size:15px;color:#1a1a1a;border-bottom:1px solid #e8ebf0}'
-+'.disc{background:#fdeaea;border:1px solid #f0a0a0;border-radius:10px;padding:10px 14px;font-size:12px;color:#a02020;max-width:480px;margin:0 auto}'
-+'@media print{body{padding:0}}</style></head><body>'
-+'<div class="card"><div class="hdr"><h1>AeroPlus Deco</h1><p>'+escHtml(AP().name)+'  ·  '+new Date().toLocaleDateString()+'</p></div>'
-+'<div class="sec">Report</div><table>'+tableHtml+'</table></div>'
-+'<div class="disc">⚠ Always verify decompression calculations with a certified tool or qualified dive professional.</div>'
-+'<script>window.onload=function(){window.print();}<\/script></body></html>';
-var win=window.open('','_blank','width=520,height=700');
-if(win){win.document.write(content);win.document.close();}
-else{var blob=new Blob([txt],{type:'text/plain'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='AeroPlus-Deco-'+AP().name.replace(/\s+/g,'-')+'.txt';a.click();}};
+var r=AP().result;if(!r){alert('Calculate a dive plan first.');return;}
+var html=buildRichExportHTML();
+var win=window.open('','_blank','width=640,height=860');
+if(win){win.document.write(html);win.document.close();}
+else{var txt=exportPlainText();var blob=new Blob([txt],{type:'text/plain'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='AeroPlus-Deco-'+AP().name.replace(/\s+/g,'-')+'.txt';a.click();}};
 
 window.exportData=function(){
 try{
@@ -2471,9 +2693,9 @@ try{renderAll();}catch(err){
   eb.textContent='Init error: '+(err&&err.message?err.message:String(err));
   document.body.appendChild(eb);}
 }
-if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',_doInit);}else{_doInit();}
+if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',_doInit);}
+else{_doInit();}
 })();
 </script>
-
 </body>
 </html>
