@@ -1,0 +1,2458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>AeroPlus Deco</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%233451d1'/%3E%3Cpath d='M20 82 L50 16 L80 82 L62 82 L50 54 L38 82 Z' fill='white'/%3E%3Cpath d='M38 82 L50 54 L62 82 Z' fill='%2372c4e8'/%3E%3Cpath d='M50 16 L67 44 Q74 37 70 26 Z' fill='%2372c4e8'/%3E%3C/svg%3E">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+input,select,textarea{font-size:16px!important}body{background:#edf0f5;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;color:#1a1a1a;min-height:100vh;-webkit-tap-highlight-color:transparent;overflow-x:hidden}
+.hdr{background:#fff;padding:12px 16px 10px;border-bottom:1px solid #d8dde8;box-shadow:0 1px 4px rgba(52,81,209,.07);display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;z-index:10}
+.hdr-l .ttl{font-size:28px;font-weight:700;letter-spacing:-.03em}
+.hdr-l .sub{font-size:13px;color:#6a7a9a}
+.hdr-r{display:flex;gap:2px;padding-top:6px}
+.ibtn{background:none;border:none;cursor:pointer;padding:7px 9px;color:#3451d1;font-size:18px;border-radius:8px}
+.menu-btn{background:none;border:1.5px solid #d0d4db;border-radius:10px;cursor:pointer;padding:6px 12px;color:#3451d1;font-size:20px;line-height:1;font-family:inherit}
+.menu-drop{position:fixed;top:58px;right:12px;background:#fff;border-radius:16px;box-shadow:0 8px 32px rgba(52,81,209,.18);min-width:220px;overflow:hidden;z-index:300}
+.menu-bg{position:fixed;inset:0;z-index:299}
+.menu-item{display:flex;align-items:center;gap:14px;padding:13px 18px;font-size:15px;font-weight:500;color:#1a1a1a;cursor:pointer;border:none;background:none;width:100%;font-family:inherit;text-align:left}
+.menu-item:active{background:#f0f4ff}
+.menu-group{border-bottom:1px solid #e8ebf2;padding-bottom:4px;margin-bottom:4px}
+.menu-group:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.menu-lbl{padding:8px 18px 2px;font-size:10px;font-weight:700;letter-spacing:0.8px;color:#a0aab8;text-transform:uppercase}
+.menu-item:last-child{border-bottom:none}
+.menu-item:active{background:#f0f4ff}
+.menu-icon{font-size:18px;width:26px;text-align:center}
+
+/* ── Plans bar ── */
+.plans-bar{background:#f4f6fb;border-bottom:1px solid #d8dde8;padding:8px 10px;display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:sticky;top:57px;z-index:9}
+.plans-bar::-webkit-scrollbar{display:none}
+.plan-chip{background:#d0d4db;border:none;border-radius:16px;padding:6px 14px;font-size:13px;font-weight:600;color:#5a6472;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:inherit}
+.plan-chip.active{background:#3451d1;color:#fff}
+.plan-add-btn{background:none;border:1.5px dashed #9aa0aa;border-radius:16px;padding:5px 14px;font-size:13px;color:#8a9aaa;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:inherit}
+
+/* ── Plan name row ── */
+.plan-name-row{display:flex;align-items:center;gap:8px;background:#edf1f8;border:1px solid #cdd3e0;border-radius:14px;padding:10px 14px;margin-bottom:12px}
+.plan-name-inp{flex:1;font-size:18px;font-weight:700;background:transparent;border:none;outline:none;color:#1a1a1a;font-family:inherit;min-width:0}
+.plan-del-btn{background:none;border:1px solid #d9534f;border-radius:20px;color:#d9534f;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;flex-shrink:0;font-family:inherit}
+
+/* ── Residual note ── */
+.residual-note{background:#fff8e1;border:1px solid #ffc107;border-radius:8px;padding:8px 12px;font-size:12px;color:#5d4037;margin-bottom:10px;line-height:1.5}
+.residual-fresh{background:#f5f5f5;border:1px solid #ddd;border-radius:8px;padding:8px 12px;font-size:12px;color:#999;margin-bottom:10px;line-height:1.5}
+
+.wrap{max-width:540px;margin:0 auto;padding:12px 10px 80px}
+.card{background:#edf1f8;border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid #cdd3e0}
+.card-ttl{font-size:22px;font-weight:700;margin-bottom:10px}
+.grow{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #d4d8df}
+.grow:last-of-type{border-bottom:none}
+.chk{width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:13px;font-weight:800;color:#fff;user-select:none}
+.chk-g{background:#9aa0aa}.chk-t{background:#3451d1}.chk-e{background:#fff;border:2px solid #b0b8c4;color:transparent}
+.glbl{flex:1;font-size:15px;cursor:pointer}.gico{color:#5a6472;font-size:15px;flex-shrink:0}
+.dbtn{background:none;border:none;cursor:pointer;color:#8a9aaa;font-size:16px;padding:3px 7px;border-radius:6px}
+.srow{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #d4d8df;cursor:pointer}
+.srow:last-of-type{border-bottom:none}
+.srow-info{flex:1;font-size:15px;display:flex;flex-wrap:wrap;gap:10px}
+.add-wrap{display:flex;justify-content:flex-end;margin-top:10px}
+.btn-add{background:#3451d1;color:#fff;border:none;border-radius:22px;padding:11px 24px;font-size:15px;font-weight:600;cursor:pointer}
+.calc-btn{width:100%;background:#3451d1;color:#fff;border:none;border-radius:14px;padding:14px;font-size:17px;font-weight:700;cursor:pointer;margin-bottom:6px}
+.calc-note{font-size:12px;color:#8a9aaa;text-align:center;margin-bottom:12px;font-style:italic}
+.dl-wrap{display:flex;gap:8px;margin-bottom:14px}
+.dl-btn{flex:1;padding:10px 6px;font-size:14px;font-weight:500;background:#f2f4f7;border:1.5px solid #c8cdd6;color:#5a6472;border-radius:22px;cursor:pointer}
+.dl-btn.on{background:#dce6ff;border-color:#3451d1;color:#3451d1;font-weight:700}
+.chart-wrap{background:#fff;border-radius:10px;padding:10px 10px 6px;margin-bottom:12px}
+.chart-leg{display:flex;gap:14px;margin-bottom:8px;flex-wrap:wrap}
+.leg-i{display:flex;align-items:center;gap:5px;font-size:12px;color:#6a7a9a}
+.dtbl{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:12px}
+.dtbl th{background:#c5d3f8;padding:7px 8px;text-align:left;font-size:11px;font-weight:700}
+.dtbl td{padding:6px 8px;border-bottom:1px solid #d4d8df}
+.dtbl tr.alt td{background:#f0f3f6}
+.cns-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.cns-box{background:#dce6ff;border-radius:12px;padding:14px;text-align:center;border:1px solid #3451d130}
+.cns-lbl{font-size:11px;color:#3451d1;text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:4px}
+.cns-val{font-size:36px;font-weight:800;color:#3451d1;font-family:monospace;line-height:1}
+.ndl-box{background:#eef2ff;border:1px solid #3451d140;border-radius:12px;padding:16px;text-align:center;margin-bottom:12px}
+.ndl-num{font-size:48px;font-weight:800;color:#3451d1;font-family:monospace;line-height:1}
+.sum-lines{font-size:14px;line-height:2;margin-bottom:10px}
+.sum-lines b{font-weight:700}
+.rb-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.rb-box{border-radius:10px;padding:12px 14px}
+.rb-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.rb-num{font-family:monospace;font-size:30px;font-weight:800;line-height:1}
+.rb-unit{font-size:11px;font-weight:600;margin-top:2px}
+.rb-sub{font-size:12px;color:#5a6472;margin-top:4px}
+.tts-row{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#e0e4eb;border-radius:10px;border:1px solid #b8bec8}
+.tts-row label{font-size:12px;color:#5a6472;flex-shrink:0;font-weight:500}
+.tts-inp{flex:1;border:1px solid #c0c8d4;border-radius:7px;padding:6px 10px;font-size:16px;font-family:monospace;font-weight:700;color:#3451d1;background:#fff;outline:none;-webkit-appearance:none;width:60px}
+.gbar-row{margin-bottom:8px}
+.gbar-lbl{font-size:13px;font-weight:600;margin-bottom:3px}
+.gbar-track{height:30px;background:#d0d4db;border-radius:6px;overflow:hidden;display:flex}
+.b-u{background:#3451d1;height:100%;display:flex;align-items:center;padding-left:8px}
+.b-e{background:#d9534f;height:100%;display:flex;align-items:center;padding-left:6px}
+.b-n{background:#b0b8c4;height:100%;display:flex;align-items:center;padding-left:6px}
+.b-t{font-size:12px;font-weight:700;color:#fff;white-space:nowrap}
+.baxis{display:flex;justify-content:space-between;font-size:10px;color:#8a9aaa;margin-top:2px}
+.gleg{display:flex;gap:14px;margin-bottom:8px;flex-wrap:wrap}
+.leg-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.stbl{width:100%;border-collapse:collapse;font-size:13px}
+.stbl th{background:#c5d3f8;padding:7px 9px;text-align:left;font-size:11px;font-weight:700}
+.stbl td{padding:7px 9px;border-bottom:1px solid #d4d8df}
+.stbl tr:nth-child(even) td{background:#f0f3f6}
+.wcell{background:#f5c518!important;font-weight:700;color:#1a1a1a}.rcell{background:#d9534f!important;font-weight:700;color:#fff}
+.divider{height:1px;background:#d0d4db;margin:12px 0}
+.hidden{display:none!important}
+.muted{color:#8a9aaa;font-size:13px;padding:8px 0;font-style:italic}
+.mbg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;display:flex;align-items:flex-end;justify-content:center}
+.mpanel{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:540px;padding:20px 16px 44px;max-height:88vh;overflow-y:auto}
+.mhdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.mttl{font-size:20px;font-weight:700}
+.mcls{background:#d0d4db;border:none;border-radius:50%;width:32px;height:32px;font-size:16px;cursor:pointer}
+.rtog{display:flex;background:#d8dce4;border-radius:22px;padding:3px;margin-bottom:14px}
+.rtog-btn{flex:1;padding:8px;font-size:13px;background:transparent;border:none;cursor:pointer;color:#5a6472;border-radius:20px;font-weight:500}
+.rtog-btn.on{background:#fff;font-weight:700;color:#1a1a1a}
+.fld{margin-bottom:14px}
+.fld label{display:block;font-size:11px;color:#6a7a8a;font-weight:600;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em}
+.fld input,.fld select{width:100%;border:1px solid #c0c8d4;border-radius:8px;padding:9px 12px;font-size:16px;background:#fff;outline:none;-webkit-appearance:none;appearance:none}
+.fld input:focus{border-color:#3451d1}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.savebtn{width:100%;background:#3451d1;color:#fff;border:none;border-radius:12px;padding:13px;font-size:16px;font-weight:700;cursor:pointer;margin-top:6px}
+.err{background:#fdeaea;border:1px solid #f0a0a0;border-radius:8px;padding:9px 12px;font-size:13px;color:#a02020;margin-bottom:10px}
+.cfg-page{position:fixed;inset:0;background:#f0f4ff;z-index:200;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1)}
+.cfg-page.open{transform:translateX(0)}
+.cfg-hdr{background:#f0f4ff;padding:16px 16px 12px;border-bottom:1px solid #d0d4db;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.cfg-back{background:none;border:none;font-size:22px;cursor:pointer;color:#1a1a1a;padding:4px 6px 4px 0}
+.cfg-hdr-t{font-size:20px;font-weight:700}
+.cfg-body{flex:1;overflow-y:auto;padding-bottom:40px}
+.cfg-sec{padding:20px 16px 4px}
+.cfg-sec-lbl{font-size:13px;font-weight:700;color:#3451d1;text-transform:uppercase;letter-spacing:.04em}
+.cfg-row{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-bottom:1px solid #e4e7ec;background:#f0f4ff;cursor:pointer}
+.cfg-row:active{background:#eaecf0}
+.cfg-row.notap{cursor:default}.cfg-row.notap:active{background:#f4f6f8}
+.cfg-row-l{flex:1}
+.cfg-row-name{font-size:16px;font-weight:500;margin-bottom:3px}
+.cfg-row-desc{font-size:13px;color:#6a7a8a;line-height:1.45}
+.cfg-row-val{font-size:16px;font-weight:700;flex-shrink:0;padding-top:2px;white-space:nowrap}
+.tog-sw{position:relative;width:46px;height:28px;flex-shrink:0}
+.tog-sw input{opacity:0;width:0;height:0;position:absolute}
+.tog-track{position:absolute;inset:0;background:#c8cdd6;border-radius:14px;transition:.2s}
+.tog-sw input:checked+.tog-track{background:#3451d1}
+.tog-knob{position:absolute;top:3px;left:3px;width:22px;height:22px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.tog-sw input:checked~.tog-knob{left:21px}
+.ovl{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;display:flex;align-items:flex-end;justify-content:center}
+.ovl-panel{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:540px;padding:20px 16px 44px}
+.ovl-ttl{font-size:17px;font-weight:700;margin-bottom:4px}
+.ovl-desc{font-size:13px;color:#6a7a8a;margin-bottom:16px;line-height:1.4}
+.ovl-inp{width:100%;border:1.5px solid #3451d1;border-radius:10px;padding:11px 14px;font-size:22px;font-weight:700;background:#fff;outline:none;margin-bottom:14px;font-family:monospace;text-align:center}
+.ovl-btn{width:100%;background:#3451d1;color:#fff;border:none;border-radius:12px;padding:13px;font-size:16px;font-weight:700;cursor:pointer}
+.save-def-btn{background:#3451d1;color:#fff;border:none;border-radius:20px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;flex-shrink:0;font-family:inherit;transition:background .2s}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236a7f8a' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px!important}
+
+/* ── Gas Blending page ── */
+.blend-sec-lbl{font-size:12px;font-weight:700;color:#3451d1;text-transform:uppercase;letter-spacing:.06em;margin:18px 0 10px}
+.blend-sec-lbl:first-child{margin-top:0}
+.blend-preset-btn{background:#eef2ff;border:1.5px solid #c8d4f4;border-radius:16px;padding:6px 13px;font-size:12px;font-weight:700;color:#3451d1;cursor:pointer;white-space:nowrap;font-family:inherit;transition:background .15s,border-color .15s}
+.blend-preset-btn:active,.blend-preset-btn.active{background:#3451d1;color:#fff;border-color:#3451d1}
+.blend-step{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid #eaecf2}
+.blend-step:last-child{border-bottom:none}
+.blend-step-num{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0}
+.blend-step-gas{flex:1}
+.blend-step-name{font-size:14px;font-weight:600;color:#1a1a1a}
+.blend-step-add{font-size:12px;color:#6a7a8a;margin-top:1px}
+.blend-step-pressure{text-align:right}
+.blend-step-bar{font-size:22px;font-weight:800;font-family:monospace}
+.blend-step-unit{font-size:11px;color:#8a9aaa;margin-top:-1px}
+.blend-mix-grid{display:flex;justify-content:space-around;text-align:center;padding:16px 0 12px}
+.blend-mix-item-lbl{font-size:11px;color:#6a7a8a;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+.blend-mix-item-val{font-size:30px;font-weight:800;color:#3451d1;font-family:monospace;line-height:1}
+.blend-mix-item-unit{font-size:11px;color:#8a9aaa}
+.blend-prop-row{display:flex;justify-content:space-between;align-items:center;padding:11px 16px;border-bottom:1px solid #e8ebf0}
+.blend-prop-row:nth-child(even){background:#f8f9fc}
+.blend-prop-row:last-child{border-bottom:none}
+.blend-prop-lbl{font-size:13px;color:#5a6472}
+.blend-prop-val{font-size:16px;font-weight:700;font-family:monospace}
+.blend-warn{background:#fff8e1;border:1px solid #ffc107;border-radius:10px;padding:12px 14px;font-size:13px;color:#5d4037;margin-bottom:14px;line-height:1.6}
+.blend-err{background:#fdeaea;border:1px solid #f0a0a0;border-radius:10px;padding:12px 14px;font-size:13px;color:#a02020;margin-bottom:14px;line-height:1.6}
+.blend-ok{background:#f0faf0;border:1px solid #90d090;border-radius:10px;padding:10px 14px;font-size:12px;color:#2a6a2a;margin-top:10px;line-height:1.5}
+
+/* ── Calculator panels (Best Mix + MOD/END) ── */
+.calc-input-row{display:flex;align-items:center;justify-content:space-between;padding:16px;border-bottom:1px solid #e4e7ec;background:#f0f4ff}
+.calc-input-lbl{font-size:16px;font-weight:500;color:#1a1a1a}
+.calc-inp-wrap{display:flex;align-items:center;background:#fff;border:1.5px solid #d0d4db;border-radius:22px;overflow:hidden;min-width:136px}
+.calc-inp-wrap input{border:none;outline:none;font-size:16px;font-weight:700;font-family:monospace;color:#1a1a1a;padding:8px 4px;width:64px;text-align:center;background:transparent;-webkit-appearance:none;appearance:none}
+.calc-inp-wrap input::-webkit-inner-spin-button,.calc-inp-wrap input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.calc-inp-btn{background:none;border:none;cursor:pointer;padding:8px 13px;font-size:20px;color:#3451d1;font-weight:700;line-height:1;flex-shrink:0;font-family:inherit;user-select:none;-webkit-user-select:none}
+.calc-result-section{background:#f8f9ff;border-top:2px solid #d0d8f8}
+.calc-result-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #e4e7ec;background:#f8f9ff}
+.calc-result-row:last-child{border-bottom:none}
+.calc-result-lbl{font-size:15px;color:#1a1a1a;font-weight:500}
+.calc-result-lbl-sub{font-size:12px;color:#8a9aaa;margin-top:2px}
+.calc-result-val{font-size:20px;font-weight:800;font-family:monospace;color:#3451d1;background:#dce6ff;border-radius:10px;padding:8px 14px;min-width:80px;text-align:center}
+.calc-result-val.big{font-size:26px;padding:10px 18px}
+.calc-result-val.warn{color:#c97b0a;background:#fff3e0}
+.calc-result-val.danger{color:#d9534f;background:#fdeaea}
+.calc-result-val.neutral{color:#5a6472;background:#e8eaed}
+.calc-mix-display{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#eef2ff;border-bottom:1px solid #d8deff}
+.calc-mix-val{font-size:22px;font-weight:800;font-family:monospace;color:#3451d1}
+.calc-section-lbl{font-size:11px;font-weight:700;color:#3451d1;text-transform:uppercase;letter-spacing:.06em;padding:12px 16px 6px;background:#f0f4ff;border-bottom:1px solid #e4e7ec}
+.calc-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #e4e7ec;background:#f0f4ff}
+.calc-toggle-lbl{font-size:16px;font-weight:500}
+.calc-info-box{margin:16px 16px 0;background:#eef2ff;border:1px solid #3451d130;border-radius:12px;padding:12px 14px;font-size:13px;color:#3451d1;line-height:1.6}
+
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-l" style="display:flex;align-items:center;gap:10px">
+    <svg width="36" height="36" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M18 82 L50 14 L82 82 L62 82 L50 52 L38 82 Z" fill="#3451d1"/>
+      <path d="M38 82 L50 52 L62 82 Z" fill="#72c4e8"/>
+      <path d="M50 14 L66 42 Q72 36 68 28 Z" fill="#72c4e8"/>
+    </svg>
+    <div>
+      <div class="ttl" style="font-size:22px;letter-spacing:-.02em">AeroPlus <span style="color:#3451d1;font-weight:800">Deco</span></div>
+      <div class="sub">v2026-03-12e</div>
+    </div>
+  </div>
+  <div class="hdr-r">
+    <button class="menu-btn" onclick="window.toggleMenu()">☰</button>
+  </div>
+</div>
+
+<div class="menu-bg hidden" id="menu-bg" onclick="window.closeMenu()"></div>
+<div class="menu-drop hidden" id="menu-drop">
+  <div class="menu-group">
+    <div class="menu-lbl">Dive plan</div>
+    <button class="menu-item" onclick="window.closeMenu();window.doExport()"><span class="menu-icon">⬆</span>Export dive plan</button>
+    <button class="menu-item" onclick="window.closeMenu();window.exportData()"><span class="menu-icon">💾</span>Save data</button>
+    <button class="menu-item" onclick="window.closeMenu();window.importData()"><span class="menu-icon">📂</span>Load data</button>
+    <button class="menu-item" onclick="window.closeMenu();window.openCfg()"><span class="menu-icon">⚙</span>Settings</button>
+  </div>
+  <div class="menu-group">
+    <div class="menu-lbl">Tools</div>
+    <button class="menu-item" onclick="window.closeMenu();window.openBestMix()"><span class="menu-icon">🎯</span>Best mix</button>
+    <button class="menu-item" onclick="window.closeMenu();window.openMODeAD()"><span class="menu-icon">📐</span>MOD / END</button>
+    <button class="menu-item" onclick="window.closeMenu();window.openBlend()"><span class="menu-icon"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="7" y="5" width="8" height="13" rx="4" fill="white" stroke="#888" stroke-width="1.3"/><rect x="9" y="2" width="4" height="4" rx="1.5" fill="white" stroke="#888" stroke-width="1.3"/><line x1="11" y1="2" x2="11" y2="1" stroke="#888" stroke-width="1.5" stroke-linecap="round"/></svg></span>Gas blending</button>
+  </div>
+  <div class="menu-group">
+    <div class="menu-lbl">App</div>
+    <button class="menu-item" onclick="window.closeMenu();window.openSupport()"><span class="menu-icon">✉</span>Support</button>
+    <button class="menu-item" onclick="window.closeMenu();window.openAbout()"><span class="menu-icon">ℹ</span>About</button>
+  </div>
+</div>
+
+<div class="plans-bar" id="plans-bar"></div>
+
+<div class="wrap">
+
+  <div class="plan-name-row">
+    <input class="plan-name-inp" id="plan-name-inp" type="text" maxlength="40"
+      oninput="window.onPlanNameChange(this.value)" placeholder="Plan name">
+    <button class="plan-del-btn hidden" id="plan-del-btn" onclick="window.deletePlan()">Delete</button>
+  </div>
+
+  <div class="card hidden" id="interval-card">
+    <div class="card-ttl">Previous dive</div>
+    <div style="font-size:14px;color:#5a6472;margin-bottom:10px" id="interval-prev-label"></div>
+    <div class="tts-row">
+      <label>Surface interval:</label>
+      <input class="tts-inp" type="number" id="interval-inp" min="0" max="1440"
+        placeholder="60" inputmode="decimal" oninput="onIntervalChange(this.value)">
+      <span style="font-size:11px;color:#8a9aaa">min</span>
+    </div>
+    <div id="interval-note" style="font-size:12px;margin-top:8px;font-style:italic;color:#8a9aaa;line-height:1.5"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-ttl">Gas & cylinders</div>
+    <div id="cyl-list"><div class="muted">No cylinders added yet.</div></div>
+    <p id="cyl-hint" style="font-style:italic;font-size:13px;color:#5a6472;margin-top:8px">Deco gases must be checked (✓) to be used by the algorithm. The richest checked gas within PPO₂ limits is selected at each depth.</p>
+    <div id="ccr-o2-cyl" class="hidden" style="background:#f0f4ff;border-radius:10px;padding:12px 14px;margin-top:10px">
+      <div style="font-size:12px;font-weight:700;color:#3451d1;letter-spacing:0.4px;margin-bottom:10px">O₂ CYLINDER</div>
+      <div style="display:flex;gap:10px">
+        <div class="fld" style="flex:1"><label>Size (l)</label><input type="text" id="ccr-o2-sz" inputmode="decimal" value="3" oninput="window.ccrO2CylChange()"></div>
+        <div class="fld" style="flex:1"><label>Fill pressure (bar)</label><input type="text" id="ccr-o2-fl" inputmode="decimal" value="200" oninput="window.ccrO2CylChange()"></div>
+      </div>
+    </div>
+    <div class="add-wrap"><button class="btn-add" onclick="window.openModal('cyl')">+ Add</button></div>
+  </div>
+
+  <div class="card hidden" id="ccr-main-card" style="padding-bottom:14px">
+    <div class="card-ttl" style="display:flex;align-items:center;gap:8px">
+      <span style="background:#3451d1;color:#fff;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;letter-spacing:.5px">CCR</span>
+      <span>Closed Circuit Setup</span>
+    </div>
+    <div style="font-size:12px;color:#8a9aaa;margin:-6px 0 12px">Diluent and setpoints for this plan</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div class="fld"><label>Diluent O₂ %</label><input type="text" id="ccr-dil-o2" inputmode="decimal" value="21" onchange="window.ccrDilChange()"></div>
+      <div class="fld"><label>Diluent He %</label><input type="text" id="ccr-dil-he" inputmode="decimal" value="0" onchange="window.ccrDilChange()"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="fld"><label>Bottom SP (ata)</label><input type="text" id="ccr-sp-bot" inputmode="decimal" value="1.3" onchange="window.ccrSPChange()"></div>
+      <div class="fld"><label>Deco SP (ata)</label><input type="text" id="ccr-sp-dec" inputmode="decimal" value="1.3" onchange="window.ccrSPChange()"></div>
+    </div>
+    <div style="font-size:11px;color:#8a9aaa;margin-top:8px">SP per segment can be set in each segment row. Cylinders below are bailout OC gas.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-ttl">Dive profile</div>
+    <div id="seg-list"><div class="muted">No segments added yet.</div></div>
+    <div class="add-wrap"><button class="btn-add" onclick="window.openModal('seg')">+ Add</button></div>
+  </div>
+
+<button class="calc-btn" onclick="window.calculate()">Calculate dive plan</button>
+
+  <div id="calc-note" class="calc-note">Enter cylinders and profile, then press Calculate</div>
+
+  <div class="card hidden" id="deco-card">
+    <div class="card-ttl">Deco plan <span id="ccr-badge" style="display:none;font-size:11px;font-weight:700;background:#3451d1;color:#fff;border-radius:6px;padding:2px 8px;letter-spacing:0.5px;vertical-align:middle">CCR</span></div>
+    <div class="dl-wrap">
+      <button class="dl-btn" id="btn-d" onclick="window.toggleDL('deeper')">Deeper +<span id="lbl-d">3</span>m</button>
+      <button class="dl-btn" id="btn-l" onclick="window.toggleDL('longer')">Longer +<span id="lbl-l">3</span>min</button>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-leg">
+        <div class="leg-i"><div style="width:20px;height:3px;background:#3451d1;border-radius:2px"></div>Depth</div>
+        <div class="leg-i"><div style="width:20px;height:3px;background:#d9534f;border-radius:2px"></div>GF ceiling</div>
+        <div class="leg-i"><div style="width:20px;border-top:2px dashed #b0b8c4"></div>Avg. depth</div>
+      </div>
+      <svg id="chart" width="100%" viewBox="0 0 400 190" style="display:block"></svg>
+    </div>
+    <div id="deco-body"></div>
+  </div>
+
+  <div class="card hidden" id="rb-card">
+    <div class="card-ttl">Rock bottom & TTS</div>
+    <div class="rb-grid" id="rb-grid"></div>
+    <div id="rb-bars"></div>
+    <div class="divider"></div>
+    <div style="font-size:15px;font-weight:600;margin-bottom:6px">Ascent trigger</div>
+    <p style="font-size:12px;color:#6a7a8a;margin-bottom:10px;line-height:1.5">Start your ascent when <em>either</em> your dive computer shows TTS ≤ your target, <em>or</em> your gas reaches the rock bottom reserve — whichever comes first. Reduce the TTS below the plan maximum for extra conservancy.</p>
+    <div class="tts-row">
+      <label>Target TTS:</label>
+      <input class="tts-inp" type="number" id="tts-inp" min="0" max="999" placeholder="—" inputmode="decimal" oninput="document.getElementById('tts-inp').dataset.userEdited='1';window.refreshTTS()">
+      <span style="font-size:11px;color:#8a9aaa">min</span>
+      <button id="tts-clr" onclick="window.clearTTSInp()" style="display:none;background:none;border:none;cursor:pointer;font-size:18px;color:#8a9aaa;padding:0 2px">×</button>
+    </div>
+    <div id="tts-confirm" style="font-size:12px;margin-top:6px;font-style:italic;color:#8a9aaa"></div>
+  </div>
+
+  <div class="card hidden" id="gp-card">
+    <div class="card-ttl">Gas plan <span id="gp-tag" style="font-size:15px;font-weight:400;color:#5a6472"></span></div>
+    <div class="gleg">
+      <div class="leg-i"><div class="leg-dot" style="background:#3451d1"></div>Unused</div>
+      <div class="leg-i"><div class="leg-dot" style="background:#d9534f"></div>Emergency</div>
+      <div class="leg-i"><div class="leg-dot" style="background:#b0b8c4"></div>Normal</div>
+    </div>
+    <div id="gas-bars"></div>
+    <div class="divider"></div>
+    <div style="font-size:16px;font-weight:700;margin-bottom:8px">Cylinders</div>
+    <table class="stbl"><thead><tr><th>No.</th><th>Mix</th><th>Size (ℓ)</th><th>Usage (bar)</th></tr></thead><tbody id="cyl-tbody"></tbody></table>
+    <div style="font-size:16px;font-weight:700;margin:14px 0 8px">Limits</div>
+    <table class="stbl"><thead><tr><th>Mix</th><th>Depth (m)</th><th>Density (g/ℓ)</th><th>PPO₂</th></tr></thead><tbody id="lim-tbody"></tbody></table>
+    <p style="font-style:italic;font-size:12px;color:#6a7a8a;margin-top:10px;line-height:1.5"><strong>Notes on the gas plan:</strong> The gas plan calculates cylinder pressures based on real-world gas behavior.</p>
+  </div>
+</div>
+
+<input type="file" id="import-file-inp" accept=".json" style="display:none" onchange="window.onImportFile(event)">
+<div class="mbg hidden" id="mbg" onclick="window.bgClick(event)">
+  <div class="mpanel hidden" id="m-cyl">
+    <div class="mhdr"><span class="mttl" id="m-cyl-t">Add cylinder</span><button class="mcls" onclick="window.closeModals()">✕</button></div>
+    <div class="rtog">
+      <button class="rtog-btn on" id="rb-b" onclick="window.setRole('bottom')">Bottom gas</button>
+      <button class="rtog-btn" id="rb-o" onclick="window.setRole('bailout')">Bailout gas</button>
+      <button class="rtog-btn" id="rb-d" onclick="window.setRole('deco')">Deco gas</button>
+    </div>
+    <div class="frow">
+      <div class="fld"><label>O₂ %</label><input type="text" id="c-o2" inputmode="decimal" placeholder="21" value="21"></div>
+      <div class="fld"><label>He %</label><input type="text" id="c-he" inputmode="decimal" placeholder="0" value="0"></div>
+    </div>
+    <div class="frow">
+      <div class="fld"><label>Size (ℓ)</label><input type="text" id="c-sz" inputmode="decimal" placeholder="e.g. 5.5" value="12.0"></div>
+      <div class="fld"><label>Fill (bar)</label><input type="text" id="c-fl" inputmode="numeric" placeholder="e.g. 200" value="200"></div>
+    </div>
+    <div id="c-err" class="err hidden"></div>
+    <button class="savebtn" onclick="window.saveCyl()">Save cylinder</button>
+  </div>
+  <div class="mpanel hidden" id="m-seg">
+    <div class="mhdr"><span class="mttl" id="m-seg-t">Add segment</span><button class="mcls" onclick="window.closeModals()">✕</button></div>
+    <div class="frow">
+      <div class="fld"><label>Depth (m)</label><input type="text" id="s-dep" inputmode="decimal" placeholder="30" value="30"></div>
+      <div class="fld"><label>Bottom time (min)</label><input type="text" id="s-tim" inputmode="decimal" placeholder="20" value="20"></div>
+    </div>
+    <p style="font-size:11px;color:#8a9aaa;margin-bottom:12px">Bottom time includes descent time to this section.</p>
+    <div class="fld"><label>Gas</label><select id="s-gas"></select></div>
+    <div class="fld hidden" id="s-sp-row"><label>Setpoint (ata)</label><input type="text" id="s-sp" inputmode="decimal" value="1.3" placeholder="1.3"></div>
+    <div id="s-err" class="err hidden"></div>
+    <button class="savebtn" onclick="window.saveSeg()">Save segment</button>
+  </div>
+</div>
+
+<div class="cfg-page" id="cfg-page">
+  <div class="cfg-hdr">
+    <button class="cfg-back" onclick="window.closeCfg()">←</button>
+    <span class="cfg-hdr-t" id="cfg-hdr-t">Dive configuration</span>
+  </div>
+  <div class="cfg-body">
+    <div class="cfg-sec"><div class="cfg-sec-lbl">Algorithm</div></div>
+    <div class="cfg-row notap">
+      <div class="cfg-row-l"><div class="cfg-row-name">Model</div><div class="cfg-row-desc">The type decompression model to use.</div></div>
+      <div class="cfg-row-val">ZHL-16C-GF</div>
+    </div>
+    <div class="cfg-row" onclick="window.openGFEdit()">
+      <div class="cfg-row-l"><div class="cfg-row-name">Gradient factor</div><div class="cfg-row-desc">GF Low/High change the conservatism used by the decompression model.</div></div>
+      <div class="cfg-row-val" id="cfg-gf">30/85</div>
+    </div>
+    <div class="cfg-row notap" style="align-items:center;background:#f4f7ff">
+      <div class="cfg-row-l">
+        <div class="cfg-row-name" style="color:#3451d1">Auto-set GF Low</div>
+        <div class="cfg-row-desc">Automatically sets GF Low to match the first gas switch depth (Andy Davis method). GF Hi &minus; GF Lo is kept &ge; 10. Recalculates whenever gases or the plan change. <span id="cfg-autogf-lbl" style="color:#3451d1;font-weight:600"></span></div>
+      </div>
+      <label class="tog-sw"><input type="checkbox" id="tog-autogf" onchange="window.AP().O.autoGFLo=this.checked;window.applyAutoGFLo();"><div class="tog-track"></div><div class="tog-knob"></div></label>
+    </div>
+    <div class="cfg-sec"><div class="cfg-sec-lbl">Environment</div></div>
+    <div class="cfg-row" onclick="window.openSelEdit('salinity','Salinity','The type of water.',['fresh','en13319','salt','mediterranean','red','atlantic','baltic'],['Fresh (1000)','EN13319 (1020)','Salt (1025)','Mediterranean (1038)','Red Sea (1040)','Atlantic (1035)','Baltic Sea (1010)'])">
+      <div class="cfg-row-l"><div class="cfg-row-name">Salinity</div><div class="cfg-row-desc">Saltier water is heavier and increases pressure at depth.</div></div>
+      <div class="cfg-row-val" id="cfg-sal">Salt</div>
+    </div>
+    <div class="cfg-row" onclick="window.openNumEdit('altitude','Altitude','Altitude of the water surface (0 = sea level).',0,4000,100,'m')">
+      <div class="cfg-row-l"><div class="cfg-row-name">Altitude</div><div class="cfg-row-desc">The altitude of the water surface at which the dive is taking place.</div></div>
+      <div class="cfg-row-val" id="cfg-alt">0 m</div>
+    </div>
+    <div class="cfg-sec"><div class="cfg-sec-lbl">Diver & Gas</div></div>
+    <div class="cfg-row" onclick="window.openNumEdit('ascentRate','Ascent speed','Speed at which the diver ascents to stops or the surface.',1,30,1,'m/min')">
+      <div class="cfg-row-l"><div class="cfg-row-name">Ascent speed</div><div class="cfg-row-desc">The speed at which the diver is planning to ascent to stops or the surface.</div></div>
+      <div class="cfg-row-val" id="cfg-ar">10 m/min</div>
+    </div>
+    <div class="cfg-row" onclick="window.openNumEdit('descentRate','Descent speed','Speed at which the diver descends to planned bottom sections.',1,30,1,'m/min')">
+      <div class="cfg-row-l"><div class="cfg-row-name">Descent speed</div><div class="cfg-row-desc">The speed at which the diver is planning to descent to planned bottom sections.</div></div>
+      <div class="cfg-row-val" id="cfg-dr">2 m/min</div>
+    </div>
+    <div class="cfg-row" onclick="window.openNumEdit('sacNorm','Gas usage','Average gas consumption at 1 atm during normal diving (SAC/RMV rate).',5,60,5,'l/min')">
+      <div class="cfg-row-l"><div class="cfg-row-name">Gas usage</div><div class="cfg-row-desc">Average gas consumption at 1 atm during normal diving. Also known as SAC or RMV rate.</div></div>
+      <div class="cfg-row-val" id="cfg-sn">20 l/min</div>
+    </div>
+    <div class="cfg-row" onclick="window.openNumEdit('sacEmerg','Gas usage emergency','Average gas consumption at 1 atm during an emergency (panic SAC/RMV rate).',10,80,5,'l/min')">
+      <div class="cfg-row-l"><div class="cfg-row-name">Gas usage emergency</div><div class="cfg-row-desc">Average gas consumption at 1 atm during an emergency scenario. Also known as panic SAC or RMV rate.</div></div>
+      <div class="cfg-row-val" id="cfg-se">30 l/min</div>
+    </div>
+    <div class="cfg-row" onclick="window.openNumEdit('sacDeco','Gas usage deco','Gas consumption at 1 atm during decompression stops and ascents between stops. Typically lower than normal SAC as the diver is stationary and relaxed.',3,40,1,'l/min')">
+      <div class="cfg-row-l"><div class="cfg-row-name">Gas usage deco</div><div class="cfg-row-desc">Gas consumption during deco stops and ascents. Usually lower than normal SAC — the diver is stationary and relaxed.</div></div>
+      <div class="cfg-row-val" id="cfg-sd">10 l/min</div>
+    </div>
+    <div class="cfg-sec"><div class="cfg-sec-lbl">Decompression</div></div>
+    <div class="cfg-row" onclick="window.openNumEdit('stopInterval','Deco stop interval','The interval at which to make deco stops.',1,6,1,'m')">
+      <div class="cfg-row-l"><div class="cfg-row-name">Deco stop interval</div><div class="cfg-row-desc">The interval at which to make deco stops.</div></div>
+      <div class="cfg-row-val" id="cfg-si">3 m</div>
+    </div>
+    <div class="cfg-row" onclick="window.openNumEdit('lastStop','Last deco stop','Depth at which the last deco stop will be made.',1,9,1,'m')">
+      <div class="cfg-row-l"><div class="cfg-row-name">Last deco stop</div><div class="cfg-row-desc">Depth at which the last deco stop will be made.</div></div>
+      <div class="cfg-row-val" id="cfg-ls">6 m</div>
+    </div>
+    <div class="cfg-row" onclick="window.openNumEdit('maxPPO2','Max PPO₂','Maximum allowed PPO₂ during the dive (except decompression).',1.0,1.6,0.05,'ata')">
+      <div class="cfg-row-l"><div class="cfg-row-name">Max PPO₂</div><div class="cfg-row-desc">Maximum allowed PPO₂ during the dive (except for decompression).</div></div>
+      <div class="cfg-row-val" id="cfg-pp">1.4</div>
+    </div>
+    <div class="cfg-row" onclick="window.openNumEdit('maxDecoPPO2','Max deco PPO₂','Maximum allowed PPO₂ during decompression stops and ascents.',1.2,1.6,0.05,'ata')">
+      <div class="cfg-row-l"><div class="cfg-row-name">Max deco PPO₂</div><div class="cfg-row-desc">Maximum allowed PPO₂ during decompression stops and ascents to decompression stops.</div></div>
+      <div class="cfg-row-val" id="cfg-dp">1.6</div>
+    </div>
+    <div class="cfg-row" onclick="window.openNumEdit('gasSwitchTime','Gas switch time','Time in minutes spent switching to a decompression gas. The diver breathes the new gas during this time.',0,10,1,'min')">
+      <div class="cfg-row-l"><div class="cfg-row-name">Gas switch time</div><div class="cfg-row-desc">Time in minutes to perform a gas switch at a switch depth. Diver breathes new gas during this pause.</div></div>
+      <div class="cfg-row-val" id="cfg-gst">1 min</div>
+    </div>
+    <div class="cfg-row" onclick="window.openNumEdit('minStopTime','Min stop time','Minimum hold time at each deco stop. Set to 0 for exact ceiling-only tracking (no forced minimum). Set to 1 for traditional 1-minute minimum per stop.',0,5,0.5,'min')"><div class="cfg-row-l"><div class="cfg-row-name">Min stop time</div><div class="cfg-row-desc">Minimum hold time at each deco stop. 0 = hold only as long as the ceiling requires. 1 = traditional 1-min minimum per stop depth.</div></div><div class="cfg-row-val" id="cfg-ms">1 min</div></div>
+    <div class="cfg-row notap" style="align-items:center">
+      <div class="cfg-row-l"><div class="cfg-row-name">Switch deco gas at MOD</div><div class="cfg-row-desc">When enabled, switch to the richest available deco gas immediately upon reaching its MOD during ascent (optimal offgassing). When disabled, ascend on bottom gas and only switch when a required stop forces it.</div></div>
+      <label class="tog-sw"><input type="checkbox" id="tog-sam" onchange="window.AP().O.switchAtMOD=this.checked;if(window.AP().result)try{window.runAll();}catch(e){console.error(e);}"><div class="tog-track"></div><div class="tog-knob"></div></label>
+    </div>
+    <div class="cfg-sec"><div class="cfg-sec-lbl">CCR — O₂ & Hardware</div></div>
+    <div class="cfg-row notap" style="align-items:center">
+      <div class="cfg-row-l"><div class="cfg-row-name">CCR mode</div><div class="cfg-row-desc">Enable Closed Circuit Rebreather planning. The algorithm uses setpoint-based O₂ fraction instead of cylinder gas fractions. No deco gas switching occurs on CCR.</div></div>
+      <label class="tog-sw"><input type="checkbox" id="tog-ccr" onchange="AP().O.isCCR=this.checked;document.getElementById('ccr-settings').style.display=this.checked?'block':'none';refreshCCRCard();if(AP().result)try{window.runAll();}catch(e){console.error(e);}"><div class="tog-track"></div><div class="tog-knob"></div></label>
+    </div>
+    <div id="ccr-settings" style="display:none">
+    <div class="cfg-row" onclick="window.openNumEdit('ccrO2Rate','O₂ metabolic rate','Metabolic O₂ consumption (STPD). Typical active diving: 1.0–1.5 l/min. Resting: 0.3 l/min.',0.1,3.0,0.1,'l/min')"><div class="cfg-row-l"><div class="cfg-row-name">O₂ metabolic rate</div><div class="cfg-row-desc">Metabolic O₂ consumption (STPD). Typical active: 1.0–1.5 l/min.</div></div><div class="cfg-row-val" id="cfg-ccro2r">1.5 l/min</div></div>
+    <div class="cfg-row" onclick="window.openNumEdit('ccrScrubberCap','Scrubber capacity','Total scrubber endurance in minutes. Depends on scrubber size and water temperature. Resets when repacked.',30,480,10,'min')"><div class="cfg-row-l"><div class="cfg-row-name">Scrubber capacity</div><div class="cfg-row-desc">Total scrubber endurance (minutes). Depends on size and temperature.</div></div><div class="cfg-row-val" id="cfg-scrubcap">180 min</div></div>
+    <div class="cfg-row" onclick="window.openNumEdit('bailoutSwitchTime','Bailout switch time','Time (minutes) added when switching from CCR to an open-circuit bailout cylinder.',0,5,0.5,'min')"><div class="cfg-row-l"><div class="cfg-row-name">Bailout switch time</div><div class="cfg-row-desc">Mandatory pause when switching to bailout gas (OC). Added to deco schedule.</div></div><div class="cfg-row-val" id="cfg-bailswt">2 min</div></div>
+    <div style="padding:8px 16px 4px;font-size:11px;color:#8a9aaa">Diluent, setpoints and O₂ cylinder are on the main planning page when CCR mode is active.</div>
+    </div>
+    <div class="cfg-sec"><div class="cfg-sec-lbl">Multi-level</div></div>
+    <div class="cfg-row notap" style="align-items:center">
+      <div class="cfg-row-l"><div class="cfg-row-name">Use deco gas between sections</div><div class="cfg-row-desc">When ascending between multi-level sections, allow automatic use of deco gas.</div></div>
+      <label class="tog-sw"><input type="checkbox" id="tog-dbs" onchange="window.AP().O.decoGasBetween=this.checked"><div class="tog-track"></div><div class="tog-knob"></div></label>
+    </div>
+    <div class="cfg-sec"><div class="cfg-sec-lbl">Contingency plan</div></div>
+    <div class="cfg-row" onclick="window.openNumEdit('contingencyDeeper','Deeper','How much deeper the contingency plan should be.',1,20,1,'m')">
+      <div class="cfg-row-l"><div class="cfg-row-name">Deeper</div><div class="cfg-row-desc">How much deeper the contingency plan should be, added to the deepest section.</div></div>
+      <div class="cfg-row-val" id="cfg-cd">3 m</div>
+    </div>
+    <div class="cfg-row" onclick="window.openNumEdit('contingencyLonger','Longer','How much longer the contingency plan should be.',1,30,1,'min')">
+      <div class="cfg-row-l"><div class="cfg-row-name">Longer</div><div class="cfg-row-desc">How much longer the contingency plan should be, added to the deepest section.</div></div>
+      <div class="cfg-row-val" id="cfg-cl">3 min</div>
+    </div>
+    <div class="cfg-sec"><div class="cfg-sec-lbl">Defaults</div></div>
+    <div class="cfg-row notap" style="align-items:center">
+      <div class="cfg-row-l">
+        <div class="cfg-row-name">Save as default settings</div>
+        <div class="cfg-row-desc">Save the current plan's settings as the starting configuration for all new plans.</div>
+      </div>
+      <button id="save-defaults-btn" class="save-def-btn" onclick="window.saveAsDefaults()">Save</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- BEST MIX PANEL -->
+<div class="cfg-page" id="bestmix-page">
+  <div class="cfg-hdr">
+    <button class="cfg-back" onclick="window.closeBestMix()">&larr;</button>
+    <span class="cfg-hdr-t">Best mix for depth</span>
+  </div>
+  <div class="cfg-body" style="background:#f0f4ff">
+
+    <div class="calc-input-row">
+      <div><div class="calc-input-lbl">Depth</div><div style="font-size:12px;color:#8a9aaa;margin-top:2px">metres</div></div>
+      <div class="calc-inp-wrap">
+        <button class="calc-inp-btn" onclick="window.bmStep('depth',-1)">&minus;</button>
+        <input type="number" id="bm-depth" value="40" min="1" max="330" step="1" oninput="window.bmCalc()">
+        <button class="calc-inp-btn" onclick="window.bmStep('depth',1)">+</button>
+      </div>
+    </div>
+
+    <div class="calc-input-row">
+      <div><div class="calc-input-lbl">PPO&#8322;</div><div style="font-size:12px;color:#8a9aaa;margin-top:2px">ata</div></div>
+      <div class="calc-inp-wrap">
+        <button class="calc-inp-btn" onclick="window.bmStep('ppo2',-0.05)">&minus;</button>
+        <input type="number" id="bm-ppo2" value="1.40" min="0.50" max="1.60" step="0.05" oninput="window.bmCalc()">
+        <button class="calc-inp-btn" onclick="window.bmStep('ppo2',0.05)">+</button>
+      </div>
+    </div>
+
+    <div class="calc-toggle-row">
+      <div><div class="calc-toggle-lbl">Trimix</div><div style="font-size:12px;color:#8a9aaa;margin-top:2px">Include helium in the mix</div></div>
+      <label class="tog-sw"><input type="checkbox" id="bm-trimix" onchange="window.bmToggleTrimix()"><div class="tog-track"></div><div class="tog-knob"></div></label>
+    </div>
+
+    <div id="bm-ead-row" class="calc-input-row" style="display:none">
+      <div><div class="calc-input-lbl">Target EAD</div><div style="font-size:12px;color:#8a9aaa;margin-top:2px">narcotic depth (m)</div></div>
+      <div class="calc-inp-wrap">
+        <button class="calc-inp-btn" onclick="window.bmStep('ead',-1)">&minus;</button>
+        <input type="number" id="bm-ead" value="30" min="1" max="50" step="1" oninput="window.bmCalc()">
+        <button class="calc-inp-btn" onclick="window.bmStep('ead',1)">+</button>
+      </div>
+    </div>
+
+    <div class="calc-result-section">
+      <div class="calc-section-lbl">Result</div>
+      <div class="calc-result-row">
+        <div><div class="calc-result-lbl">Best mix</div><div class="calc-result-lbl-sub" id="bm-mix-sub">O&#8322;/He ratio</div></div>
+        <div class="calc-result-val big" id="bm-result">&mdash;</div>
+      </div>
+      <div class="calc-result-row">
+        <div><div class="calc-result-lbl">MOD</div><div class="calc-result-lbl-sub" id="bm-mod-sub">at 1.40 ata</div></div>
+        <div class="calc-result-val neutral" id="bm-mod">&mdash;</div>
+      </div>
+      <div class="calc-result-row" id="bm-he-row" style="display:none">
+        <div><div class="calc-result-lbl">N&#8322; fraction</div><div class="calc-result-lbl-sub">balance gas</div></div>
+        <div class="calc-result-val neutral" id="bm-n2">&mdash;</div>
+      </div>
+    </div>
+
+    <div class="calc-info-box">
+      <strong>How it works:</strong> Best O&#8322;% = PPO&#8322; &divide; absolute pressure at depth (10&thinsp;m/bar). For trimix, helium replaces N&#8322; to match your target narcotic depth (EAD). Percentages are rounded to the nearest whole number.
+    </div>
+  </div>
+</div>
+
+
+<!-- MOD / END PANEL -->
+<div class="cfg-page" id="modeAD-page">
+  <div class="cfg-hdr">
+    <button class="cfg-back" onclick="window.closeMODeAD()">&larr;</button>
+    <span class="cfg-hdr-t">MOD / END</span>
+  </div>
+  <div class="cfg-body" style="background:#f0f4ff">
+
+    <div class="calc-input-row">
+      <div><div class="calc-input-lbl">O&#8322;</div><div style="font-size:12px;color:#8a9aaa;margin-top:2px">percent (%)</div></div>
+      <div class="calc-inp-wrap">
+        <button class="calc-inp-btn" onclick="window.meStep('o2',-1)">&minus;</button>
+        <input type="number" id="me-o2" value="21" min="5" max="100" step="1" oninput="window.meCalc()">
+        <button class="calc-inp-btn" onclick="window.meStep('o2',1)">+</button>
+      </div>
+    </div>
+
+    <div class="calc-input-row">
+      <div><div class="calc-input-lbl">He</div><div style="font-size:12px;color:#8a9aaa;margin-top:2px">percent (%)</div></div>
+      <div class="calc-inp-wrap">
+        <button class="calc-inp-btn" onclick="window.meStep('he',-1)">&minus;</button>
+        <input type="number" id="me-he" value="0" min="0" max="95" step="1" oninput="window.meCalc()">
+        <button class="calc-inp-btn" onclick="window.meStep('he',1)">+</button>
+      </div>
+    </div>
+
+    <div class="calc-mix-display">
+      <span style="font-size:14px;font-weight:500;color:#5a6472">Mix</span>
+      <span class="calc-mix-val" id="me-mix-display">21/0</span>
+      <span style="font-size:13px;color:#8a9aaa">O&#8322;/He</span>
+    </div>
+
+    <div class="calc-input-row">
+      <div><div class="calc-input-lbl">Depth</div><div style="font-size:12px;color:#8a9aaa;margin-top:2px">metres</div></div>
+      <div class="calc-inp-wrap">
+        <button class="calc-inp-btn" onclick="window.meStep('depth',-1)">&minus;</button>
+        <input type="number" id="me-depth" value="30" min="1" max="330" step="1" oninput="window.meCalc()">
+        <button class="calc-inp-btn" onclick="window.meStep('depth',1)">+</button>
+      </div>
+    </div>
+
+    <div class="calc-input-row">
+      <div><div class="calc-input-lbl">PPO&#8322; limit</div><div style="font-size:12px;color:#8a9aaa;margin-top:2px">for MOD calculation</div></div>
+      <div class="calc-inp-wrap">
+        <button class="calc-inp-btn" onclick="window.meStep('ppo2',-0.05)">&minus;</button>
+        <input type="number" id="me-ppo2" value="1.40" min="0.50" max="1.60" step="0.05" oninput="window.meCalc()">
+        <button class="calc-inp-btn" onclick="window.meStep('ppo2',0.05)">+</button>
+      </div>
+    </div>
+
+    <div class="calc-result-section">
+      <div class="calc-section-lbl">Results</div>
+      <div class="calc-result-row">
+        <div><div class="calc-result-lbl">MOD</div><div class="calc-result-lbl-sub" id="me-mod-sub">max operating depth</div></div>
+        <div class="calc-result-val" id="me-mod">&mdash;</div>
+      </div>
+      <div class="calc-result-row">
+        <div><div class="calc-result-lbl">PPO&#8322; at depth</div><div class="calc-result-lbl-sub">actual O&#8322; partial pressure</div></div>
+        <div class="calc-result-val neutral" id="me-ppo2-val">&mdash;</div>
+      </div>
+      <div class="calc-result-row">
+        <div><div class="calc-result-lbl">EAD</div><div class="calc-result-lbl-sub">N&#8322; narcotic &mdash; He inert</div></div>
+        <div class="calc-result-val neutral" id="me-ead">&mdash;</div>
+      </div>
+      <div class="calc-result-row">
+        <div><div class="calc-result-lbl">END</div><div class="calc-result-lbl-sub">N&#8322; + O&#8322; narcotic</div></div>
+        <div class="calc-result-val neutral" id="me-end">&mdash;</div>
+      </div>
+      <div class="calc-result-row">
+        <div><div class="calc-result-lbl">EADD</div><div class="calc-result-lbl-sub">N&#8322; narcotic &mdash; density based</div></div>
+        <div class="calc-result-val neutral" id="me-eadd">&mdash;</div>
+      </div>
+      <div class="calc-result-row">
+        <div><div class="calc-result-lbl">Gas density</div><div class="calc-result-lbl-sub">warn &gt;5.2 &nbsp;&#x25cf;&nbsp; limit &gt;6.2 g/&ell;</div></div>
+        <div class="calc-result-val neutral" id="me-dens">&mdash;</div>
+      </div>
+    </div>
+
+    <div class="calc-info-box">
+      <strong>EAD</strong> &mdash; equivalent air depth treating He as inert (N&#8322; narcosis only).<br>
+      <strong>END</strong> &mdash; narcotic depth counting both N&#8322; and O&#8322; as narcotic.<br>
+      <strong>EADD</strong> &mdash; density-equivalent depth; same breathing resistance as the mix on air at this depth.
+    </div>
+  </div>
+</div>
+
+<div class="ovl hidden" id="num-ovl">
+  <div class="ovl-panel">
+    <div class="ovl-ttl" id="num-ttl">Setting</div>
+    <div class="ovl-desc" id="num-desc"></div>
+    <input class="ovl-inp" type="text" id="num-inp" inputmode="decimal">
+    <button class="ovl-btn" onclick="window.saveNumEdit()">Apply</button>
+  </div>
+</div>
+<div class="ovl hidden" id="sel-ovl">
+  <div class="ovl-panel">
+    <div class="ovl-ttl" id="sel-ttl">Setting</div>
+    <div class="ovl-desc" id="sel-desc"></div>
+    <div class="fld" style="margin:0 0 14px"><select id="sel-inp"></select></div>
+    <button class="ovl-btn" onclick="window.saveSelEdit()">Apply</button>
+  </div>
+</div>
+<div class="ovl hidden" id="gf-ovl">
+  <div class="ovl-panel">
+    <div class="ovl-ttl">Gradient factors</div>
+    <div class="ovl-desc" style="margin-bottom:14px">GF Low controls conservatism at the deepest stop. GF High controls conservatism at the surface. Lower = more conservative.</div>
+    <div class="frow" style="gap:10px;margin-bottom:14px">
+      <div><label style="font-size:11px;color:#6a7a8a;font-weight:600;display:block;margin-bottom:5px;text-transform:uppercase">GF Low (%)</label><input class="ovl-inp" type="number" id="gflo-inp" min="10" max="100" step="5" style="width:100%;margin-bottom:0"></div>
+      <div><label style="font-size:11px;color:#6a7a8a;font-weight:600;display:block;margin-bottom:5px;text-transform:uppercase">GF High (%)</label><input class="ovl-inp" type="number" id="gfhi-inp" min="10" max="100" step="5" style="width:100%;margin-bottom:0"></div>
+    </div>
+    <button class="ovl-btn" onclick="window.saveGFEdit()">Apply</button>
+  </div>
+</div>
+
+<div class="cfg-page" id="about-ovl">
+  <div class="cfg-hdr">
+    <button class="cfg-back" onclick="window.closeAbout()">←</button>
+    <span class="cfg-hdr-t">About</span>
+  </div>
+  <div class="cfg-body">
+  <div style="padding:20px 16px 40px">
+    <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:24px">
+      <svg width="80" height="80" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-bottom:12px">
+        <path d="M18 82 L50 14 L82 82 L62 82 L50 52 L38 82 Z" fill="#3451d1"/>
+        <path d="M38 82 L50 52 L62 82 Z" fill="#72c4e8"/>
+        <path d="M50 14 L68 44 Q76 36 70 24 Z" fill="#72c4e8"/>
+      </svg>
+      <div style="font-size:28px;font-weight:700;letter-spacing:-.02em;color:#1a1a1a">AeroPlus <span style="color:#3451d1">Deco</span></div>
+      <div style="font-size:13px;color:#6a7a9a;margin-top:2px">Innovation in aviation.</div>
+    </div>
+    <div style="font-size:14px;color:#1a1a1a;line-height:1.7;margin-bottom:20px">
+      <b>AeroPlus Deco</b> is a technical dive decompression planner built on the <b>Bühlmann ZHL-16C-GF</b> algorithm — built by someone who lives and works at the intersection of two unforgiving disciplines.
+    </div>
+
+    <div style="background:#eef2ff;border-left:3px solid #3451d1;border-radius:0 10px 10px 0;padding:14px 16px;margin-bottom:20px;font-size:13px;color:#2a3a5a;line-height:1.75">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:#3451d1;margin-bottom:8px">TWO WORLDS, ONE DISCIPLINE</div>
+      The name <b>AeroPlus</b> is no accident. Its author is a bush pilot and owner of <b>African Flying Adventures</b>, flying low and slow across remote African wilderness, and a developer of aviation software solutions — as well as a technical diver who plans dives well below recreational limits.<br><br>
+      Aviation and technical diving share far more than most people realise. Both operate at the mercy of <b>air pressure</b> — pilots manage it as altitude above sea level, divers as depth below the surface. In both worlds, pressure is not abstract: it governs how your body absorbs gases, how your equipment performs, and whether you come home.<br><br>
+      Both disciplines demand deep respect for <b>the natural environment</b> — weather, currents, visibility, terrain. In the African bush or 60 metres underwater, nature does not negotiate. Both require <b>technical skill and situational awareness</b> maintained through continuous training, because in the moment when things go wrong, muscle memory and procedure are all you have.<br><br>
+      Above all, both are built on <b>checklists, procedures and teamwork</b>. A pre-dive gas check and a pre-flight checklist serve the same purpose: to create a systematic defence against human error when the stakes are life and death. Neither a pilot nor a technical diver improvises when it matters.
+    </div>
+
+    <div style="font-size:13px;font-weight:600;color:#1a1a1a;margin-bottom:8px">What this app does</div>
+    <div style="font-size:13px;color:#3a4a5a;line-height:2;margin-bottom:20px;padding-left:4px">
+      ✓ &nbsp;Bühlmann ZHL-16C with gradient factors (GF Lo/Hi)<br>
+      ✓ &nbsp;Multi-gas planning with automatic gas switching<br>
+      ✓ &nbsp;Trimix support (N₂ + He + O₂)<br>
+      ✓ &nbsp;CCR closed-circuit rebreather planning<br>
+      ✓ &nbsp;CNS% and OTU oxygen toxicity tracking<br>
+      ✓ &nbsp;Rock bottom gas reserves per cylinder<br>
+      ✓ &nbsp;Consecutive dive planning with tissue offgassing<br>
+      ✓ &nbsp;Contingency plans (deeper / longer)<br>
+      ✓ &nbsp;Gas density warnings (5.2 / 6.2 g/ℓ thresholds)<br>
+      ✓ &nbsp;Partial pressure gas blending calculator<br>
+      ✓ &nbsp;Auto GF Low matching first gas switch depth <a href="https://scubatechphilippines.com/scuba_blog/gradient-factors-application-use-settings-open-circuit-tech/" target="_blank" style="color:#3451d1;text-decoration:none">(Andy Davis)</a><br>
+      ✓ &nbsp;Export dive plan as text or printable report<br>
+      ✓ &nbsp;Save &amp; restore plans via JSON
+    </div>
+    <div style="background:#eef2ff;border:1px solid #3451d130;border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:13px;color:#3451d1;line-height:1.6">
+      <b>Free &amp; transparent.</b> This app is free to use, share and modify. All calculations run entirely in your browser — no data is ever sent to any server.
+    </div>
+    <div style="background:#fdeaea;border:1px solid #f0a0a0;border-radius:10px;padding:12px 14px;font-size:13px;color:#a02020;line-height:1.6">
+      <b>⚠ Important disclaimer.</b> Always double-check your decompression calculations using a certified dive planning tool or qualified dive professional. This app is provided for educational and planning assistance only and must not be used as your sole source of decompression data. Diving involves serious risks — incorrect decompression can result in injury or death.
+    </div>
+  </div>
+  </div>
+</div>
+
+<div class="ovl hidden" id="support-ovl" onclick="if(event.target.id==='support-ovl')this.classList.add('hidden')">
+  <div class="ovl-panel" style="padding-bottom:36px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div class="ovl-ttl">About support</div>
+      <button class="mcls" onclick="document.getElementById('support-ovl').classList.add('hidden')">✕</button>
+    </div>
+    <div style="font-size:14px;color:#1a1a1a;line-height:1.7;margin-bottom:12px">
+      AeroPlus Deco is an unsupported app provided free of charge. There is no dedicated support team.
+    </div>
+    <div style="font-size:14px;color:#1a1a1a;line-height:1.7">
+      Tips, bug reports, or feature suggestions are welcome.
+    </div>
+  </div>
+</div>
+
+<div class="ovl hidden" id="export-json-ovl" onclick="if(event.target.id==='export-json-ovl')this.classList.add('hidden')">
+  <div class="ovl-panel" style="padding-bottom:32px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div class="ovl-ttl">Save data</div>
+      <button class="mcls" onclick="document.getElementById('export-json-ovl').classList.add('hidden')">✕</button>
+    </div>
+    <div class="ovl-desc" style="margin-bottom:10px">Copy this JSON and save it somewhere safe. On your own web server, the file downloads automatically instead.</div>
+    <textarea id="export-json-ta" readonly style="width:100%;height:180px;border:1.5px solid #c0c8d4;border-radius:10px;padding:10px;font-size:12px;font-family:monospace;resize:none;outline:none;background:#f8f9fc" onclick="this.select()"></textarea>
+    <button id="copy-json-btn" onclick="window.copyExportJson()" class="ovl-btn" style="margin-top:10px">Copy to clipboard</button>
+  </div>
+</div>
+
+<div class="ovl hidden" id="import-paste-ovl" onclick="if(event.target.id==='import-paste-ovl')this.classList.add('hidden')">
+  <div class="ovl-panel" style="padding-bottom:32px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div class="ovl-ttl">Load data</div>
+      <button class="mcls" onclick="document.getElementById('import-paste-ovl').classList.add('hidden')">✕</button>
+    </div>
+    <div class="ovl-desc" style="margin-bottom:10px">Choose a saved .json file or paste JSON data below to restore your plans.</div>
+    <textarea id="import-paste-inp" style="width:100%;height:160px;border:1.5px solid #c0c8d4;border-radius:10px;padding:10px;font-size:13px;font-family:monospace;resize:vertical;outline:none" placeholder='{"plans":[]}'></textarea>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <label style="flex:1;background:#f0f2f6;border:1.5px solid #d0d4db;border-radius:10px;padding:11px;font-size:14px;font-weight:600;color:#5a6472;cursor:pointer;text-align:center;font-family:inherit">
+        📂 Choose file
+        <input type="file" accept=".json" style="display:none" onchange="window.onImportFile(event)">
+      </label>
+      <button onclick="window.doImportFromPaste()" class="ovl-btn" style="flex:2;margin-top:0">Load plans</button>
+    </div>
+  </div>
+</div>
+
+<div class="mbg hidden" id="export-bg" onclick="if(event.target.id==='export-bg')window.closeExportPanel()">
+  <div class="mpanel" id="export-panel" style="max-height:88vh;overflow-y:auto;padding-bottom:0">
+    <div class="mhdr" style="margin-bottom:4px">
+      <span class="mttl">Export Dive Plan</span>
+      <button class="mcls" onclick="window.closeExportPanel()">✕</button>
+    </div>
+    <div style="font-size:11px;font-weight:700;color:#8a9aaa;text-transform:uppercase;letter-spacing:.06em;text-align:center;padding:6px 0 10px">Report</div>
+    <div id="export-report" style="font-size:16px;color:#1a1a1a;border-radius:12px;overflow:hidden;border:1px solid #e0e4eb;margin-bottom:14px"></div>
+    <div style="font-size:11px;font-weight:700;color:#8a9aaa;text-transform:uppercase;letter-spacing:.06em;text-align:center;padding:6px 0 10px">Details</div>
+    <div style="border:1px solid #e0e4eb;border-radius:12px;overflow:hidden;margin-bottom:20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #e8ebf0;font-size:15px;color:#1a1a1a;cursor:pointer" onclick="window.openAbout();window.closeExportPanel()">
+        <span>AeroPlus Deco — About</span><span style="color:#b0b8c4">›</span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;font-size:15px;color:#1a1a1a">
+        <span style="color:#8a9aaa">ZHL-16C-GF Algorithm</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;padding:0 0 32px">
+      <button onclick="window.copyExportToClipboard()" style="flex:1;background:#f0f2f6;border:1.5px solid #d0d4db;border-radius:50px;padding:14px;font-size:15px;font-weight:600;color:#1a1a1a;cursor:pointer;font-family:inherit">Copy to clipboard</button>
+      <button onclick="window.printExport()" style="flex:1;background:#f0f2f6;border:1.5px solid #d0d4db;border-radius:50px;padding:14px;font-size:15px;font-weight:600;color:#1a1a1a;cursor:pointer;font-family:inherit">Print</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ GAS BLENDING PAGE ═══════════════ -->
+<div class="cfg-page" id="blend-page">
+  <div class="cfg-hdr" style="background:#f0f4ff">
+    <button class="cfg-back" onclick="window.closeBlend()">←</button>
+    <span class="cfg-hdr-t">Gas Blending</span>
+  </div>
+  <div class="cfg-body" style="background:#f0f4ff">
+    <div style="padding:16px 16px 32px">
+
+      <!-- Cylinder -->
+      <div class="blend-sec-lbl">Cylinder</div>
+      <div class="frow" style="margin-bottom:4px">
+        <div class="fld" style="margin-bottom:0"><label>Size (ℓ)</label><input type="number" id="bl-sz" value="12" inputmode="decimal" min="0.1" step="0.1" oninput="window.blendCalc()"></div>
+        <div class="fld" style="margin-bottom:0"><label>Target pressure (bar)</label><input type="number" id="bl-tp" value="200" inputmode="decimal" min="1" oninput="window.blendCalc()"></div>
+      </div>
+
+      <!-- Current fill -->
+      <div class="blend-sec-lbl">Current fill</div>
+      <div class="frow" style="margin-bottom:4px">
+        <div class="fld" style="margin-bottom:0"><label>Current pressure (bar)</label><input type="number" id="bl-sp" value="0" inputmode="decimal" min="0" oninput="window.blendCalc()"></div>
+        <div></div>
+      </div>
+      <div class="frow" style="margin-bottom:4px;margin-top:10px">
+        <div class="fld" style="margin-bottom:0"><label>O₂ %</label><input type="number" id="bl-so2" value="21" inputmode="decimal" min="0" max="100" step="1" oninput="window.blendCalc()"></div>
+        <div class="fld" style="margin-bottom:0"><label>He %</label><input type="number" id="bl-she" value="0" inputmode="decimal" min="0" max="100" step="1" oninput="window.blendCalc()"></div>
+      </div>
+
+      <!-- Target mix -->
+      <div class="blend-sec-lbl">Target mix</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px" id="blend-presets"></div>
+      <div class="frow" style="margin-bottom:4px">
+        <div class="fld" style="margin-bottom:0"><label>O₂ %</label><input type="number" id="bl-to2" value="32" inputmode="decimal" min="1" max="100" step="1" oninput="window.blendCalc()"></div>
+        <div class="fld" style="margin-bottom:0"><label>He %</label><input type="number" id="bl-the" value="0" inputmode="decimal" min="0" max="100" step="1" oninput="window.blendCalc()"></div>
+      </div>
+
+      <!-- Top-up gas -->
+      <div class="blend-sec-lbl">Top-up gas</div>
+      <div class="fld" style="margin-bottom:6px">
+        <label>Source gas for final top-up</label>
+        <select id="bl-topup" onchange="window.onBlendTopupChange()">
+          <option value="air">Air (21% O₂ / 0% He)</option>
+          <option value="ean32">EAN32 (32% O₂ / 0% He)</option>
+          <option value="ean36">EAN36 (36% O₂ / 0% He)</option>
+          <option value="ean50">EAN50 (50% O₂ / 0% He)</option>
+          <option value="custom">Custom…</option>
+        </select>
+      </div>
+      <div id="bl-topup-custom" class="frow hidden" style="margin-bottom:4px">
+        <div class="fld" style="margin-bottom:0"><label>Top-up O₂ %</label><input type="number" id="bl-tuo2" value="21" inputmode="decimal" min="1" max="100" oninput="window.blendCalc()"></div>
+        <div class="fld" style="margin-bottom:0"><label>Top-up He %</label><input type="number" id="bl-tuhe" value="0" inputmode="decimal" min="0" max="100" oninput="window.blendCalc()"></div>
+      </div>
+
+      <!-- Analysis depth -->
+      <div class="blend-sec-lbl">Gas analysis depth</div>
+      <div class="frow" style="margin-bottom:4px">
+        <div class="fld" style="margin-bottom:0"><label>Depth (m)</label><input type="number" id="bl-depth" value="40" inputmode="decimal" min="1" max="330" oninput="window.blendCalc()"></div>
+        <div></div>
+      </div>
+
+      <!-- Results -->
+      <div id="blend-result" style="margin-top:20px"></div>
+
+      <!-- Info -->
+      <div style="background:#eef2ff;border:1px solid #3451d120;border-radius:10px;padding:12px 14px;margin-top:18px;font-size:12px;color:#5a6a8a;line-height:1.6">
+        <strong>Partial pressure blending method:</strong> He is added first, then pure O₂, then the top-up gas to reach the final pressure. Fill pressures shown are what your gauge should read after each step. Always fill in order: He → O₂ → top-up.
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+if(!Math.imul){Math.imul=function(a,b){var ah=(a>>>16)&0xffff,al=a&0xffff,bh=(b>>>16)&0xffff,bl=b&0xffff;return((al*bl)+((((ah*bl+al*bh)<<16)>>>0)|0))|0;};}
+
+var NC=16,PH2O=0.0627,PATM0=1.01325;
+var N2HT=[4,8,12.5,18.5,27,38.5,54.3,77,109,146,187,240,304,397,503,635];
+var N2A=[1.2599,1.0,0.8618,0.7562,0.62,0.5043,0.441,0.4,0.375,0.35,0.3295,0.3065,0.2835,0.261,0.248,0.2327];
+var N2B=[0.505,0.6514,0.7222,0.7825,0.8126,0.8434,0.8693,0.891,0.9092,0.9222,0.9319,0.9403,0.9477,0.9544,0.9602,0.9653];
+var HEHT=[1.51,3.02,4.72,6.99,10.21,14.48,20.53,29.11,41.2,55.19,70.69,90.34,114.3,146.2,187.2,238];
+var HEA=[1.7424,1.383,1.1919,1.0458,0.922,0.8205,0.7305,0.6502,0.595,0.5545,0.5333,0.5189,0.5181,0.5176,0.5172,0.5119];
+var HEB=[0.4245,0.5747,0.6527,0.7223,0.7582,0.7986,0.8257,0.8502,0.8702,0.8893,0.8981,0.9103,0.917,0.927,0.9386,0.9452];
+var DMAP={fresh:1000,en13319:1020,salt:1025,mediterranean:1038,red:1040,atlantic:1035,baltic:1010};
+var SLBL={fresh:'Fresh',en13319:'EN13319',salt:'Salt',mediterranean:'Mediterranean',red:'Red Sea',atlantic:'Atlantic',baltic:'Baltic Sea'};
+
+function surfP(alt){return PATM0*Math.exp(-(alt||0)/7400);}
+function rho(s){return DMAP[s]||1025;}
+function ambP(d,s,alt){return surfP(alt)+rho(s)*9.80665*d/1e5;}
+function pToD(P,s,alt){return Math.max(0,(P-surfP(alt))*1e5/(rho(s)*9.80665));}
+function gdens(fO2,fHe,d,s,alt){return ((fO2*1.429+fHe*0.179+(1-fO2-fHe)*1.251)*ambP(d,s,alt)/PATM0).toFixed(2);}
+function m2s(fO2,fHe){return Math.round(fO2*100)+'/'+Math.round(fHe*100);}
+function schr(Pi,Pa,R,t,k){if(t<1e-10)return Pi;return Pa+R*(t-1/k)-(Pa-Pi-R/k)*Math.exp(-k*t);}
+
+function expose(ts,d0,d1,mins,fN2,fHe,s,alt){
+if(mins<1e-9)return;
+var P0=ambP(d0,s,alt),P1=ambP(d1,s,alt);
+var pn0=(P0-PH2O)*fN2,pn1=(P1-PH2O)*fN2,ph0=(P0-PH2O)*fHe,ph1=(P1-PH2O)*fHe;
+var Rn=(pn1-pn0)/mins,Rh=(ph1-ph0)/mins;
+for(var i=0;i<NC;i++){
+var kn=Math.LN2/N2HT[i],kh=Math.LN2/HEHT[i];
+ts.n2[i]=schr(ts.n2[i],pn0,Rn,mins,kn);
+ts.he[i]=schr(ts.he[i],ph0,Rh,mins,kh);
+}}
+
+function ceilBar(ts,gf){
+var mx=0;
+for(var i=0;i<NC;i++){
+var Pn=ts.n2[i],Ph=ts.he[i],Pt=Pn+Ph;
+if(Pt<1e-9)continue;
+var a=(Pn*N2A[i]+Ph*HEA[i])/Pt,b=(Pn*N2B[i]+Ph*HEB[i])/Pt;
+var P=(Pt-gf*a)/(1-gf+gf/b);
+if(P>mx)mx=P;
+}return mx;}
+
+function initTS(s,alt){var p=(ambP(0,s,alt)-PH2O)*0.7902;return{n2:new Array(NC).fill(p),he:new Array(NC).fill(0)};}
+function cloneTS(ts){return{n2:ts.n2.slice(),he:ts.he.slice()};}
+
+var CNS_TBL=[[0.5,1e9],[0.6,720],[0.7,570],[0.8,450],[0.9,360],[1.0,300],[1.1,240],[1.2,210],[1.3,180],[1.4,150],[1.5,120],[1.55,90],[1.6,45]];
+function ccrFracs(d0,d1,sp,s,alt){
+var dMid=(d0+d1)/2;
+var Pabs=ambP(dMid,s,alt);
+var O=AP().O,dilFO2=O.ccrDilFO2||0.21,dilFHe=O.ccrDilFHe||0;
+var fO2=Math.min(sp/Pabs,dilFO2);
+var dilInert=1-dilFO2;
+var scale=dilInert>1e-9?(1-fO2)/dilInert:0;
+return{fN2:(1-dilFO2-dilFHe)*scale,fHe:dilFHe*scale};}
+
+function cnsR(ppo2){
+if(ppo2<0.5)return 0;
+for(var i=1;i<CNS_TBL.length;i++){
+if(ppo2<=CNS_TBL[i][0]){var lo=CNS_TBL[i-1],hi=CNS_TBL[i],f=(ppo2-lo[0])/(hi[0]-lo[0]);return 100/(lo[1]+(hi[1]-lo[1])*f);}
+}return 100/45;}
+function otuR(ppo2){return ppo2<=0.5?0:Math.pow((ppo2-0.5)/0.5,5/6);}
+
+var NID=30;
+function escHtml(s){var e={'&':'&amp;','<':'&lt;','>':'&gt;'};return String(s).replace(/[&<>]/g,function(c){return e[c];});}
+function copyO(o){return Object.assign({},o);}
+
+var HARDCODED_O={
+gfLo:.50,gfHi:.75,ascentRate:10,descentRate:18,
+sacNorm:20,sacEmerg:30,sacDeco:10,salinity:'fresh',altitude:0,
+maxPPO2:1.4,maxDecoPPO2:1.6,
+stopInterval:3,lastStop:6,gasSwitchTime:2,minStopTime:1,switchAtMOD:true,isCCR:false,ccrSP:1.3,ccrDecoSP:1.3,ccrDilFO2:0.21,ccrDilFHe:0,ccrO2Rate:1.5,bailoutSwitchTime:2,ccrO2Size:3,ccrO2Fill:200,ccrScrubberCap:180,
+decoGasBetween:false,autoGFLo:false,contingencyDeeper:3,contingencyLonger:3
+};
+var HARDCODED_CYLS=[
+{fO2:.21,fHe:0,size:24,fill:232,role:'bottom'},
+{fO2:.50,fHe:0,size:11.1,fill:207,role:'deco',on:true},
+{fO2:1.0,fHe:0,size:5.5,fill:200,role:'deco',on:false}
+];
+var HARDCODED_SEG={depth:35,time:25};
+
+var _defaultO=Object.assign({},HARDCODED_O);
+
+function makePlan(name){
+var cyls=HARDCODED_CYLS.map(function(c){return Object.assign({id:++NID},c);});
+var s1=++NID;
+return{
+id:++NID,name:name,
+cyls:cyls,
+segs:[{id:s1,depth:HARDCODED_SEG.depth,time:HARDCODED_SEG.time,gasId:cyls[0].id}],
+O:copyO(_defaultO),
+result:null,deeper:false,longer:false,
+surfaceInterval:null
+};}
+
+var _plans=[makePlan('Plan 1')];
+var _activePlan=0;
+function AP(){return _plans[_activePlan];}
+window.AP=AP;
+
+var STORE_KEY='aeroplusDeco_v1';
+
+function savePlans(){
+try{
+var slim=_plans.map(function(p){
+return{id:p.id,name:p.name,
+cyls:p.cyls.map(function(c){return Object.assign({},c);}),
+segs:p.segs.map(function(s){return Object.assign({},s);}),
+O:Object.assign({},p.O),
+deeper:p.deeper,longer:p.longer,
+surfaceInterval:p.surfaceInterval};
+});
+localStorage.setItem(STORE_KEY,JSON.stringify({plans:slim,active:_activePlan}));
+}catch(e){}}
+
+function loadPlans(){
+try{
+var raw=localStorage.getItem(STORE_KEY);
+if(!raw)return;
+var data=JSON.parse(raw);
+if(!data||!data.plans||!data.plans.length)return;
+var hasRealData=data.plans.some(function(p){
+return(p.cyls&&p.cyls.length>0)||(p.segs&&p.segs.length>0);});
+if(!hasRealData)return;
+_plans=data.plans.map(function(p){
+var fresh=makePlan(p.name||'Plan');
+fresh.id=p.id||fresh.id;
+if(p.cyls&&p.cyls.length>0)fresh.cyls=p.cyls;
+if(p.segs&&p.segs.length>0)fresh.segs=p.segs;
+fresh.O=Object.assign(copyO(_defaultO),p.O||{});
+fresh.deeper=!!p.deeper;
+fresh.longer=!!p.longer;
+fresh.surfaceInterval=p.surfaceInterval||null;
+return fresh;
+});
+_activePlan=Math.min(data.active||0,_plans.length-1);
+}catch(e){console.warn('loadPlans:',e);}}
+loadPlans();
+
+var _editCyl=null,_editSeg=null,_role='bottom';
+var _numKey='',_numMin=0,_numMax=100,_numStep=1,_numUnit='';
+var _selKey='',_selVals=[],_selLabels=[];
+
+window.resetScrubber=function(){
+localStorage.setItem('aeroplusScrubber','0');
+if(AP().result)try{window.runAll();}catch(e){}
+else{var el=document.getElementById('gas-bars');if(el)el.innerHTML='<div style="color:#3451d1;padding:8px">Scrubber reset. Recalculate to update gas plan.</div>';}};
+window.ccrO2CylChange=function(){
+var sz=parseFloat((document.getElementById('ccr-o2-sz').value||'').replace(',','.'));
+var fl=parseFloat((document.getElementById('ccr-o2-fl').value||'').replace(',','.'));
+if(!isNaN(sz)&&sz>=0.5&&sz<=10)AP().O.ccrO2Size=sz;
+if(!isNaN(fl)&&fl>=10&&fl<=300)AP().O.ccrO2Fill=fl;
+if(AP().result)try{window.runAll();}catch(e){}};
+window.ccrDilChange=function(){
+var o2=parseFloat((document.getElementById('ccr-dil-o2').value||'').replace(',','.'));
+var he=parseFloat((document.getElementById('ccr-dil-he').value||'').replace(',','.'));
+if(!isNaN(o2)&&o2>=5&&o2<=100)AP().O.ccrDilFO2=o2/100;
+if(!isNaN(he)&&he>=0&&he<=95)AP().O.ccrDilFHe=he/100;};
+window.ccrSPChange=function(){
+var bot=parseFloat((document.getElementById('ccr-sp-bot').value||'').replace(',','.'));
+var dec=parseFloat((document.getElementById('ccr-sp-dec').value||'').replace(',','.'));
+if(!isNaN(bot)&&bot>=0.5&&bot<=1.6)AP().O.ccrSP=bot;
+if(!isNaN(dec)&&dec>=0.5&&dec<=1.6)AP().O.ccrDecoSP=dec;};
+window.newPlan=function(){
+var p=makePlan('Plan '+(_plans.length+1));
+_plans.push(p);_activePlan=_plans.length-1;renderAll();};
+
+window.switchPlan=function(idx){_activePlan=idx;renderAll();};
+
+window.deletePlan=function(){
+if(_plans.length<=1){alert('Cannot delete the only plan.');return;}
+var btn=document.getElementById('plan-del-btn');
+if(btn.dataset.confirming==='1'){
+btn.dataset.confirming='';btn.textContent='Delete';btn.style.background='';btn.style.color='#d9534f';
+_plans.splice(_activePlan,1);
+if(_activePlan>=_plans.length)_activePlan=_plans.length-1;
+renderAll();savePlans();
+}else{
+btn.dataset.confirming='1';btn.textContent='Confirm delete';btn.style.background='#d9534f';btn.style.color='#fff';
+setTimeout(function(){if(btn.dataset.confirming==='1'){btn.dataset.confirming='';btn.textContent='Delete';btn.style.background='';btn.style.color='#d9534f';}},3000);
+}};
+
+window.onPlanNameChange=function(v){AP().name=v;renderPlansBar();};
+window.onIntervalChange=function(v){AP().surfaceInterval=v!==''?Math.max(0,parseInt(v,10)||0):null;renderIntervalCard();};
+
+window.saveAsDefaults=function(){
+_defaultO=copyO(AP().O);
+try{localStorage.setItem('aeroplusDeco_defaults',JSON.stringify(_defaultO));}catch(e){}
+savePlans();
+var btn=document.getElementById('save-defaults-btn');
+btn.textContent='✓ Saved!';setTimeout(function(){btn.textContent='Save';},2000);};
+
+function getInitialTissues(){
+if(_activePlan===0)return null;
+var prev=_plans[_activePlan-1];
+if(!prev.result||!prev.result.finalTissues)return null;
+var ts=cloneTS(prev.result.finalTissues);
+var intv=AP().surfaceInterval;
+if(intv&&intv>0){expose(ts,0,0,intv,0.7902,0,prev.O.salinity,prev.O.altitude);}
+return ts;}
+
+function planDive(initialTs){
+var O=AP().O;
+var SS=O.stopInterval,LS=O.lastStop;
+var allGas=AP().cyls.filter(function(c){return c.role==='bottom';}).concat(
+AP().cyls.filter(function(c){return c.role==='deco'&&c.on!==false;}));
+if(!allGas.length||!AP().segs.length)return null;
+var segs=AP().segs.map(function(s){return Object.assign({},s);});
+if(AP().deeper)segs[segs.length-1]=Object.assign({},segs[segs.length-1],{depth:segs[segs.length-1].depth+O.contingencyDeeper});
+if(AP().longer)segs[segs.length-1]=Object.assign({},segs[segs.length-1],{time:segs[segs.length-1].time+O.contingencyLonger});
+
+function bestGas(d,forDeco){
+var lim=forDeco?O.maxDecoPPO2:O.maxPPO2;
+var best=null;
+for(var i=0;i<allGas.length;i++){
+var g=allGas[i];var mod=(lim/g.fO2-1)*10;
+if(d<=mod+0.05&&(!best||g.fO2>best.fO2))best=g;}
+return best||allGas[0];}
+
+var ts=initialTs?cloneTS(initialTs):initTS(O.salinity,O.altitude);
+var profile=[],tblRows=[],usage={};
+AP().cyls.forEach(function(c){usage[c.id]=0;});
+var t=0,prevD=0,cns=0,otu=0;
+var lastGasId=segs[0]?segs[0].gasId:allGas[0].id;
+var tdSum=0,ptCnt=0,maxD=0;
+
+function track(d,cM,tt){profile.push({t:tt!==undefined?tt:t,d:d,cM:cM||0});tdSum+=d;ptCnt++;}
+function useGas(g,sac,d0,d1,mins){
+var pa=(ambP(d0,O.salinity,O.altitude)+ambP(d1,O.salinity,O.altitude))/2;
+usage[g.id]=(usage[g.id]||0)+sac*pa*mins;
+var ppo2=g.fO2*pa;cns+=cnsR(ppo2)*mins;otu+=otuR(ppo2)*mins;}
+
+for(var si=0;si<segs.length;si++){
+var seg=segs[si];
+var g=allGas.find(function(c){return c.id===seg.gasId;})||allGas[0];
+var fN2=1-g.fO2-g.fHe,gsw=g.id!==lastGasId;
+if(gsw)lastGasId=g.id;
+var descentT=0;
+if(Math.abs(seg.depth-prevD)>0.01){
+var going=seg.depth>prevD;
+descentT=Math.abs(seg.depth-prevD)/(going?O.descentRate:O.ascentRate);
+var nSteps=Math.max(4,Math.ceil(Math.abs(seg.depth-prevD)));
+for(var k=0;k<nSteps;k++){
+var d1s=prevD+(seg.depth-prevD)*k/nSteps;
+var d2s=prevD+(seg.depth-prevD)*(k+1)/nSteps;
+var dt1=descentT/nSteps;
+var _segSP=O.isCCR?(seg.sp||O.ccrSP):O.ccrSP;var _cf3=O.isCCR?ccrFracs(d1s,d2s,_segSP,O.salinity,O.altitude):{fN2:fN2,fHe:g.fHe};
+expose(ts,d1s,d2s,dt1,_cf3.fN2,_cf3.fHe,O.salinity,O.altitude);
+var ceilNow=Math.max(0,pToD(ceilBar(ts,O.gfHi),O.salinity,O.altitude));
+track(d2s,ceilNow,t+descentT*(k+1)/nSteps);}
+if(O.isCCR){var _pp3=Math.min(_segSP,ambP((prevD+seg.depth)/2,O.salinity,O.altitude));cns+=cnsR(_pp3)*descentT;otu+=otuR(_pp3)*descentT;usage['ccr_o2']=(usage['ccr_o2']||0)+O.ccrO2Rate*descentT;}
+else{useGas(g,O.sacNorm,prevD,seg.depth,descentT);}
+t+=descentT;maxD=Math.max(maxD,seg.depth);
+tblRows.push({sym:going?'↘':'↗',depth:seg.depth,rt:t,dt:descentT,gasId:g.id,gsw:gsw});
+prevD=seg.depth;}
+var atDepth=Math.max(0,seg.time-descentT);
+if(atDepth>0.01){
+var stepsAt=Math.ceil(atDepth);var dtAt=atDepth/stepsAt;
+for(var k=0;k<stepsAt;k++){
+var _cf4=O.isCCR?ccrFracs(seg.depth,seg.depth,_segSP,O.salinity,O.altitude):{fN2:fN2,fHe:g.fHe};
+expose(ts,seg.depth,seg.depth,dtAt,_cf4.fN2,_cf4.fHe,O.salinity,O.altitude);
+var ceilNow2=Math.max(0,pToD(ceilBar(ts,O.gfHi),O.salinity,O.altitude));
+track(seg.depth,ceilNow2,t+dtAt*(k+1));}
+if(O.isCCR){var _pp4=Math.min(_segSP,ambP(seg.depth,O.salinity,O.altitude));cns+=cnsR(_pp4)*atDepth;otu+=otuR(_pp4)*atDepth;usage['ccr_o2']=(usage['ccr_o2']||0)+O.ccrO2Rate*atDepth;}
+else{useGas(g,O.sacNorm,seg.depth,seg.depth,atDepth);}
+t+=atDepth;
+tblRows.push({sym:'→',depth:seg.depth,rt:t,dt:atDepth,gasId:g.id,gsw:false});}}
+
+var ascentStart=t;
+
+if(pToD(ceilBar(ts,O.gfHi),O.salinity,O.altitude)<=0.3){
+var ndlTs=cloneTS(ts),ndl=0;
+var lg=allGas.find(function(c){return c.id===segs[segs.length-1].gasId;})||allGas[0];
+while(ndl<999){expose(ndlTs,prevD,prevD,1,1-lg.fO2-lg.fHe,lg.fHe,O.salinity,O.altitude);
+if(pToD(ceilBar(ndlTs,O.gfHi),O.salinity,O.altitude)>0.5)break;ndl++;}
+var ag=bestGas(prevD/2,false);var at=prevD/O.ascentRate;
+var _cf5d=O.isCCR?ccrFracs(prevD,0,O.ccrDecoSP,O.salinity,O.altitude):{fN2:1-ag.fO2-ag.fHe,fHe:ag.fHe};
+expose(ts,prevD,0,at,_cf5d.fN2,_cf5d.fHe,O.salinity,O.altitude);
+if(O.isCCR){cns+=cnsR(O.ccrDecoSP)*at;otu+=otuR(O.ccrDecoSP)*at;usage['ccr_o2']=(usage['ccr_o2']||0)+O.ccrO2Rate*at;}
+else{useGas(ag,O.sacDeco,prevD,0,at);}
+var nS=Math.max(4,Math.ceil(prevD));
+for(var k=0;k<=nS;k++)track(prevD*(1-k/nS),0,t+at*k/nS);
+t+=at;
+tblRows.push({sym:'↗',depth:0,rt:t,dt:at,gasId:ag.id,gsw:ag.id!==lastGasId});
+return{ndl:ndl,stops:[],tts:Math.round(t-ascentStart),noStop:true,maxDepth:maxD,
+runTime:t,tblRows:tblRows,ascentStart:ascentStart,avgDepth:tdSum/ptCnt,
+totalDecoTime:0,deepestCeiling:0,firstStopD:0,firstDecoAfter:0,
+cns:cns,otu:otu,profile:profile,usage:usage,finalTissues:cloneTS(ts)};}
+
+var c0=pToD(ceilBar(ts,O.gfLo),O.salinity,O.altitude);
+var firstStopD=Math.max(LS,Math.ceil(c0/SS)*SS);
+function gfAt(d){return O.gfHi+(O.gfLo-O.gfHi)*Math.min(d,firstStopD)/Math.max(firstStopD,.1);}
+
+var stops=[],depth=prevD,iter=0,deepestCeil=c0,firstDecoT=null;
+var switched={};var decoAscending=false;
+lastGasId=segs[segs.length-1]?segs[segs.length-1].gasId:allGas[0].id;
+
+while(depth>0&&iter<40000){
+iter++;
+var nextD;
+if(depth<=LS){nextD=0;}
+else{var snapped=Math.floor((depth-0.01)/SS)*SS;nextD=Math.max(LS,snapped);}
+var safeNext=pToD(ceilBar(ts,gfAt(nextD)),O.salinity,O.altitude)<=nextD+0.05;
+var g;
+if(!decoAscending){g=allGas.find(function(c){return c.id===lastGasId;})||allGas[0];}
+else if(O.switchAtMOD){g=bestGas(depth,true);}
+else{g=safeNext?(allGas.find(function(c){return c.id===lastGasId;})||allGas[0]):bestGas(depth,true);}
+var fN2=1-g.fO2-g.fHe;var gsw2=g.id!==lastGasId;
+
+if(!O.isCCR&&gsw2&&O.gasSwitchTime>0){
+var swKey=g.id+'@'+Math.round(depth);
+if(!switched[swKey]){
+switched[swKey]=true;lastGasId=g.id;
+var swT=O.gasSwitchTime;
+expose(ts,depth,depth,swT,1-g.fO2-g.fHe,g.fHe,O.salinity,O.altitude);
+useGas(g,O.sacDeco,depth,depth,swT);
+var cMsw=Math.max(0,pToD(ceilBar(ts,gfAt(depth)),O.salinity,O.altitude));
+var nSw=Math.max(2,Math.ceil(swT));
+for(var k=0;k<=nSw;k++)track(depth,cMsw,t+swT*k/nSw);
+t+=swT;
+tblRows.push({sym:'⊙',depth:depth,rt:t,dt:swT,gasId:g.id,gsw:true});
+continue;}}
+
+if(safeNext){
+if(gsw2)lastGasId=g.id;
+var dt=(depth-nextD)/O.ascentRate;
+var _cf5b=O.isCCR?ccrFracs(depth,nextD,O.ccrDecoSP,O.salinity,O.altitude):{fN2:fN2,fHe:g.fHe};
+expose(ts,depth,nextD,dt,_cf5b.fN2,_cf5b.fHe,O.salinity,O.altitude);
+if(O.isCCR){cns+=cnsR(O.ccrDecoSP)*dt;otu+=otuR(O.ccrDecoSP)*dt;usage['ccr_o2']=(usage['ccr_o2']||0)+O.ccrO2Rate*dt;}
+else{useGas(g,O.sacDeco,depth,nextD,dt);}
+var nA=Math.max(3,Math.ceil((depth-nextD)*2));
+for(var k=0;k<=nA;k++){
+var fr=k/nA,d2=depth-fr*(depth-nextD);
+track(d2,Math.max(0,pToD(ceilBar(ts,gfAt(d2)),O.salinity,O.altitude)),t+fr*dt);}
+t+=dt;
+tblRows.push({sym:'↗',depth:nextD,rt:t,dt:dt,gasId:g.id,gsw:gsw2&&!switched[g.id+'@'+Math.round(depth)]});
+decoAscending=true;depth=nextD;
+}else{
+if(gsw2)lastGasId=g.id;
+if(firstDecoT===null)firstDecoT=t-ascentStart;
+var FSTEP=1/6;
+var minT=O.minStopTime||0;
+var elapsed=0;
+var innerSafe=false;
+while(!innerSafe||elapsed<minT){
+var _cf5c=O.isCCR?ccrFracs(depth,depth,O.ccrDecoSP,O.salinity,O.altitude):{fN2:fN2,fHe:g.fHe};
+expose(ts,depth,depth,FSTEP,_cf5c.fN2,_cf5c.fHe,O.salinity,O.altitude);
+if(O.isCCR){cns+=cnsR(O.ccrDecoSP)*FSTEP;otu+=otuR(O.ccrDecoSP)*FSTEP;usage['ccr_o2']=(usage['ccr_o2']||0)+O.ccrO2Rate*FSTEP;}
+else{useGas(g,O.sacDeco,depth,depth,FSTEP);}
+elapsed+=FSTEP;t+=FSTEP;
+var cM3=Math.max(0,pToD(ceilBar(ts,gfAt(depth)),O.salinity,O.altitude));
+if(cM3>deepestCeil)deepestCeil=cM3;
+track(depth,cM3,t);
+innerSafe=pToD(ceilBar(ts,gfAt(nextD)),O.salinity,O.altitude)<=nextD+0.05;
+iter++;if(iter>80000)break;}
+var lst=stops[stops.length-1];
+if(lst&&lst.depth===depth){lst.time+=elapsed;lst.gasId=g.id;}
+else stops.push({depth:depth,time:elapsed,gasId:g.id});
+var lstR=tblRows[tblRows.length-1];
+if(lstR&&lstR.sym==='→'&&lstR.depth===depth&&lstR.gasId===g.id){lstR.dt+=elapsed;lstR.rt=t;}
+else tblRows.push({sym:'→',depth:depth,rt:t,dt:elapsed,gasId:g.id,gsw:false});}}
+
+var merged=[];
+for(var i=0;i<tblRows.length;i++){
+var row=tblRows[i],prev2=merged[merged.length-1];
+if(prev2&&prev2.sym==='↗'&&row.sym==='↗'&&prev2.gasId===row.gasId&&!row.gsw&&row.depth>0){
+prev2.depth=row.depth;prev2.rt=row.rt;prev2.dt+=row.dt;
+}else merged.push(Object.assign({},row));}
+
+var totalDecoTime=stops.reduce(function(s,st){return s+st.time;},0);
+return{ndl:0,stops:stops,tts:Math.round(t-ascentStart),noStop:false,
+maxDepth:maxD,runTime:t,tblRows:merged,ascentStart:ascentStart,
+avgDepth:tdSum/ptCnt,totalDecoTime:totalDecoTime,deepestCeiling:deepestCeil,
+firstStopD:firstStopD,firstDecoAfter:firstDecoT||0,
+cns:cns,otu:otu,profile:profile,usage:usage,finalTissues:cloneTS(ts)};}
+
+function rbBar(r){
+if(!r)return {};
+var O=AP().O,out={};
+AP().cyls.forEach(function(c){
+if(c.role==='bottom'){
+var avg=r.maxDepth/2,mins=r.maxDepth/O.ascentRate;
+out[c.id]=Math.ceil(2*O.sacEmerg*ambP(avg,O.salinity,O.altitude)*mins/c.size);
+}else if(c.role==='deco'&&c.on!==false){
+var sd=r.firstStopD||6,avg2=sd/2,mins2=sd/O.ascentRate;
+out[c.id]=Math.ceil(2*O.sacEmerg*ambP(avg2,O.salinity,O.altitude)*mins2/c.size);}});
+return out;}
+
+function fmtDur(m){
+var totalSec=Math.round(m*60);
+var mm=Math.floor(totalSec/60);
+var ss=totalSec%60;
+if(ss===0)return String(mm);
+return mm+':'+String(ss).padStart(2,'0');}
+function drawChart(profile){
+var svg=document.getElementById('chart');
+if(!profile||profile.length<2){svg.innerHTML='';return;}
+var W=400,H=190,PL=36,PR=8,PT=8,PB=26,pw=W-PL-PR,ph=H-PT-PB;
+var maxT=0,maxD2=0;
+profile.forEach(function(p){if(p.t>maxT)maxT=p.t;if(p.d>maxD2)maxD2=p.d;});
+maxD2*=1.12;if(maxT<1)maxT=1;
+var avgD=0;profile.forEach(function(p){avgD+=p.d;});avgD/=profile.length;
+function tx(v){return PL+v/maxT*pw;}
+function ty(v){return PT+v/maxD2*ph;}
+var depPath='M'+profile.map(function(p){return tx(p.t).toFixed(1)+','+ty(p.d).toFixed(1);}).join('L');
+var ceilPath='M'+profile.map(function(p){return tx(p.t).toFixed(1)+','+ty(p.cM).toFixed(1);}).join('L');
+var fillPath=ceilPath+'L'+profile.slice().reverse().map(function(p){return tx(p.t).toFixed(1)+','+ty(p.d).toFixed(1);}).join('L')+'Z';
+var xt='',yt='';
+for(var i=0;i<=5;i++){var v=Math.round(maxT/5*i),x=tx(v).toFixed(0);xt+='<line x1="'+x+'" y1="'+PT+'" x2="'+x+'" y2="'+(PT+ph)+'" stroke="#e8ebf0" stroke-width="1"/><text x="'+x+'" y="'+(H-6)+'" text-anchor="middle" font-size="9" fill="#9aa0aa">'+v+'</text>';}
+for(var i=0;i<=4;i++){var v2=Math.round(maxD2/4*i/1.12),y=ty(v2).toFixed(0);yt+='<text x="'+(PL-3)+'" y="'+y+'" text-anchor="end" dominant-baseline="middle" font-size="9" fill="#9aa0aa">'+v2+'</text>';}
+var avgY=ty(avgD).toFixed(1);
+svg.innerHTML='<rect width="'+W+'" height="'+H+'" fill="white" rx="6"/>'+xt+yt+
+'<line x1="'+PL+'" y1="'+avgY+'" x2="'+(PL+pw)+'" y2="'+avgY+'" stroke="#b0b8c4" stroke-width="1.5" stroke-dasharray="5,3"/>'+
+'<path d="'+fillPath+'" fill="rgba(217,83,79,0.13)"/>'+
+'<path d="'+ceilPath+'" fill="none" stroke="#d9534f" stroke-width="1.8"/>'+
+'<path d="'+depPath+'" fill="none" stroke="#3451d1" stroke-width="2.5" stroke-linejoin="round"/>'+
+'<text x="'+(PL+pw/2)+'" y="'+(H-2)+'" text-anchor="middle" font-size="9" fill="#9aa0aa">Time (min)</text>';}
+
+function renderPlansBar(){
+var bar=document.getElementById('plans-bar');
+var h=_plans.map(function(p,i){
+return '<button class="plan-chip'+(i===_activePlan?' active':'')+'" onclick="window.switchPlan('+i+')">'+escHtml(p.name)+'</button>';
+}).join('');
+h+='<button class="plan-add-btn" onclick="window.newPlan()">+ New plan</button>';
+bar.innerHTML=h;}
+
+function renderPlanHeader(){
+document.getElementById('plan-name-inp').value=AP().name;
+var del=document.getElementById('plan-del-btn');
+if(_plans.length>1)del.classList.remove('hidden');
+else del.classList.add('hidden');}
+
+function renderIntervalCard(){
+var card=document.getElementById('interval-card');
+if(_activePlan===0){card.classList.add('hidden');return;}
+card.classList.remove('hidden');
+var prev=_plans[_activePlan-1];
+var hasPrev=prev.result&&prev.result.finalTissues;
+document.getElementById('interval-prev-label').textContent='Previous plan: '+prev.name;
+document.getElementById('interval-inp').value=AP().surfaceInterval!=null?AP().surfaceInterval:'';
+var note='';
+if(!hasPrev){note='⚠ "'+prev.name+'" has not been calculated yet. Calculate it first to carry over residual tissue loading.';}
+else if(AP().surfaceInterval!=null&&AP().surfaceInterval>0){note='✓ Residual N₂/He loading from "'+prev.name+'" will be offgassed for '+AP().surfaceInterval+' min on air, then applied to this dive.';}
+else{note='Enter a surface interval to account for offgassing between dives.';}
+document.getElementById('interval-note').textContent=note;}
+
+function renderCyls(){
+var el=document.getElementById('cyl-list');
+var isCCR=AP().O.isCCR;
+var bot=AP().cyls.filter(function(c){return c.role==='bottom';});
+var bail=AP().cyls.filter(function(c){return c.role==='bailout';});
+var dec=AP().cyls.filter(function(c){return c.role==='deco';});
+if(!bot.length&&!bail.length&&!dec.length){el.innerHTML='<div class="muted">No cylinders added yet.</div>';return;}
+var h='';
+var botLabel=isCCR?'Diluent':'Bottom gas';
+if(bot.length){
+h+='<div style="font-size:13px;font-weight:600;margin-bottom:7px">'+botLabel+'</div>';
+bot.forEach(function(c){
+h+='<div class="grow"><div class="chk chk-g">✓</div><span class="gico">'+(isCCR?'🔵':'🪣')+'</span>'+
+'<span class="glbl" onclick="window.openEditCyl('+c.id+')">'+m2s(c.fO2,c.fHe)+' - '+c.fill+' bar ('+c.size.toFixed(1)+' ℓ)</span></div>';});}
+if(bail.length){
+h+='<div style="font-size:13px;font-weight:600;margin:10px 0 7px;color:#c97b0a">Bailout gas</div>';
+bail.forEach(function(c){
+h+='<div class="grow"><div class="chk chk-g" style="background:#c97b0a">✓</div><span class="gico">🟡</span>'+
+'<span class="glbl" onclick="window.openEditCyl('+c.id+')">'+m2s(c.fO2,c.fHe)+' - '+c.fill+' bar ('+c.size.toFixed(1)+' ℓ)</span>'+
+'<button class="dbtn" onclick="window.delCyl('+c.id+')">🗑</button></div>';});}
+if(dec.length){
+h+='<div style="font-size:13px;font-weight:600;margin:10px 0 7px">Deco gases — check to enable in algorithm</div>';
+dec.forEach(function(c){
+var on=c.on!==false;
+h+='<div class="grow">'+
+'<div class="chk '+(on?'chk-t':'chk-e')+'" onclick="window.toggleCyl('+c.id+')">'+(on?'✓':'')+'</div>'+
+'<span class="gico">🪣</span>'+
+'<span class="glbl" onclick="window.openEditCyl('+c.id+')">'+m2s(c.fO2,c.fHe)+' - '+c.fill+' bar ('+c.size.toFixed(1)+' ℓ)</span>'+
+'<button class="dbtn" onclick="window.delCyl('+c.id+')">🗑</button></div>';});}
+el.innerHTML=h;}
+
+function renderSegs(){
+var el=document.getElementById('seg-list');
+if(!AP().segs.length){el.innerHTML='<div class="muted">No segments added yet.</div>';return;}
+el.innerHTML=AP().segs.map(function(s){
+var g=AP().cyls.find(function(c){return c.id===s.gasId;});
+var isCCR=AP().O.isCCR;
+var spTag=isCCR?'<span style="background:#3451d1;color:#fff;border-radius:4px;padding:1px 6px;font-size:11px">SP '+(s.sp||AP().O.ccrSP||1.3)+'</span>':'';
+var gasTag=isCCR?'<span>⬛ '+(g?m2s(g.fO2,g.fHe):'?')+' dil</span>':'<span>🪣 '+(g?m2s(g.fO2,g.fHe):'?')+'</span>';
+return '<div class="srow" onclick="window.openEditSeg('+s.id+')">'+
+'<div class="srow-info"><span>↓ '+s.depth+' m</span><span>⏱ '+s.time+' min</span>'+gasTag+spTag+'</div>'+
+'<button class="dbtn" onclick="event.stopPropagation();window.delSeg('+s.id+')">🗑</button></div>';
+}).join('');}
+
+function renderDeco(r){
+var dc=document.getElementById('deco-card');
+if(!r){dc.classList.add('hidden');return;}
+dc.classList.remove('hidden');
+document.getElementById('lbl-d').textContent=AP().O.contingencyDeeper;
+document.getElementById('lbl-l').textContent=AP().O.contingencyLonger;
+drawChart(r.profile);
+var html='';
+if(_activePlan>0){
+var prev=_plans[_activePlan-1];
+if(prev.result&&prev.result.finalTissues&&AP().surfaceInterval!=null){
+html+='<div class="residual-note">↑ Residual tissue loading from <strong>'+escHtml(prev.name)+'</strong>';
+if(AP().surfaceInterval>0)html+=' after '+AP().surfaceInterval+' min surface interval';
+html+=' applied to this dive.</div>';
+}else if(prev.result&&prev.result.finalTissues){
+html+='<div class="residual-note">↑ Residual loading from <strong>'+escHtml(prev.name)+'</strong> applied. Set a surface interval above to model offgassing.</div>';
+}else{html+='<div class="residual-fresh">ℹ Fresh tissue loading used (previous plan not calculated).</div>';}}
+html+='<table class="dtbl"><thead><tr><th></th><th>Depth</th><th>Runtime</th><th>Duration</th><th>Gas</th></tr></thead><tbody>';
+var prevRt=0;
+r.tblRows.forEach(function(row,i){
+var g=AP().cyls.find(function(c){return c.id===row.gasId;})||{fO2:.21,fHe:0};
+var rtRounded=Math.max(prevRt+1,Math.round(row.rt));
+var dtDisplay=fmtDur(row.dt);prevRt=rtRounded;
+var rowBg=row.gsw?' style="background:#e8edff"':'';html+='<tr'+(i%2&&!row.gsw?' class="alt"':'')+rowBg+'><td>'+row.sym+'</td><td>'+row.depth.toFixed(1)+'</td><td>'+rtRounded+'</td><td>+'+dtDisplay+'</td><td>'+(row.gsw&&row.sym!=='⊙'?'<span style="color:#3451d1">⊙</span> ':'')+m2s(g.fO2,g.fHe)+'</td></tr>';});
+html+='</tbody></table>';
+if(r.noStop){
+html='<div class="ndl-box"><div style="font-size:11px;color:#3451d1;text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:4px">No decompression limit (NDL)</div><div class="ndl-num">'+r.ndl+'</div><div style="font-size:13px;color:#3451d1;margin-top:4px">minutes remaining</div></div>'+html;
+}else{
+html+='<div class="cns-row"><div class="cns-box"><div class="cns-lbl">CNS</div><div class="cns-val">'+Math.round(r.cns)+'</div><div style="font-size:13px;color:#3451d1">%</div></div><div class="cns-box"><div class="cns-lbl">OTU</div><div class="cns-val">'+Math.round(r.otu)+'</div></div></div>';}
+html+='<div class="sum-lines">'+
+'<div><b>Average depth:</b> '+r.avgDepth.toFixed(2)+' meters</div>'+
+(r.noStop?'<div><b>NDL:</b> '+r.ndl+' minutes remaining</div>':
+'<div><b>Total deco time:</b> '+fmtDur(r.totalDecoTime)+' minutes</div>'+
+'<div><b>First deco after:</b> '+Math.round(r.firstDecoAfter)+' minutes</div>'+
+'<div><b>Deepest ceiling:</b> '+r.deepestCeiling.toFixed(2)+' meter</div>'+
+'<div><b>Max TTS:</b> '+r.tts+' @ '+Math.round(r.runTime)+' minutes</div>')+
+'</div>';
+document.getElementById('deco-body').innerHTML=html;}
+
+function renderRockBottom(r){
+var rc=document.getElementById('rb-card');
+if(!r){rc.classList.add('hidden');return;}
+rc.classList.remove('hidden');
+var O=AP().O,rb=rbBar(r);
+var gridH='';
+AP().cyls.forEach(function(c){
+var bar=rb[c.id]||0,psi=Math.round(bar*14.5038),pct=bar/(c.fill||200);
+var sc=pct>0.55?'#d9534f':pct>0.35?'#c97b0a':'#3451d1';
+var sb=pct>0.55?'#fdeaea':pct>0.35?'#fff3e0':'#eef2ff';
+gridH+='<div class="rb-box" style="background:'+sb+';border:1px solid '+sc+'44">'+
+'<div class="rb-lbl" style="color:'+sc+'">'+m2s(c.fO2,c.fHe)+'</div>'+
+'<div class="rb-num" style="color:'+sc+'">'+bar+'</div>'+
+'<div class="rb-unit" style="color:'+sc+'">bar</div>'+
+'<div class="rb-sub">'+psi+' PSI</div></div>';});
+var ttsInp=document.getElementById('tts-inp');
+if(ttsInp.dataset.userEdited!=='1'){ttsInp.value=r.tts;ttsInp.dataset.userEdited='0';}
+document.getElementById('tts-clr').style.display=ttsInp.value?'inline':'none';
+var ttsVal=ttsInp.value;var ttsNum=ttsVal!==''?parseInt(ttsVal,10):null;
+var ttsDisplay=ttsNum!==null?String(ttsNum):''+r.tts;
+var ttsDiff=ttsNum!==null?r.tts-ttsNum:0;
+var ttsColor=ttsNum===null?'#3451d1':ttsNum<r.tts?'#2a7a2a':ttsNum===r.tts?'#3451d1':'#d9534f';
+var ttsLabel=ttsNum===null?'plan max':ttsNum<r.tts?'−'+ttsDiff+' min early':'as planned';
+gridH+='<div class="rb-box" style="background:#eef2ff;border:1px solid '+ttsColor+'44">'+
+'<div class="rb-lbl" style="color:'+ttsColor+'">TTS</div>'+
+'<div class="rb-num" style="color:'+ttsColor+'">'+ttsDisplay+'</div>'+
+'<div class="rb-unit" style="color:'+ttsColor+'">minutes</div>'+
+'<div class="rb-sub">'+ttsLabel+'</div></div>';
+document.getElementById('rb-grid').innerHTML=gridH;
+var barsH='<div class="gleg" style="margin-bottom:10px">'+
+'<div class="leg-i"><div class="leg-dot" style="background:#b0b8c4"></div>Remaining</div>'+
+'<div class="leg-i"><div class="leg-dot" style="background:#3451d1"></div>Rock bottom reserve</div>'+
+'</div>';
+AP().cyls.forEach(function(c){
+var bar=rb[c.id]||0,unused=Math.max(0,c.fill-bar),f=c.fill||1;
+var pct=bar/f*100,upct=unused/f*100;
+var pctR=bar/f,sc=pctR>0.55?'#d9534f':pctR>0.35?'#c97b0a':'#3451d1';
+barsH+='<div class="gbar-row">'+
+'<div class="gbar-lbl">'+m2s(c.fO2,c.fHe)+' — rock bottom reserve</div>'+
+'<div class="gbar-track">'+
+'<div style="background:#b0b8c4;height:100%;display:flex;align-items:center;padding-left:8px;width:'+upct.toFixed(1)+'%"><span class="b-t">'+(unused>20?Math.round(unused):'')+'</span></div>'+
+'<div style="background:'+sc+';height:100%;display:flex;align-items:center;padding-left:6px;width:'+pct.toFixed(1)+'%"><span class="b-t">'+(bar>10?bar:'')+'</span></div>'+
+'</div>'+
+'<div class="baxis">'+[0,.25,.5,.75,1].map(function(f2){return '<span>'+Math.round(c.fill*f2)+'</span>';}).join('')+'</div></div>';});
+document.getElementById('rb-bars').innerHTML=barsH;
+var gasTriggers=AP().cyls.map(function(c){var bar=rb[c.id]||0,psi=Math.round(bar*14.5038);return m2s(c.fO2,c.fHe)+': '+bar+' bar / '+psi+' psi';}).join(' · ');
+var conf=document.getElementById('tts-confirm');
+if(ttsNum===null){
+conf.innerHTML='Plan max TTS: '+r.tts+' min. Enter a lower value for extra conservancy.<br><span style="color:#5a6472">Start ascent when TTS = '+r.tts+' min <em>or</em> gas reaches minimum reserve — whichever comes first.</span>';
+conf.style.color='#8a9aaa';
+}else if(ttsNum>r.tts){
+conf.innerHTML='⚠ Target ('+ttsNum+' min) exceeds plan max ('+r.tts+' min) — reduce for safety.';
+conf.style.color='#d9534f';
+}else if(ttsNum===r.tts){
+conf.innerHTML='Start ascent when TTS = <strong>'+ttsNum+' min</strong> <em>or</em> gas reaches minimum reserve — whichever comes first.<br><span style="color:#5a6472">'+gasTriggers+'</span>';
+conf.style.color='#3451d1';
+}else{
+conf.innerHTML='✓ '+ttsDiff+' min conservancy buffer. Start ascent when TTS = <strong>'+ttsNum+' min</strong> <em>or</em> gas reaches minimum reserve — whichever comes first.<br><span style="color:#5a6472">'+gasTriggers+'</span>';
+conf.style.color='#2a7a2a';}}
+
+function renderGasPlan(r){
+var gc=document.getElementById('gp-card');
+if(!r){gc.classList.add('hidden');return;}
+gc.classList.remove('hidden');
+var tags=[];
+if(AP().deeper)tags.push('+'+AP().O.contingencyDeeper+'m');
+if(AP().longer)tags.push('+'+AP().O.contingencyLonger+'min');
+document.getElementById('gp-tag').textContent=tags.length?'('+tags.join(', ')+')':'';
+var O9=AP().O,sal=O9.salinity,alt=O9.altitude;
+if(O9.isCCR){
+var o2Used=r.usage['ccr_o2']||0;
+var o2Cap=(O9.ccrO2Size||3)*(O9.ccrO2Fill||200);
+var o2Rem=Math.max(0,o2Cap-o2Used);
+var o2DurMin=o2Rem/(O9.ccrO2Rate||1.5);
+var dilStr=m2s(O9.ccrDilFO2||0.21,O9.ccrDilFHe||0);
+// ── Scrubber ──────────────────────────────────────────────────────────────
+var scrubUsed=parseFloat(localStorage.getItem('aeroplusScrubber')||'0');
+var scrubCap=O9.ccrScrubberCap||180;
+var scrubDiveMin=r.totalDecoTime+(r.tts||0);
+// tts already includes deco; use bottom time + tts as total dive duration
+var diveDur=0;
+if(AP().segs.length){AP().segs.forEach(function(s){diveDur+=s.time;});diveDur+=r.tts||0;}
+var scrubAfter=scrubUsed+diveDur;
+var scrubPctNow=Math.min(100,scrubUsed/scrubCap*100);
+var scrubPctAfter=Math.min(100,scrubAfter/scrubCap*100);
+var scrubRem=Math.max(0,scrubCap-scrubUsed);
+var scrubWarn=scrubAfter>=scrubCap*0.9;
+var scrubOver=scrubAfter>scrubCap;
+var scrubBarColor=scrubOver?'#d9534f':scrubWarn?'#c97b0a':'#3451d1';
+var scrubBg=scrubOver?'#fdeaea':scrubWarn?'#fff3e0':'#f0f4ff';
+var scrubHtml=
+'<div style="background:'+scrubBg+';border-radius:10px;padding:12px 14px;margin-top:10px">'+
+'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'+
+'<div style="font-size:12px;font-weight:700;color:'+scrubBarColor+';letter-spacing:0.4px">SCRUBBER</div>'+
+'<button onclick="window.resetScrubber()" style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #c8d0e0;background:#fff;color:#5a6472;cursor:pointer">Reset (repack)</button></div>'+
+'<div style="display:flex;justify-content:space-between;font-size:12px;color:#5a6472;margin-bottom:6px">'+
+'<span>Used: <b style="color:'+scrubBarColor+'">'+(scrubUsed|0)+' min</b> of '+scrubCap+' min</span>'+
+'<span>Remaining: <b>'+(scrubRem|0)+' min</b></span></div>'+
+'<div style="background:#e0e4ee;border-radius:6px;height:8px;overflow:hidden;position:relative">'+
+'<div style="background:'+scrubBarColor+';width:'+scrubPctAfter.toFixed(1)+'%;height:100%;border-radius:6px;transition:width .3s"></div>'+
+(scrubPctNow<scrubPctAfter?'<div style="position:absolute;left:'+scrubPctNow.toFixed(1)+'%;top:0;bottom:0;width:'+(scrubPctAfter-scrubPctNow).toFixed(1)+'%;background:'+scrubBarColor+'88"></div>':'')+'</div>'+
+(scrubOver?'<div style="font-size:11px;color:#d9534f;margin-top:5px;font-weight:600">⚠ Scrubber limit exceeded — repack before this dive</div>':
+scrubWarn?'<div style="font-size:11px;color:#c97b0a;margin-top:5px">⚠ Approaching scrubber limit</div>':
+'<div style="font-size:11px;color:#8a9aaa;margin-top:5px">This dive: +'+Math.round(diveDur)+' min</div>')+
+'</div>';
+var ccrHtml='<div style="padding:8px 0 4px">'+
+'<div style="font-weight:600;margin-bottom:8px;color:#3451d1">CCR Gas Plan</div>'+
+'<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px">'+
+'<div style="background:#f0f3fa;border-radius:10px;padding:10px 16px;flex:1;min-width:120px">'+
+'<div style="font-size:11px;color:#5a6472;margin-bottom:2px">O₂ consumed</div>'+
+'<div style="font-size:20px;font-weight:700">'+Math.round(o2Used)+'<span style="font-size:13px;font-weight:400;margin-left:3px">l</span></div>'+
+'<div style="font-size:11px;color:#5a6472">of '+Math.round(o2Cap)+' l ('+(o2Used/o2Cap*100).toFixed(0)+'% used)</div>'+
+'</div>'+
+'<div style="background:#f0f3fa;border-radius:10px;padding:10px 16px;flex:1;min-width:120px">'+
+'<div style="font-size:11px;color:#5a6472;margin-bottom:2px">O₂ remaining</div>'+
+'<div style="font-size:20px;font-weight:700">'+Math.round(o2DurMin)+'<span style="font-size:13px;font-weight:400;margin-left:3px">min</span></div>'+
+'<div style="font-size:11px;color:#5a6472">at '+O9.ccrO2Rate+' l/min metabolic</div>'+
+'</div></div>'+
+'<div style="font-size:13px;color:#5a6472;margin-bottom:6px">Diluent: <b>'+dilStr+'</b> &nbsp;·&nbsp; SP bottom: <b>'+O9.ccrSP+' ata</b> &nbsp;·&nbsp; SP deco: <b>'+O9.ccrDecoSP+' ata</b></div>'+
+scrubHtml+
+'</div>';
+document.getElementById('gas-bars').innerHTML=ccrHtml;
+} else {
+var rb=rbBar(r),bh='';
+AP().cyls.forEach(function(c){
+var used=(r.usage[c.id]||0)/c.size,emerg=rb[c.id]||0,normUsed=Math.max(0,used-emerg),unused=Math.max(0,c.fill-used),f=c.fill||1;
+function pct(v){return Math.min(100,Math.max(0,v/f*100)).toFixed(1);}
+bh+='<div class="gbar-row"><div class="gbar-lbl">'+m2s(c.fO2,c.fHe)+'</div>'+
+'<div class="gbar-track">'+
+'<div class="b-u" style="width:'+pct(unused)+'%"><span class="b-t">'+(unused>15?Math.round(unused):'')+'</span></div>'+
+'<div class="b-e" style="width:'+pct(emerg)+'%"><span class="b-t">'+(emerg>10?emerg:'')+'</span></div>'+
+'<div class="b-n" style="width:'+pct(normUsed)+'%"><span class="b-t">'+(normUsed>15?Math.round(normUsed):'')+'</span></div>'+
+'</div>'+
+'<div class="baxis">'+[0,.25,.5,.75,1].map(function(f2){return '<span>'+Math.round(c.fill*f2)+'</span>';}).join('')+'</div></div>';});
+document.getElementById('gas-bars').innerHTML=bh;
+}
+var ct='';
+AP().cyls.forEach(function(c,i){
+var ub=Math.round((r.usage[c.id]||0)/c.size),rem=Math.max(0,c.fill-ub);
+ct+='<tr><td>'+(i+1)+'</td><td>'+m2s(c.fO2,c.fHe)+'</td><td>'+c.size.toFixed(1)+'</td><td>'+c.fill+' > '+rem+' ('+ub+')</td></tr>';});
+document.getElementById('cyl-tbody').innerHTML=ct;
+var lt='';
+AP().segs.forEach(function(s){
+var g=AP().cyls.find(function(c){return c.id===s.gasId;})||AP().cyls[0];if(!g)return;
+var P=ambP(s.depth,sal,alt),dens=gdens(g.fO2,g.fHe,s.depth,sal,alt);
+var ppo2Raw=g.fO2*P,ppo2=(ppo2Raw).toFixed(2);
+var densN=parseFloat(dens),densCls=densN>=6.2?'rcell':densN>=5.2?'wcell':'';
+var isBack=g.role==='bottom';
+var ppo2Limit=isBack?AP().O.maxPPO2:AP().O.maxDecoPPO2;
+var ppo2Cls=ppo2Raw>ppo2Limit+0.001?'rcell':'';
+lt+='<tr><td>'+m2s(g.fO2,g.fHe)+'</td><td>'+s.depth+'m</td><td class="'+densCls+'">'+dens+'</td><td class="'+ppo2Cls+'">'+(ppo2Cls?'⚠ ':'')+ppo2+'</td></tr>';});
+document.getElementById('lim-tbody').innerHTML=lt;}
+
+function renderResults(){
+if(AP().result){renderDeco(AP().result);renderRockBottom(AP().result);renderGasPlan(AP().result);}
+else{document.getElementById('deco-card').classList.add('hidden');document.getElementById('rb-card').classList.add('hidden');document.getElementById('gp-card').classList.add('hidden');}}
+
+var refreshCCRCard=window.refreshCCRCard=function(){
+var O=AP().O;
+var card=document.getElementById('ccr-main-card');
+if(!card)return;
+card.classList.toggle('hidden',!O.isCCR);
+var o2cyl=document.getElementById('ccr-o2-cyl');
+if(o2cyl)o2cyl.classList.toggle('hidden',!O.isCCR);
+if(!O.isCCR)return;
+// populate O2 cylinder inline fields
+var sz=document.getElementById('ccr-o2-sz');
+var fl=document.getElementById('ccr-o2-fl');
+if(sz)sz.value=parseFloat((O.ccrO2Size||3).toFixed(4));
+if(fl)fl.value=parseFloat((O.ccrO2Fill||200).toFixed(0));
+document.getElementById('ccr-dil-o2').value=Math.round((O.ccrDilFO2||0.21)*100);
+document.getElementById('ccr-dil-he').value=Math.round((O.ccrDilFHe||0)*100);
+document.getElementById('ccr-sp-bot').value=parseFloat((O.ccrSP||1.3).toFixed(4));
+document.getElementById('ccr-sp-dec').value=parseFloat((O.ccrDecoSP||1.3).toFixed(4));}
+function renderAll(){
+renderPlansBar();renderPlanHeader();renderIntervalCard();renderCyls();renderSegs();window.refreshCCRCard();
+// Update hint text
+var hint=document.getElementById('cyl-hint');
+if(hint)hint.textContent=AP().O.isCCR
+  ?'In CCR mode cylinders are bailout OC gas only — they are not used by the decompression algorithm.'
+  :'Deco gases must be checked (✓) to be used by the algorithm. The richest checked gas within PPO₂ limits is selected at each depth.';
+document.getElementById('lbl-d').textContent=AP().O.contingencyDeeper;
+document.getElementById('lbl-l').textContent=AP().O.contingencyLonger;
+document.getElementById('btn-d').className='dl-btn'+(AP().deeper?' on':'');
+document.getElementById('btn-l').className='dl-btn'+(AP().longer?' on':'');
+var ttsR=document.getElementById('tts-inp');
+ttsR.value='';ttsR.dataset.userEdited='0';
+document.getElementById('tts-clr').style.display='none';
+document.getElementById('tts-confirm').textContent='';
+document.getElementById('calc-note').textContent=AP().result?'✓ Plan calculated':'Enter cylinders and profile, then press Calculate';
+renderResults();savePlans();}
+
+window.runAll=function runAll(){
+try{
+window.applyAutoGFLo();
+var initialTs=getInitialTissues();
+AP().result=planDive(initialTs);
+renderDeco(AP().result);renderRockBottom(AP().result);renderGasPlan(AP().result);
+}catch(e){document.getElementById('calc-note').textContent='Error: '+e.message;console.error(e);}
+savePlans();};
+
+window.calculate=function(){
+if(!AP().cyls.find(function(c){return c.role==='bottom';})){alert('Add at least one bottom (in use) cylinder.');return;}
+if(!AP().segs.length){alert('Add at least one dive segment.');return;}
+runAll();
+var note='✓ Plan calculated';
+if(_activePlan>0){
+var prev=_plans[_activePlan-1];
+if(prev.result&&prev.result.finalTissues){
+note+=' with residual loading from "'+prev.name+'"';
+if(AP().surfaceInterval)note+=' ('+AP().surfaceInterval+' min surface interval)';}}
+document.getElementById('calc-note').textContent=note;
+setTimeout(function(){document.getElementById('deco-card').scrollIntoView({behavior:'smooth',block:'start'});},100);};
+
+window.toggleDL=function(which){
+AP()[which]=!AP()[which];
+document.getElementById('btn-d').className='dl-btn'+(AP().deeper?' on':'');
+document.getElementById('btn-l').className='dl-btn'+(AP().longer?' on':'');
+if(AP().result)runAll();};
+
+window.toggleCyl=function(id){var c=AP().cyls.find(function(c){return c.id===id;});if(c)c.on=!c.on;renderCyls();window.applyAutoGFLo();};
+window.delCyl=function(id){AP().cyls=AP().cyls.filter(function(c){return c.id!==id;});renderCyls();renderSegs();};
+window.delSeg=function(id){AP().segs=AP().segs.filter(function(s){return s.id!==id;});renderSegs();};
+window.refreshTTS=function(){
+document.getElementById('tts-clr').style.display=document.getElementById('tts-inp').value?'inline':'none';
+if(AP().result)renderRockBottom(AP().result);};
+window.clearTTSInp=function(){
+var inp=document.getElementById('tts-inp');
+inp.value='';inp.dataset.userEdited='0';
+document.getElementById('tts-clr').style.display='none';
+if(AP().result)renderRockBottom(AP().result);};
+
+window.openModal=function(type){
+closeModals();
+document.getElementById('mbg').classList.remove('hidden');
+if(type==='cyl'){
+_editCyl=null;_role='bottom';
+document.getElementById('m-cyl-t').textContent='Add cylinder';
+document.getElementById('c-o2').value=21;document.getElementById('c-he').value=0;
+document.getElementById('c-sz').value=12;document.getElementById('c-fl').value=200;
+document.getElementById('c-err').classList.add('hidden');
+updRoleTog();document.getElementById('m-cyl').classList.remove('hidden');
+}else{
+if(!AP().cyls.length){
+document.getElementById('mbg').classList.add('hidden');
+alert('Add at least one gas cylinder before adding a dive segment.');
+return;}
+_editSeg=null;
+document.getElementById('m-seg-t').textContent='Add segment';
+document.getElementById('s-dep').value=30;document.getElementById('s-tim').value=20;
+document.getElementById('s-gas').innerHTML=AP().cyls.map(function(c){
+return '<option value="'+c.id+'">'+m2s(c.fO2,c.fHe)+' – '+c.fill+' bar</option>';}).join('');
+document.getElementById('s-err').classList.add('hidden');
+document.getElementById('m-seg').classList.remove('hidden');}};
+
+window.openEditCyl=function(id){
+var c=AP().cyls.find(function(x){return x.id===id;});if(!c)return;
+_editCyl=id;_role=c.role;closeModals();
+document.getElementById('mbg').classList.remove('hidden');
+document.getElementById('m-cyl-t').textContent='Edit cylinder';
+document.getElementById('c-o2').value=Math.round(c.fO2*100);
+document.getElementById('c-he').value=Math.round(c.fHe*100);
+document.getElementById('c-sz').value=c.size;document.getElementById('c-fl').value=c.fill;
+document.getElementById('c-err').classList.add('hidden');
+updRoleTog();document.getElementById('m-cyl').classList.remove('hidden');};
+
+window.openEditSeg=function(id){
+var s=AP().segs.find(function(x){return x.id===id;});if(!s)return;
+_editSeg=id;closeModals();
+document.getElementById('mbg').classList.remove('hidden');
+document.getElementById('m-seg-t').textContent='Edit segment';
+document.getElementById('s-dep').value=s.depth;document.getElementById('s-tim').value=s.time;
+document.getElementById('s-gas').innerHTML=AP().cyls.map(function(c){
+return '<option value="'+c.id+'"'+(c.id===s.gasId?' selected':'')+'>'+m2s(c.fO2,c.fHe)+' – '+c.fill+' bar</option>';}).join('');
+document.getElementById('s-err').classList.add('hidden');
+document.getElementById('m-seg').classList.remove('hidden');};
+
+window.setRole=function(r){_role=r;updRoleTog();};
+function updRoleTog(){
+var isCCR=AP().O.isCCR;
+var bb=document.getElementById('rb-b');
+var bo=document.getElementById('rb-o');
+var bd=document.getElementById('rb-d');
+if(bb)bb.textContent=isCCR?'Diluent':'Bottom gas';
+if(bb)bb.className='rtog-btn'+(_role==='bottom'?' on':'');
+if(bo)bo.className='rtog-btn'+(_role==='bailout'?' on':'');
+if(bd)bd.className='rtog-btn'+(_role==='deco'?' on':'');}
+
+window.saveCyl=function(){
+function toNum(id){return +(document.getElementById(id).value.replace(',','.'));}
+var o2=toNum('c-o2'),he=toNum('c-he'),sz=toNum('c-sz'),fl=toNum('c-fl');
+function err(m){var e=document.getElementById('c-err');e.textContent=m;e.classList.remove('hidden');}
+if(isNaN(o2)||o2<5||o2>100)return err('O₂ must be 5–100%');
+if(isNaN(he)||he<0||he>95)return err('He must be 0–95%');
+if(o2+he>100)return err('O₂ + He cannot exceed 100%');
+if(isNaN(sz)||sz<=0)return err('Invalid size');
+if(isNaN(fl)||fl<=0)return err('Invalid fill pressure');
+if(_editCyl){var c=AP().cyls.find(function(x){return x.id===_editCyl;});if(c)Object.assign(c,{fO2:o2/100,fHe:he/100,size:sz,fill:fl,role:_role,on:true});}
+else AP().cyls.push({id:++NID,fO2:o2/100,fHe:he/100,size:sz,fill:fl,role:_role,on:true});
+closeModals();renderCyls();window.applyAutoGFLo();};
+
+window.saveSeg=function(){
+var dep=+document.getElementById('s-dep').value,tim=+document.getElementById('s-tim').value;
+var gasId=+document.getElementById('s-gas').value;
+function err(m){var e=document.getElementById('s-err');e.textContent=m;e.classList.remove('hidden');}
+if(isNaN(dep)||dep<=0||dep>330)return err('Depth must be 1–330 m');
+if(isNaN(tim)||tim<=0)return err('Time must be > 0 min');
+if(_editSeg){var s=AP().segs.find(function(x){return x.id===_editSeg;});if(s)Object.assign(s,{depth:dep,time:tim,gasId:gasId});}
+else AP().segs.push({id:++NID,depth:dep,time:tim,gasId:gasId});
+closeModals();renderSegs();};
+
+window.closeModals=function(){
+document.getElementById('mbg').classList.add('hidden');
+document.getElementById('m-cyl').classList.add('hidden');
+document.getElementById('m-seg').classList.add('hidden');};
+window.bgClick=function(e){if(e.target.id==='mbg')closeModals();};
+
+window.openCfg=function(){
+document.getElementById('cfg-hdr-t').textContent='Settings — '+AP().name;
+document.getElementById('cfg-page').classList.add('open');
+refreshCfgDisplay();};
+window.closeCfg=function(){document.getElementById('cfg-page').classList.remove('open');};
+
+function refreshCfgDisplay(){
+var O=AP().O;
+document.getElementById('cfg-gf').textContent=Math.round(O.gfLo*100)+'/'+Math.round(O.gfHi*100);
+document.getElementById('cfg-sal').textContent=SLBL[O.salinity]||O.salinity;
+document.getElementById('cfg-alt').textContent=O.altitude+' m';
+document.getElementById('cfg-ar').textContent=O.ascentRate+' m/min';
+document.getElementById('cfg-dr').textContent=O.descentRate+' m/min';
+document.getElementById('cfg-sn').textContent=O.sacNorm+' l/min';
+document.getElementById('cfg-se').textContent=O.sacEmerg+' l/min';
+document.getElementById('cfg-sd').textContent=(O.sacDeco||10)+' l/min';
+document.getElementById('cfg-si').textContent=O.stopInterval+' m';
+document.getElementById('cfg-ls').textContent=O.lastStop+' m';
+document.getElementById('cfg-pp').textContent=O.maxPPO2.toFixed(2);
+document.getElementById('cfg-dp').textContent=O.maxDecoPPO2.toFixed(2);
+document.getElementById('cfg-gst').textContent=O.gasSwitchTime+' min';
+document.getElementById('cfg-ms').textContent=(O.minStopTime||0)+' min';
+document.getElementById('tog-sam').checked=!!O.switchAtMOD;
+document.getElementById('cfg-cd').textContent=O.contingencyDeeper+' m';
+document.getElementById('cfg-cl').textContent=O.contingencyLonger+' min';
+document.getElementById('tog-dbs').checked=O.decoGasBetween;
+// CCR fields
+var agChk=document.getElementById('tog-autogf');
+if(agChk){agChk.checked=!!O.autoGFLo;var agl=document.getElementById('cfg-autogf-lbl');if(agl&&!O.autoGFLo)agl.textContent='';}
+var ccrChk=document.getElementById('tog-ccr');
+if(ccrChk){ccrChk.checked=!!O.isCCR;document.getElementById('ccr-settings').style.display=O.isCCR?'block':'none';}
+var _el;
+if((_el=document.getElementById('cfg-ccrsp')))_el.textContent=(O.ccrSP||1.3)+' ata';
+if((_el=document.getElementById('cfg-ccrdsp')))_el.textContent=(O.ccrDecoSP||1.3)+' ata';
+if((_el=document.getElementById('cfg-ccrdo2')))_el.textContent=Math.round((O.ccrDilFO2||0.21)*100)+'%';
+if((_el=document.getElementById('cfg-ccrdhe')))_el.textContent=Math.round((O.ccrDilFHe||0)*100)+'%';
+if((_el=document.getElementById('cfg-ccro2r')))_el.textContent=(O.ccrO2Rate||1.5)+' l/min';
+if((_el=document.getElementById('cfg-bailswt')))_el.textContent=(O.bailoutSwitchTime!==undefined?O.bailoutSwitchTime:2)+' min';
+if((_el=document.getElementById('cfg-scrubcap')))_el.textContent=(O.ccrScrubberCap||180)+' min';
+if((_el=document.getElementById('cfg-ccro2sz')))_el.textContent=(O.ccrO2Size||3)+' l';
+if((_el=document.getElementById('cfg-ccro2f')))_el.textContent=(O.ccrO2Fill||200)+' bar';}
+
+window.openNumEdit=function(key,title,desc,min,max,step,unit){
+_numKey=key;_numMin=min;_numMax=max;_numStep=step;_numUnit=unit;
+document.getElementById('num-ttl').textContent=title;
+document.getElementById('num-desc').textContent=desc;
+var cur=AP().O[key];if(cur===undefined)cur=HARDCODED_O[key];
+var dispVal=typeof cur==='number'?parseFloat(cur.toFixed(4))+'':String(cur);document.getElementById('num-inp').value=dispVal;
+document.getElementById('num-inp').min=min;document.getElementById('num-inp').max=max;document.getElementById('num-inp').step=step;
+document.getElementById('num-ovl').classList.remove('hidden');
+setTimeout(function(){document.getElementById('num-inp').focus();},100);};
+window.saveNumEdit=function(){
+var v=parseFloat(document.getElementById('num-inp').value.replace(',','.'));if(isNaN(v))return;
+AP().O[_numKey]=Math.max(_numMin,Math.min(_numMax,v));
+document.getElementById('num-ovl').classList.add('hidden');refreshCfgDisplay();};
+
+window.applyAutoGFLo=function(){
+var O=AP().O;
+if(!O.autoGFLo)return;
+// Find shallowest MOD across all configured deco gases (enabled or not — they are configured)
+var decoGases=AP().cyls.filter(function(c){return c.role==='deco'&&c.on!==false;});
+var target=null;
+if(decoGases.length){
+  var mods=decoGases.map(function(c){return Math.floor((O.maxDecoPPO2/c.fO2-1)*10);});
+  target=Math.min.apply(null,mods);
+}
+// Also consider bottom gas MOD as a fallback reference for max depth
+var maxD=AP().segs.length?Math.max.apply(null,AP().segs.map(function(s){return s.depth;})):0;
+if(!maxD){
+  var lbl=document.getElementById('cfg-autogf-lbl');
+  if(lbl)lbl.textContent='(add a dive segment first)';
+  return;
+}
+if(!target||target<=0||target>=maxD)target=maxD*0.4; // fallback: 40% of max depth
+target=Math.min(target,maxD);
+// Andy Davis formula: GFLo = GFHi x (first_switch_depth / max_depth)
+var gfHiPct=Math.round(O.gfHi*100);
+var newGFLoPct=Math.round(gfHiPct*(target/maxD));
+// Enforce GFHi - GFLo >= 10
+newGFLoPct=Math.min(newGFLoPct, gfHiPct-10);
+newGFLoPct=Math.max(10,newGFLoPct);
+var oldPct=Math.round(O.gfLo*100);
+O.gfLo=newGFLoPct/100;
+var lbl=document.getElementById('cfg-autogf-lbl');
+if(lbl)lbl.textContent='GF Low set to '+newGFLoPct+'% (switch @ '+Math.round(target)+'m, max '+Math.round(maxD)+'m)';
+refreshCfgDisplay();
+if(AP().result)try{window.runAll();}catch(e){}
+};
+window.openGFEdit=function(){
+document.getElementById('gflo-inp').value=Math.round(AP().O.gfLo*100);
+document.getElementById('gfhi-inp').value=Math.round(AP().O.gfHi*100);
+document.getElementById('gf-ovl').classList.remove('hidden');};
+window.saveGFEdit=function(){
+var lo=parseInt(document.getElementById('gflo-inp').value);
+var hi=parseInt(document.getElementById('gfhi-inp').value);
+if(isNaN(lo)||isNaN(hi))return;
+AP().O.gfLo=Math.max(10,Math.min(100,lo))/100;
+AP().O.gfHi=Math.max(10,Math.min(100,hi))/100;
+document.getElementById('gf-ovl').classList.add('hidden');refreshCfgDisplay();};
+
+window.openSelEdit=function(key,title,desc,vals,labels){
+_selKey=key;_selVals=vals;_selLabels=labels;
+document.getElementById('sel-ttl').textContent=title;
+document.getElementById('sel-desc').textContent=desc;
+document.getElementById('sel-inp').innerHTML=vals.map(function(v,i){
+return '<option value="'+v+'"'+(AP().O[key]===v?' selected':'')+'>'+labels[i]+'</option>';}).join('');
+document.getElementById('sel-ovl').classList.remove('hidden');};
+window.saveSelEdit=function(){
+AP().O[_selKey]=document.getElementById('sel-inp').value;
+document.getElementById('sel-ovl').classList.add('hidden');refreshCfgDisplay();};
+
+function buildExportRows(){
+var r=AP().result;if(!r)return null;
+var O=AP().O,rows=[];var planNum=_activePlan+1;
+rows.push({label:'Dive #'+planNum+',  ZHL-16C-GF  '+Math.round(O.gfLo*100)+'/'+Math.round(O.gfHi*100)});
+rows.push({label:'Elevation = '+O.altitude+' m'});
+rows.push({label:'CNS = '+Math.round(r.cns)+'%'});
+rows.push({label:"OTU's = "+Math.round(r.otu)});
+if(!r.noStop)rows.push({label:'Decozone start = '+r.firstStopD+' m'});
+else rows.push({label:'NDL = '+r.ndl+' min remaining'});
+var bg=AP().cyls.find(function(c){return c.role==='bottom';});
+if(bg)rows.push({label:'Gas density = '+gdens(bg.fO2,bg.fHe,r.maxDepth,O.salinity,O.altitude)+' g/l'});
+AP().cyls.forEach(function(c){
+var used=Math.round((r.usage[c.id]||0));
+rows.push({label:'Gas  '+m2s(c.fO2,c.fHe)+' = '+used+' ltr.'});});
+rows.push({label:'TTS = '+r.tts+' min'});
+rows.push({label:'Run time = '+Math.round(r.runTime)+' min'});
+if(!r.noStop&&r.stops.length){
+rows.push({label:'── Deco stops ──',header:true});
+r.stops.forEach(function(s){
+var g=AP().cyls.find(function(c){return c.id===s.gasId;})||{fO2:.21,fHe:0};
+rows.push({label:s.depth+' m  ×  '+s.time+' min   ('+m2s(g.fO2,g.fHe)+')'});});}
+return rows;}
+
+function exportPlainText(){
+var r=AP().result;if(!r)return'';
+var rows=buildExportRows(),lines=[];
+lines.push('AEROPLUS DECO — '+AP().name);
+lines.push('─'.repeat(36));
+rows.forEach(function(row){lines.push(row.label);});
+lines.push('─'.repeat(36));
+lines.push('DISCLAIMER: Always verify with a certified dive planning tool.');
+return lines.join('\n');}
+
+window.doExport=function(){
+var r=AP().result;if(!r){alert('Calculate a dive plan first.');return;}
+var rows=buildExportRows();
+var html=rows.map(function(row,i){
+var bg=row.header?'#f4f6fb':i%2===0?'#fff':'#f8f9fc';
+var fw=row.header?'600':'400';var fc=row.header?'#8a9aaa':'#1a1a1a';
+var fs=row.header?'12px':'16px';var bb=i<rows.length-1?'border-bottom:1px solid #e8ebf0;':'';
+return '<div style="padding:13px 16px;background:'+bg+';'+bb+'font-size:'+fs+';font-weight:'+fw+';color:'+fc+'">'+row.label+'</div>';
+}).join('');
+document.getElementById('export-report').innerHTML=html;
+document.getElementById('export-bg').classList.remove('hidden');};
+
+window.closeExportPanel=function(){document.getElementById('export-bg').classList.add('hidden');};
+window.copyExportToClipboard=function(){
+var txt=exportPlainText();
+var ta=document.createElement('textarea');
+ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';
+document.body.appendChild(ta);ta.focus();ta.select();
+try{
+document.execCommand('copy');
+var btns=document.querySelectorAll('#export-panel button');
+btns[0].textContent='✓ Copied!';
+setTimeout(function(){btns[0].textContent='Copy to clipboard';},2000);
+}catch(e){alert(txt);}
+document.body.removeChild(ta);};
+
+window.printExport=function(){
+var txt=exportPlainText();var rows=buildExportRows();
+var tableHtml=rows.map(function(row){
+return '<tr style="border-bottom:1px solid #e8ebf0"><td style="padding:11px 14px;font-size:15px;'+(row.header?'color:#8a9aaa;font-size:12px;text-align:center':'color:#1a1a1a')+'">'+row.label+'</td></tr>';}).join('');
+var content='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+escHtml(AP().name)+'</title>'
++'<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,Helvetica,sans-serif;background:#f4f6fb;padding:20px}'
++'.card{background:#fff;border-radius:14px;overflow:hidden;border:1px solid #e0e4eb;max-width:480px;margin:0 auto 20px}'
++'.hdr{background:#3451d1;padding:16px 18px;color:#fff}.hdr h1{font-size:20px;font-weight:700}.hdr p{font-size:12px;opacity:.8;margin-top:2px}'
++'.sec{font-size:11px;font-weight:700;color:#8a9aaa;text-transform:uppercase;letter-spacing:.06em;text-align:center;padding:10px 0}'
++'table{width:100%;border-collapse:collapse}td{padding:11px 14px;font-size:15px;color:#1a1a1a;border-bottom:1px solid #e8ebf0}'
++'.disc{background:#fdeaea;border:1px solid #f0a0a0;border-radius:10px;padding:10px 14px;font-size:12px;color:#a02020;max-width:480px;margin:0 auto}'
++'@media print{body{padding:0}}</style></head><body>'
++'<div class="card"><div class="hdr"><h1>AeroPlus Deco</h1><p>'+escHtml(AP().name)+'  ·  '+new Date().toLocaleDateString()+'</p></div>'
++'<div class="sec">Report</div><table>'+tableHtml+'</table></div>'
++'<div class="disc">⚠ Always verify decompression calculations with a certified tool or qualified dive professional.</div>'
++'<script>window.onload=function(){window.print();}<\/script></body></html>';
+var win=window.open('','_blank','width=520,height=700');
+if(win){win.document.write(content);win.document.close();}
+else{var blob=new Blob([txt],{type:'text/plain'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='AeroPlus-Deco-'+AP().name.replace(/\s+/g,'-')+'.txt';a.click();}};
+
+window.exportData=function(){
+try{
+var data={
+plans:_plans.map(function(p){
+return{id:p.id,name:p.name,
+cyls:p.cyls.map(function(c){return Object.assign({},c);}),
+segs:p.segs.map(function(s){return Object.assign({},s);}),
+O:Object.assign({},p.O),
+deeper:p.deeper,longer:p.longer,surfaceInterval:p.surfaceInterval};}),
+active:_activePlan,defaults:Object.assign({},_defaultO)};
+var json=JSON.stringify(data,null,2);
+var blob=new Blob([json],{type:'application/json'});
+var url=URL.createObjectURL(blob);
+var a=document.createElement('a');
+a.href=url;a.download='aeroplus-deco-'+new Date().toISOString().slice(0,10)+'.json';
+document.body.appendChild(a);a.click();
+setTimeout(function(){URL.revokeObjectURL(url);document.body.removeChild(a);},1000);
+}catch(e){alert('Export failed: '+e.message);}};
+
+window.copyExportJson=function(){
+var ta=document.getElementById('export-json-ta');
+ta.select();ta.setSelectionRange(0,99999);
+try{
+document.execCommand('copy');
+var btn=document.getElementById('copy-json-btn');
+btn.textContent='✓ Copied!';
+setTimeout(function(){btn.textContent='Copy to clipboard';},2500);
+}catch(e){alert('Select all text above and copy manually.');}};
+
+window.importData=function(){
+document.getElementById('import-paste-ovl').classList.remove('hidden');
+document.getElementById('import-paste-inp').value='';
+setTimeout(function(){document.getElementById('import-paste-inp').focus();},200);};
+
+window.doImportFromPaste=function(){
+var raw=document.getElementById('import-paste-inp').value.trim();
+if(!raw){alert('Please paste your JSON data first.');return;}
+try{
+var data=JSON.parse(raw);
+if(!data.plans||!data.plans.length)throw new Error('No plans found in JSON.');
+var msg='⚠ This will replace all '+_plans.length+' existing plan'+(_plans.length!==1?'s':'')+' with '+data.plans.length+' imported plan'+(data.plans.length!==1?'s':'')+'. This cannot be undone.\n\nContinue?';
+if(!confirm(msg))return;
+if(data.defaults)Object.assign(_defaultO,data.defaults);
+_plans=data.plans.map(function(p){
+var fresh=makePlan(p.name);
+fresh.id=p.id;fresh.cyls=p.cyls;fresh.segs=p.segs;
+fresh.O=Object.assign(copyO(_defaultO),p.O);
+fresh.deeper=!!p.deeper;fresh.longer=!!p.longer;
+fresh.surfaceInterval=p.surfaceInterval||null;
+return fresh;});
+_activePlan=Math.min(data.active||0,_plans.length-1);
+savePlans();
+try{localStorage.setItem('aeroplusDeco_defaults',JSON.stringify(_defaultO));}catch(ex){}
+document.getElementById('import-paste-ovl').classList.add('hidden');
+renderAll();
+alert('✓ '+data.plans.length+' plan'+(data.plans.length!==1?'s':'')+' loaded successfully.');
+}catch(e){alert('Import failed: '+e.message);}};
+
+window.onImportFile=function(evt){
+var file=evt.target.files[0];if(!file)return;
+var reader=new FileReader();
+reader.onload=function(e){document.getElementById('import-paste-inp').value=e.target.result;window.doImportFromPaste();};
+reader.readAsText(file);};
+
+window.openSupport=function(){
+document.getElementById('support-ovl').classList.remove('hidden');};
+
+window.toggleMenu=function(){var d=document.getElementById('menu-drop'),b=document.getElementById('menu-bg');var hidden=d.classList.contains('hidden');d.classList.toggle('hidden',!hidden);b.classList.toggle('hidden',!hidden);};
+window.closeMenu=function(){document.getElementById('menu-drop').classList.add('hidden');document.getElementById('menu-bg').classList.add('hidden');};
+window.openAbout=function(){document.getElementById('about-ovl').classList.add('open');};
+window.closeAbout=function(){document.getElementById('about-ovl').classList.remove('open');};
+
+// ═══════════════════════════════════════════════════════════════
+// GAS BLENDING CALCULATOR
+// ═══════════════════════════════════════════════════════════════
+
+var BLEND_PRESETS=[
+  {label:'Air',o2:21,he:0},
+  {label:'EAN32',o2:32,he:0},
+  {label:'EAN36',o2:36,he:0},
+  {label:'EAN50',o2:50,he:0},
+  {label:'TMX 21/35',o2:21,he:35},
+  {label:'TMX 18/45',o2:18,he:45},
+  {label:'TMX 15/55',o2:15,he:55},
+  {label:'Heliox 16/84',o2:16,he:84},
+  {label:'O₂ 100%',o2:100,he:0}
+];
+
+window.openBlend=function(){
+  // Render preset buttons
+  var presetsEl=document.getElementById('blend-presets');
+  presetsEl.innerHTML=BLEND_PRESETS.map(function(p){
+    return '<button class="blend-preset-btn" onclick="window.setBlendTarget('+p.o2+','+p.he+')">'+escHtml(p.label)+'</button>';
+  }).join('');
+  document.getElementById('blend-page').classList.add('open');
+  window.blendCalc();
+};
+
+window.closeBlend=function(){
+  document.getElementById('blend-page').classList.remove('open');
+};
+
+window.setBlendTarget=function(o2,he){
+  document.getElementById('bl-to2').value=o2;
+  document.getElementById('bl-the').value=he;
+  // Highlight matching preset
+  var btns=document.querySelectorAll('.blend-preset-btn');
+  BLEND_PRESETS.forEach(function(p,i){
+    btns[i].classList.toggle('active',p.o2===o2&&p.he===he);
+  });
+  window.blendCalc();
+};
+
+window.onBlendTopupChange=function(){
+  var v=document.getElementById('bl-topup').value;
+  document.getElementById('bl-topup-custom').classList.toggle('hidden',v!=='custom');
+  window.blendCalc();
+};
+
+// Core partial pressure blending algorithm
+// Fill order: He → pure O₂ → top-up gas
+function doBlendCalc(Ps,so2,she,Pt,to2,the,tuO2,tuHe){
+  var fO2s=so2/100,fHes=she/100,fN2s=Math.max(0,1-fO2s-fHes);
+  var fO2t=to2/100,fHet=the/100,fN2t=Math.max(0,1-fO2t-fHet);
+  var fO2top=tuO2/100,fHetop=tuHe/100,fN2top=Math.max(0,1-fO2top-fHetop);
+
+  var errors=[];
+  if(to2+the>100)return{error:'Target O₂ + He exceeds 100%'};
+  if(so2+she>100)return{error:'Current O₂ + He exceeds 100%'};
+  if(tuO2+tuHe>100)return{error:'Top-up O₂ + He exceeds 100%'};
+  if(Pt<=0)return{error:'Invalid target pressure'};
+  if(Ps<0)return{error:'Invalid current pressure'};
+  if(Ps>=Pt)return{error:'Current pressure must be less than target pressure'};
+  if(fO2t<0.01)return{error:'Target O₂ must be at least 1%'};
+
+  // Step 1: He addition (pure He, adds no O₂ or N₂)
+  var he_add=Pt*fHet-Ps*fHes;
+
+  // Step 2: Top-up amount to balance N₂
+  // N₂ in final = Pt × fN2t
+  // N₂ from start = Ps × fN2s
+  // N₂ from topup = topup_add × fN2top
+  var topup_add,o2_add;
+
+  if(fN2top<0.001){
+    // Top-up has no N₂ (e.g. pure O₂ topup — unusual)
+    topup_add=0;
+    // O₂ step fills the rest after He
+    o2_add=Pt-Ps-Math.max(0,he_add);
+    // Check that N₂ balance works out
+    var n2Actual=Ps*fN2s;
+    var n2Need=Pt*fN2t;
+    if(Math.abs(n2Actual-n2Need)>1){
+      errors.push('Top-up gas has no N₂ — N₂ balance cannot be achieved. Choose a different top-up gas (e.g. Air).');
+    }
+  }else{
+    topup_add=(Pt*fN2t-Ps*fN2s)/fN2top;
+    o2_add=Pt*fO2t-Ps*fO2s-topup_add*fO2top;
+  }
+
+  // Check if any step is negative (need to drain)
+  var needDrain=he_add<-0.5||topup_add<-0.5||o2_add<-0.5;
+  var drainTo=0;
+
+  if(needDrain){
+    // Compute drain-to pressure for each constraint
+    var candidates=[];
+    // He constraint: P_drain × fHes ≤ Pt × fHet → P_drain ≤ Pt × fHet / fHes
+    if(fHes>0.001)candidates.push(Pt*fHet/fHes);
+    // N₂ constraint: P_drain × fN2s ≤ Pt × fN2t → P_drain ≤ Pt × fN2t / fN2s
+    if(fN2s>0.001)candidates.push(Pt*fN2t/fN2s);
+    // Take minimum (most restrictive) of all constraints, clamped to [0, Ps-1]
+    if(candidates.length>0){
+      drainTo=Math.max(0,Math.floor(Math.min.apply(null,candidates))-1);
+    }
+    errors.push({type:'drain',to:drainTo});
+  }
+
+  // Intermediate pressures (use Math.max(0,...) for display when drain needed)
+  var heAdd_eff=Math.max(0,he_add);
+  var o2Add_eff=Math.max(0,o2_add);
+  var topAdd_eff=Math.max(0,topup_add);
+
+  var p_after_he=Ps+heAdd_eff;
+  var p_after_o2=p_after_he+o2Add_eff;
+  var p_final=p_after_o2+topAdd_eff;
+
+  // Verify resulting mix (using effective values)
+  var actN2=Ps*fN2s+topAdd_eff*fN2top;
+  var actHe=Ps*fHes+heAdd_eff;
+  var actO2=Ps*fO2s+o2Add_eff+topAdd_eff*fO2top;
+  var actTotal=actN2+actHe+actO2;
+  var rO2=(actTotal>0.1?actO2/actTotal:fO2t)*100;
+  var rHe=(actTotal>0.1?actHe/actTotal:fHet)*100;
+  var rN2=(actTotal>0.1?actN2/actTotal:fN2t)*100;
+
+  return{
+    he_add:he_add,
+    o2_add:o2_add,
+    topup_add:topup_add,
+    p_after_he:p_after_he,
+    p_after_o2:p_after_o2,
+    p_final:p_final,
+    actualO2:rO2,
+    actualHe:rHe,
+    actualN2:rN2,
+    needDrain:needDrain,
+    drainTo:drainTo,
+    errors:errors
+  };
+}
+
+window.blendCalc=function(){
+  var sz=parseFloat(document.getElementById('bl-sz').value)||12;
+  var tp=parseFloat(document.getElementById('bl-tp').value)||200;
+  var sp=parseFloat(document.getElementById('bl-sp').value)||0;
+  var so2=parseFloat(document.getElementById('bl-so2').value)||21;
+  var she=parseFloat(document.getElementById('bl-she').value)||0;
+  var to2=parseFloat(document.getElementById('bl-to2').value)||21;
+  var the_=parseFloat(document.getElementById('bl-the').value)||0;
+  var depth=parseFloat(document.getElementById('bl-depth').value)||40;
+
+  // Top-up gas fractions
+  var topupSel=document.getElementById('bl-topup').value;
+  var tuO2,tuHe;
+  if(topupSel==='air'){tuO2=21;tuHe=0;}
+  else if(topupSel==='ean32'){tuO2=32;tuHe=0;}
+  else if(topupSel==='ean36'){tuO2=36;tuHe=0;}
+  else if(topupSel==='ean50'){tuO2=50;tuHe=0;}
+  else{
+    tuO2=parseFloat(document.getElementById('bl-tuo2').value)||21;
+    tuHe=parseFloat(document.getElementById('bl-tuhe').value)||0;
+  }
+
+  var r=doBlendCalc(sp,so2,she,tp,to2,the_,tuO2,tuHe);
+  renderBlendResult(r,to2,the_,sz,tp,sp,depth,tuO2,tuHe);
+};
+
+function renderBlendResult(r,to2,the_,sz,tp,sp,depth,tuO2,tuHe){
+  var el=document.getElementById('blend-result');
+  if(!r){el.innerHTML='';return;}
+
+  var html='';
+
+  // Hard error
+  if(r.error){
+    html='<div class="blend-err">⚠ '+escHtml(r.error)+'</div>';
+    el.innerHTML=html;return;
+  }
+
+  // Drain warning
+  var drainError=null;
+  var softErrors=[];
+  (r.errors||[]).forEach(function(e){
+    if(e&&typeof e==='object'&&e.type==='drain'){drainError=e.to;}
+    else if(typeof e==='string'){softErrors.push(e);}
+  });
+
+  if(softErrors.length){
+    html+='<div class="blend-err">⚠ '+softErrors.map(escHtml).join('<br>')+'</div>';
+  }
+
+  if(drainError!==null){
+    html+='<div class="blend-warn">⚠ <strong>Cylinder needs to be drained first.</strong><br>The current gas mixture has too much of a component to achieve the target mix by adding gases only.<br><strong>Drain the cylinder to approximately '+drainError+' bar</strong>, then follow the fill sequence below.</div>';
+  }
+
+  // ── Fill sequence ──
+  html+='<div class="blend-sec-lbl">Fill sequence</div>';
+  html+='<div style="background:#fff;border-radius:12px;border:1px solid #d4d8e4;overflow:hidden;margin-bottom:18px">';
+
+  // Build steps (only show steps with significant addition)
+  var STEP_COLORS=['#4a7fd4','#27ae60','#3451d1'];
+  var steps=[];
+  var tuLabel=tuO2===21&&tuHe===0?'Air':tuO2===32?'EAN32':tuO2===36?'EAN36':tuO2===50?'EAN50':tuO2+'/'+tuHe+' top-up';
+
+  if(r.he_add>0.5){steps.push({name:'Helium (100%)',add:r.he_add,fillTo:r.p_after_he,col:STEP_COLORS[0]});}
+  if(r.o2_add>0.5){steps.push({name:'Oxygen (100%)',add:r.o2_add,fillTo:r.p_after_o2,col:STEP_COLORS[1]});}
+  if(r.topup_add>0.5){steps.push({name:tuLabel,add:r.topup_add,fillTo:r.p_final,col:STEP_COLORS[2]});}
+
+  if(steps.length===0){
+    html+='<div style="padding:16px;font-size:14px;color:#8a9aaa;font-style:italic">No gas additions required.</div>';
+  }else{
+    steps.forEach(function(step,i){
+      var bg=i%2===0?'#fff':'#f8f9fc';
+      html+='<div class="blend-step" style="background:'+bg+'">';
+      html+='<div class="blend-step-num" style="background:'+step.col+'">'+(i+1)+'</div>';
+      html+='<div class="blend-step-gas">';
+      html+='<div class="blend-step-name">'+escHtml(step.name)+'</div>';
+      html+='<div class="blend-step-add">Add '+step.add.toFixed(1)+' bar</div>';
+      html+='</div>';
+      html+='<div class="blend-step-pressure">';
+      html+='<div class="blend-step-bar" style="color:'+step.col+'">'+Math.round(step.fillTo)+'</div>';
+      html+='<div class="blend-step-unit">bar (fill to)</div>';
+      html+='</div>';
+      html+='</div>';
+    });
+  }
+  html+='</div>';
+
+  // ── Resulting mix ──
+  html+='<div class="blend-sec-lbl">Resulting mix</div>';
+  html+='<div style="background:#eef2ff;border:1px solid #3451d130;border-radius:12px;margin-bottom:18px">';
+  html+='<div class="blend-mix-grid">';
+  var components=[
+    {lbl:'O₂',val:r.actualO2},
+    {lbl:'He',val:r.actualHe},
+    {lbl:'N₂',val:r.actualN2}
+  ];
+  components.forEach(function(c){
+    html+='<div>';
+    html+='<div class="blend-mix-item-lbl">'+c.lbl+'</div>';
+    html+='<div class="blend-mix-item-val">'+c.val.toFixed(1)+'</div>';
+    html+='<div class="blend-mix-item-unit">%</div>';
+    html+='</div>';
+  });
+  html+='</div>';
+
+  // Match check
+  var diffO2=Math.abs(r.actualO2-to2),diffHe=Math.abs(r.actualHe-the_);
+  if(!drainError&&diffO2<0.5&&diffHe<0.5){
+    html+='<div class="blend-ok" style="border-top:1px solid #d0e8d0;border-radius:0 0 12px 12px">✓ Resulting mix matches target within ±0.5%</div>';
+  }else if(!drainError){
+    html+='<div style="border-top:1px solid #ffc107;border-radius:0 0 12px 12px;background:#fff8e1;padding:10px 14px;font-size:12px;color:#5d4037">⚠ Mix differs from target: O₂ Δ'+diffO2.toFixed(1)+'%  He Δ'+diffHe.toFixed(1)+'%</div>';
+  }
+  html+='</div>';
+
+  // ── Gas properties ──
+  html+='<div class="blend-sec-lbl">Gas properties @ '+depth+' m</div>';
+
+  var fO2=r.actualO2/100,fHe=r.actualHe/100;
+  var PATM_SEA=1.01325,pAmb=PATM_SEA+depth/10;
+  var modLow=fO2>0?Math.floor((1.4/fO2-1)*10):999;
+  var modHigh=fO2>0?Math.floor((1.6/fO2-1)*10):999;
+  var dens=parseFloat(gdens(fO2,fHe,depth,'salt',0));
+  // END (narcotic depth, O₂ narcotic model): ((pAmb×(1−fHe)/PATM0)−1)×10
+  var endNarc=Math.round(((pAmb*(1-fHe)/PATM_SEA)-1)*10);
+  var endN2=Math.round(((pAmb*(1-fHe-fO2)/PATM_SEA))*10); // non-narcotic O₂
+  var ppo2=(fO2*pAmb).toFixed(2);
+  var ppo2Num=fO2*pAmb;
+
+  var densWarn=dens>=6.2,densCaution=dens>=5.2&&dens<6.2;
+  var ppo2Warn=ppo2Num>1.6,ppo2Caution=ppo2Num>1.4&&ppo2Num<=1.6;
+
+  var volTotal=Math.round(sz*tp);
+  var volStart=Math.round(sz*sp);
+  var volAdd=volTotal-volStart;
+
+  var props=[
+    {lbl:'PPO₂ at '+depth+' m',val:ppo2+' ata',warn:ppo2Warn,caution:ppo2Caution},
+    {lbl:'MOD @ 1.4 PPO₂',val:modLow+' m',warn:false,caution:false},
+    {lbl:'MOD @ 1.6 PPO₂',val:modHigh+' m',warn:false,caution:false},
+    {lbl:'Gas density at '+depth+' m',val:dens.toFixed(2)+' g/ℓ',warn:densWarn,caution:densCaution},
+    {lbl:'END at '+depth+' m (O₂ narcotic)',val:endNarc+' m',warn:false,caution:false},
+  ];
+
+  html+='<div style="background:#fff;border-radius:12px;border:1px solid #d4d8e4;overflow:hidden;margin-bottom:18px">';
+  props.forEach(function(p,i){
+    var valColor=p.warn?'#d9534f':p.caution?'#c97b0a':'#1a1a1a';
+    html+='<div class="blend-prop-row">';
+    html+='<div class="blend-prop-lbl">'+escHtml(p.lbl)+'</div>';
+    html+='<div class="blend-prop-val" style="color:'+valColor+'">'+(p.warn?'⚠ ':'')+escHtml(p.val)+'</div>';
+    html+='</div>';
+  });
+  html+='</div>';
+
+  // ── Volume summary ──
+  html+='<div style="background:#fff;border-radius:12px;border:1px solid #d4d8e4;overflow:hidden;margin-bottom:6px">';
+  var volProps=[
+    {lbl:'Cylinder volume',val:sz+' ℓ × '+tp+' bar = '+volTotal+' std. litres'},
+    {lbl:'Gas to add',val:volAdd+' std. litres'}
+  ];
+  volProps.forEach(function(p,i){
+    html+='<div class="blend-prop-row">';
+    html+='<div class="blend-prop-lbl">'+escHtml(p.lbl)+'</div>';
+    html+='<div class="blend-prop-val" style="font-size:13px;color:#5a6472">'+escHtml(p.val)+'</div>';
+    html+='</div>';
+  });
+  html+='</div>';
+
+  el.innerHTML=html;
+}
+
+// ═══════════════════════════════════════════════════════════════
+
+
+// ═══════════════════════════════════════════════
+// BEST MIX CALCULATOR
+// ═══════════════════════════════════════════════
+window.openBestMix=function(){
+  document.getElementById('bestmix-page').classList.add('open');
+  window.bmCalc();
+};
+window.closeBestMix=function(){document.getElementById('bestmix-page').classList.remove('open');};
+
+window.bmToggleTrimix=function(){
+  var on=document.getElementById('bm-trimix').checked;
+  document.getElementById('bm-ead-row').style.display=on?'flex':'none';
+  document.getElementById('bm-he-row').style.display=on?'flex':'none';
+  window.bmCalc();
+};
+
+window.bmStep=function(field,delta){
+  var inp=document.getElementById('bm-'+field);
+  var v=parseFloat(inp.value)||0;
+  v=Math.round((v+delta)*1000)/1000;
+  var mn=parseFloat(inp.min),mx=parseFloat(inp.max);
+  if(!isNaN(mn))v=Math.max(mn,v);
+  if(!isNaN(mx))v=Math.min(mx,v);
+  inp.value=(field==='ppo2')?v.toFixed(2):String(v);
+  window.bmCalc();
+};
+
+window.bmCalc=function(){
+  var depth=parseFloat(document.getElementById('bm-depth').value)||40;
+  var ppo2=parseFloat(document.getElementById('bm-ppo2').value)||1.4;
+  var trimix=document.getElementById('bm-trimix').checked;
+  var ead=parseFloat(document.getElementById('bm-ead').value)||30;
+
+  var Pabs=depth/10+1;
+  var fO2raw=ppo2/Pabs;
+  var o2pct=Math.min(100,Math.max(5,Math.round(fO2raw*100)));
+  var fO2=o2pct/100;
+  var mod=Math.floor((ppo2/fO2-1)*10);
+
+  document.getElementById('bm-mod-sub').textContent='at '+ppo2.toFixed(2)+' ata';
+
+  var resEl=document.getElementById('bm-result');
+  var modEl=document.getElementById('bm-mod');
+
+  if(trimix){
+    var fN2=0.79*(ead+10)/(depth+10);
+    var fHe=1-fO2-fN2;
+    if(fHe<0){
+      fHe=0;
+      resEl.textContent=o2pct+'% O₂';
+      document.getElementById('bm-mix-sub').textContent='nitrox (EAD target unreachable)';
+      document.getElementById('bm-he-row').style.display='none';
+    } else {
+      var hePct=Math.round(fHe*100);
+      var n2pct=100-o2pct-hePct;
+      resEl.textContent=o2pct+'/'+hePct;
+      document.getElementById('bm-mix-sub').textContent='O₂/He  (N₂ = '+n2pct+'%)';
+      document.getElementById('bm-n2').textContent=n2pct+'%';
+      document.getElementById('bm-he-row').style.display='flex';
+    }
+  } else {
+    resEl.textContent=o2pct+'% O₂';
+    document.getElementById('bm-mix-sub').textContent='nitrox';
+    document.getElementById('bm-he-row').style.display='none';
+  }
+
+  modEl.textContent=mod+' m';
+  modEl.className='calc-result-val'+(mod<depth?' danger':mod<depth+5?' warn':' neutral');
+};
+
+// ═══════════════════════════════════════════════
+// MOD / END CALCULATOR
+// ═══════════════════════════════════════════════
+window.openMODeAD=function(){
+  document.getElementById('modeAD-page').classList.add('open');
+  window.meCalc();
+};
+window.closeMODeAD=function(){document.getElementById('modeAD-page').classList.remove('open');};
+
+window.meStep=function(field,delta){
+  var inp=document.getElementById('me-'+field);
+  var v=parseFloat(inp.value)||0;
+  v=Math.round((v+delta)*1000)/1000;
+  var mn=parseFloat(inp.min),mx=parseFloat(inp.max);
+  if(!isNaN(mn))v=Math.max(mn,v);
+  if(!isNaN(mx))v=Math.min(mx,v);
+  inp.value=(field==='ppo2')?v.toFixed(2):String(v);
+  window.meCalc();
+};
+
+window.meCalc=function(){
+  var o2pct=Math.min(100,Math.max(5,parseFloat(document.getElementById('me-o2').value)||21));
+  var hePct=Math.min(95,Math.max(0,parseFloat(document.getElementById('me-he').value)||0));
+  if(o2pct+hePct>100){hePct=100-o2pct;}
+  var depth=parseFloat(document.getElementById('me-depth').value)||30;
+  var ppo2lim=parseFloat(document.getElementById('me-ppo2').value)||1.4;
+
+  var fO2=o2pct/100,fHe=hePct/100,fN2=Math.max(0,1-fO2-fHe);
+  var n2pct=Math.round(fN2*100);
+
+  document.getElementById('me-mix-display').textContent=o2pct+'/'+hePct;
+
+  var Pabs=depth/10+1;
+
+  // PPO2 at depth
+  var ppo2v=fO2*Pabs;
+  var ppo2El=document.getElementById('me-ppo2-val');
+  ppo2El.textContent=ppo2v.toFixed(2)+' ata';
+  ppo2El.className='calc-result-val'+(ppo2v>1.6?' danger':ppo2v>ppo2lim+0.001?' warn':' neutral');
+
+  // MOD
+  var modD=Math.floor((ppo2lim/fO2-1)*10);
+  var modEl=document.getElementById('me-mod');
+  modEl.textContent=modD+' m';
+  document.getElementById('me-mod-sub').textContent='max op. depth @ PPO₂ '+ppo2lim.toFixed(2);
+  modEl.className='calc-result-val'+(modD<depth?' danger':' neutral');
+
+  // EAD: He inert. EAD = ((fN2/0.79)*(depth+10))-10
+  var ead=Math.round(((fN2/0.79)*(depth+10))-10);
+  var eadEl=document.getElementById('me-ead');
+  eadEl.textContent=ead+' m';
+  eadEl.className='calc-result-val'+(ead>40?' warn':' neutral');
+
+  // END: N2+O2 narcotic. END = ((1-fHe)*(depth+10))-10
+  var end=Math.round(((1-fHe)*(depth+10))-10);
+  var endEl=document.getElementById('me-end');
+  endEl.textContent=end+' m';
+  endEl.className='calc-result-val'+(end>40?' warn':' neutral');
+
+  // EADD: density-equivalent depth.
+  // Mix molar mass: O2=32, He=4, N2=28
+  var mixMW=fO2*32+fHe*4+fN2*28;
+  var airMW=0.2095*32+0.7905*28; // ~28.84
+  var Peq=Pabs*(mixMW/airMW);
+  var eadd=Math.round((Peq-1)*10);
+  document.getElementById('me-eadd').textContent=eadd+' m';
+
+  // Gas density g/L = (MW/22.4) * Pabs/PATM0  (PATM0~1.01325)
+  var dens=(mixMW/22.4)*(Pabs/1.01325);
+  var densEl=document.getElementById('me-dens');
+  densEl.textContent=dens.toFixed(2)+' g/ℓ';
+  densEl.className='calc-result-val'+(dens>=6.2?' danger':dens>=5.2?' warn':' neutral');
+};
+
+// Backfill any missing option keys (e.g. CCR keys added after plan was saved)
+_plans.forEach(function(p){Object.keys(HARDCODED_O).forEach(function(k){if(p.O[k]===undefined)p.O[k]=HARDCODED_O[k];});});
+function _doInit(){
+try{renderAll();}catch(err){
+  console.error('AeroPlus init error:',err);
+  var eb=document.createElement('div');
+  eb.style.cssText='position:fixed;top:70px;left:10px;right:10px;background:#fdeaea;color:#d9534f;padding:14px;border-radius:10px;font-size:13px;z-index:9999;white-space:pre-wrap;border:1px solid #f5c6c6';
+  eb.textContent='Init error: '+(err&&err.message?err.message:String(err));
+  document.body.appendChild(eb);}
+}
+if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',_doInit);}else{_doInit();}
+})();
+</script>
+
+</body>
+</html>
