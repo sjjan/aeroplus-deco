@@ -214,7 +214,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     </svg>
     <div>
       <div class="ttl" style="font-size:22px;letter-spacing:-.02em">AeroPlus <span style="color:#3451d1;font-weight:800">Deco</span></div>
-      <div class="sub">v2026-03-12f</div>
+      <div class="sub">v2026-03-12i</div>
     </div>
   </div>
   <div class="hdr-r">
@@ -988,7 +988,7 @@ window.AP=AP;
 
 var STORE_KEY='aeroplusDeco_v1';
 // Bump this string whenever HARDCODED_O defaults change — forces migration for existing users
-var SETTINGS_VERSION='2026-03-12f';
+var SETTINGS_VERSION='2026-03-12i';
 
 function savePlans(){
 try{
@@ -1889,12 +1889,17 @@ r.stops.forEach(function(s){
 var g=cyls.find(function(c){return c.id===s.gasId;})||{fO2:.21,fHe:0};
 lines.push(String(s.depth+' m').padEnd(8)+' × '+String(Math.round(s.time)+' min').padEnd(10)+m2s(g.fO2,g.fHe));});}
 lines.push('');
-lines.push('GAS USAGE');
+lines.push('GAS USAGE & DENSITY');
 lines.push('─'.repeat(42));
+var rb=rbBar(r);
 cyls.forEach(function(c){
 var used=Math.round(r.usage[c.id]||0);
-var rb=window._lastRbBar&&window._lastRbBar[c.id]?window._lastRbBar[c.id]:0;
-lines.push(m2s(c.fO2,c.fHe).padEnd(10)+' Used: '+used+' ltr  Rock bottom: '+rb+' bar');});
+var rbV=rb[c.id]||0;
+var depth=c.role==='bottom'?r.maxDepth:(r.firstStopD||r.maxDepth);
+if(c.role==='deco'){r.tblRows.forEach(function(row){if(row.gsw&&row.gasId===c.id)depth=row.depth;});}
+var densV=gdens(c.fO2,c.fHe,depth,O.salinity,O.altitude);
+var densWarn=parseFloat(densV)>=6.2?' !! EXCEEDS LIMIT':parseFloat(densV)>=5.2?' ! HIGH':'';
+lines.push(m2s(c.fO2,c.fHe).padEnd(10)+' Used: '+used+' ltr  Rock bottom: '+rbV+' bar  Density: '+densV+' g/l @'+depth+'m'+densWarn);});
 lines.push('');
 lines.push('━'.repeat(42));
 lines.push('⚠ Always verify with a certified dive planning tool.');
@@ -1966,7 +1971,7 @@ var css='*{box-sizing:border-box;margin:0;padding:0}'+
 '.bar-ax{display:flex;justify-content:space-between;font-size:9px;color:#9aa0aa;margin-top:2px;padding:0 2px}'+
 '.disc{background:#fdeaea;border:1px solid #f0a0a0;border-radius:10px;padding:10px 14px;font-size:11px;color:#a02020;line-height:1.6;margin-bottom:10px}'+
 '.footer{text-align:center;font-size:10px;color:#9aa0aa;padding:4px 0 8px}'+
-'@media print{body{background:#fff;padding:4px}.card{break-inside:avoid;border:1px solid #ccc}}';
+'@media print{body{background:#fff;padding:4px}.card{break-inside:avoid;border:1px solid #ccc}.noprint{display:none!important}}';
 
 /* ── Profile SVG ── */
 var profileSVG=buildProfileSVG(r.profile);
@@ -1988,6 +1993,21 @@ r.stops.map(function(s,i){
 var g=cyls.find(function(c){return c.id===s.gasId;})||{fO2:.21,fHe:0};
 return '<tr'+(i%2?' style="background:#f8f9fc"':'')+'><td>'+s.depth+' m</td><td>'+Math.round(s.time)+'</td><td>'+m2s(g.fO2,g.fHe)+'</td></tr>';
 }).join('')+'</tbody></table>';}
+
+/* ── Gas limits/density table ── */
+var limHtml='<table class="tbl"><thead><tr><th>Mix</th><th>Depth</th><th>Density (g/l)</th><th>PPO2</th></tr></thead><tbody>';
+cyls.forEach(function(c){
+var depth=c.role==='bottom'?r.maxDepth:(r.firstStopD||r.maxDepth);
+if(c.role==='deco'){r.tblRows.forEach(function(row){if(row.gsw&&row.gasId===c.id)depth=row.depth;});}
+var densV=parseFloat(gdens(c.fO2,c.fHe,depth,O.salinity,O.altitude));
+var densSt=densV>=6.2?'background:#fdeaea;color:#c0392b;font-weight:700':densV>=5.2?'background:#fff8e1;color:#8a6000;font-weight:700':'';
+var ppo2V=(c.fO2*(depth/10+1));
+var ppo2Lim=c.role==='bottom'?O.maxPPO2:O.maxDecoPPO2;
+var ppSt=ppo2V>ppo2Lim+0.001?'background:#fdeaea;color:#c0392b':'';
+limHtml+='<tr><td>'+m2s(c.fO2,c.fHe)+'</td><td>'+depth+' m</td>'+
+'<td style="'+densSt+'">'+densV+'</td>'+
+'<td style="'+ppSt+'">'+(ppSt?'! ':'')+ppo2V.toFixed(2)+'</td></tr>';});
+limHtml+='</tbody></table>';
 
 /* ── Gas plan bars ── */
 function barSeg(pct,color,label){
@@ -2067,7 +2087,7 @@ var html=
 '<div class="row"><span class="lbl">Total deco time</span><span class="val">'+fmtDur(r.totalDecoTime)+' min</span></div>'+
 '<div class="row"><span class="lbl">First deco after</span><span class="val">'+Math.round(r.firstDecoAfter)+' min</span></div>'+
 '<div class="row"><span class="lbl">Deepest ceiling</span><span class="val">'+r.deepestCeiling.toFixed(2)+' m</span></div>'+
-'<div class="row"><span class="lbl">Max TTS</span><span class="val">'+r.maxTTS+' min @ '+Math.round(r.runTime)+' min runtime</span></div>')+
+'<div class="row"><span class="lbl">TTS at ascent start</span><span class="val">'+r.tts+' min</span></div>')+
 '</div>'+
 
 /* Profile chart */
@@ -2086,6 +2106,13 @@ var html=
 '<table><thead><tr><th></th><th>Depth</th><th>Runtime</th><th>Duration</th><th>Gas</th></tr></thead>'+
 '<tbody>'+tblRows+'</tbody></table>'+
 stopsHtml+
+'</div>'+
+
+/* Gas limits card */
+'<div class="card">'+
+'<div class="sec-lbl">Gas Limits &amp; Density</div>'+
+'<div style="font-size:11px;color:#5a6472;padding:4px 16px 8px">Density at deepest point of use &middot; Warn >5.2 g/l &middot; Limit >6.2 g/l</div>'+
+limHtml+
 '</div>'+
 
 /* Gas plan */
@@ -2107,7 +2134,11 @@ rbBarsHtml+'</div>'+
 '<div class="disc">⚠ <strong>Always verify</strong> decompression calculations using a certified dive planning tool or a qualified dive professional. Incorrect decompression can result in serious injury or death.</div>'+
 '<div class="footer">AeroPlus Deco · aeroplus-deco.com · Generated '+new Date().toLocaleString()+'</div>'+
 
-'<script>window.onload=function(){window.print();};<\/script>'+
+'<div class="noprint" style="position:sticky;bottom:0;background:#eef1f6;border-top:1px solid #d8dde8;padding:12px 16px;display:flex;gap:10px;justify-content:center">'+
+'<button id="btn-close" style="flex:1;max-width:180px;background:#fff;border:1.5px solid #d0d4db;border-radius:50px;padding:13px;font-size:15px;font-weight:600;color:#1a1a1a;cursor:pointer">&#8592; Close</button>'+
+'<button id="btn-print" style="flex:1;max-width:180px;background:#3451d1;border:none;border-radius:50px;padding:13px;font-size:15px;font-weight:600;color:#fff;cursor:pointer">Print / Save PDF</button>'+
+'</div>'+
+'<script>document.getElementById("btn-close").addEventListener("click",function(){window.close();});document.getElementById("btn-print").addEventListener("click",function(){window.print();});<\/script>'+
 '</body></html>';
 return html;}
 
@@ -2138,9 +2169,20 @@ document.body.removeChild(ta);};
 window.printExport=function(){
 var r=AP().result;if(!r){alert('Calculate a dive plan first.');return;}
 var html=buildRichExportHTML();
-var win=window.open('','_blank','width=640,height=860');
-if(win){win.document.write(html);win.document.close();}
-else{var txt=exportPlainText();var blob=new Blob([txt],{type:'text/plain'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='AeroPlus-Deco-'+AP().name.replace(/\s+/g,'-')+'.txt';a.click();}};
+try{
+var blob=new Blob([html],{type:'text/html'});
+var url=URL.createObjectURL(blob);
+var a=document.createElement('a');
+a.href=url;a.target='_blank';a.rel='noopener';
+document.body.appendChild(a);a.click();document.body.removeChild(a);
+setTimeout(function(){URL.revokeObjectURL(url);},3000);
+}catch(e){
+var txt=exportPlainText();
+var b2=new Blob([txt],{type:'text/plain'});
+var a2=document.createElement('a');
+a2.href=URL.createObjectURL(b2);
+a2.download='AeroPlus-Deco-'+AP().name.replace(/\s+/g,'-')+'.txt';
+a2.click();}};
 
 window.exportData=function(){
 try{
