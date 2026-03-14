@@ -214,7 +214,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     </svg>
     <div>
       <div class="ttl" style="font-size:22px;letter-spacing:-.02em">AeroPlus <span style="color:#3451d1;font-weight:800">Deco</span></div>
-      <div class="sub">v2026-03-13k</div>
+      <div class="sub">v2026-03-14</div>
     </div>
   </div>
   <div class="hdr-r">
@@ -234,7 +234,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
   <div class="menu-group">
     <div class="menu-lbl">Tools</div>
     <button class="menu-item" onclick="window.closeMenu();window.openBestMix()"><span class="menu-icon">🎯</span>Best mix</button>
-    <button class="menu-item" onclick="window.closeMenu();window.openMODeAD()"><span class="menu-icon">📐</span>MOD / END</button>
+    <button class="menu-item" onclick="window.closeMenu();window.openMODeAD()"><span class="menu-icon">📐</span>MOD / EAD</button>
     <button class="menu-item" onclick="window.closeMenu();window.openBlend()"><span class="menu-icon"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="7" y="5" width="8" height="13" rx="4" fill="white" stroke="#888" stroke-width="1.3"/><rect x="9" y="2" width="4" height="4" rx="1.5" fill="white" stroke="#888" stroke-width="1.3"/><line x1="11" y1="2" x2="11" y2="1" stroke="#888" stroke-width="1.5" stroke-linecap="round"/></svg></span>Gas blending</button>
   </div>
   <div class="menu-group">
@@ -355,6 +355,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     <div style="font-size:16px;font-weight:700;margin:14px 0 8px">Limits</div>
     <table class="stbl"><thead><tr><th>Mix</th><th>Depth (m)</th><th>Density (g/ℓ)</th><th>PPO₂</th></tr></thead><tbody id="lim-tbody"></tbody></table>
     <p style="font-style:italic;font-size:12px;color:#6a7a8a;margin-top:10px;line-height:1.5"><strong>Notes on the gas plan:</strong> The gas plan calculates cylinder pressures based on real-world gas behavior.</p>
+    <p style="font-style:italic;font-size:12px;color:#6a7a8a;margin-top:6px;line-height:1.5"><strong>Gas density:</strong> Values are calculated at 15°C reference temperature per diving industry standard. Technically, gas density at depth is determined by ambient pressure alone — temperature does not change the mass of gas molecules at a given pressure. However, on open circuit in cold water (&lt;10°C) the regulator delivers cold gas directly from the cylinder, which is denser at the point of inhalation and increases work of breathing. The 5.2 and 6.2 g/ℓ thresholds should therefore be applied more conservatively in cold OC dives. On CCR the gas is recirculated and slightly warmed by the scrubber, so this effect does not apply.</p>
   </div>
 </div>
 
@@ -465,7 +466,9 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
       <div class="cfg-row-l"><div class="cfg-row-name">Gas switch time</div><div class="cfg-row-desc">Time in minutes to perform a gas switch at a switch depth. Diver breathes new gas during this pause.</div></div>
       <div class="cfg-row-val" id="cfg-gst">1 min</div>
     </div>
-    <div class="cfg-row" onclick="window.openNumEdit('minStopTime','Min stop time','Minimum hold time at each deco stop. Set to 0 for exact ceiling-only tracking (no forced minimum). Set to 1 for traditional 1-minute minimum per stop.',0,5,0.5,'min')"><div class="cfg-row-l"><div class="cfg-row-name">Min stop time</div><div class="cfg-row-desc">Minimum hold time at each deco stop. 0 = hold only as long as the ceiling requires. 1 = traditional 1-min minimum per stop depth.</div></div><div class="cfg-row-val" id="cfg-ms">1 min</div></div>
+    <div class="cfg-row notap" style="align-items:center"><div class="cfg-row-l"><div class="cfg-row-name">Round stop times</div><div class="cfg-row-desc">Round deco stop times up to whole minutes — easier to follow underwater, matches dive computers like Shearwater. Off = exact times (e.g. 1:20).</div></div>
+      <label class="tog-sw"><input type="checkbox" id="tog-ms" onchange="AP().O.minStopTime=this.checked?1:0;window.refreshCfgDisplay();if(AP().result)try{window.runAll();}catch(e){}"><div class="tog-track"></div><div class="tog-knob"></div></label>
+    </div>
     <div class="cfg-row notap" style="align-items:center">
       <div class="cfg-row-l"><div class="cfg-row-name">Switch deco gas at MOD</div><div class="cfg-row-desc">When enabled, switch to the richest available deco gas immediately upon reaching its MOD during ascent (optimal offgassing). When disabled, ascend on bottom gas and only switch when a required stop forces it.</div></div>
       <label class="tog-sw"><input type="checkbox" id="tog-sam" onchange="window.AP().O.switchAtMOD=this.checked;if(window.AP().result)try{window.runAll();}catch(e){console.error(e);}"><div class="tog-track"></div><div class="tog-knob"></div></label>
@@ -570,7 +573,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 </div>
 
 
-<!-- MOD / END PANEL -->
+<!-- MOD / EAD PANEL -->
 <div class="cfg-page" id="modeAD-page">
   <div class="cfg-hdr">
     <button class="cfg-back" onclick="window.closeMODeAD()">&larr;</button>
@@ -631,11 +634,11 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
         <div class="calc-result-val neutral" id="me-ppo2-val">&mdash;</div>
       </div>
       <div class="calc-result-row">
-        <div><div class="calc-result-lbl">EAD</div><div class="calc-result-lbl-sub">N&#8322; narcotic &mdash; He inert</div></div>
+        <div><div class="calc-result-lbl">EAD</div><div class="calc-result-lbl-sub">N&#8322; narcotic &mdash; He inert &mdash; <strong>used for planning</strong></div></div>
         <div class="calc-result-val neutral" id="me-ead">&mdash;</div>
       </div>
       <div class="calc-result-row">
-        <div><div class="calc-result-lbl">END</div><div class="calc-result-lbl-sub">N&#8322; + O&#8322; narcotic</div></div>
+        <div><div class="calc-result-lbl" style="color:#8a9aaa">END</div><div class="calc-result-lbl-sub">N&#8322; + O&#8322; narcotic &mdash; O&#8322; treated as narcotic (GUE method, less common)</div></div>
         <div class="calc-result-val neutral" id="me-end">&mdash;</div>
       </div>
       <div class="calc-result-row">
@@ -649,8 +652,8 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     </div>
 
     <div class="calc-info-box">
-      <strong>EAD</strong> &mdash; equivalent air depth treating He as inert (N&#8322; narcosis only).<br>
-      <strong>END</strong> &mdash; narcotic depth counting both N&#8322; and O&#8322; as narcotic.<br>
+      <strong>EAD</strong> &mdash; equivalent air depth treating He as inert, O&#8322; as non-narcotic. Used by most agencies (TDI, IANTD, PADI TecRec) for trimix planning.<br>
+      <strong>END</strong> &mdash; narcotic depth treating both N&#8322; and O&#8322; as narcotic. Used primarily by GUE. Less common in practice; using EAD is more conservative as it requires more helium to reach a target narcotic depth.<br>
       <strong>EADD</strong> &mdash; density-equivalent depth; same breathing resistance as the mix on air at this depth.
     </div>
   </div>
@@ -722,7 +725,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
       ✓ &nbsp;Rock bottom gas reserves per cylinder<br>
       ✓ &nbsp;Consecutive dive planning with tissue offgassing<br>
       ✓ &nbsp;Contingency plans (deeper / longer)<br>
-      ✓ &nbsp;Gas density warnings (5.2 / 6.2 g/ℓ thresholds)<br>
+      ✓ &nbsp;Gas density warnings (5.2 / 6.2 g/ℓ thresholds, referenced at 15°C — on OC apply more conservatively in cold water &lt;10°C; not applicable to CCR where gas is recirculated and warmed)<br>
       ✓ &nbsp;Partial pressure gas blending calculator<br>
       ✓ &nbsp;Auto GF Low matching first gas switch depth <a href="https://scubatechphilippines.com/scuba_blog/gradient-factors-application-use-settings-open-circuit-tech/" target="_blank" style="color:#3451d1;text-decoration:none">(Andy Davis method)</a><br>
       ✓ &nbsp;Export dive plan as text or printable report<br>
@@ -875,6 +878,25 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
         <div></div>
       </div>
 
+      <!-- Heat compensation -->
+      <div class="blend-sec-lbl">Heat compensation</div>
+      <div style="background:#fff;border-radius:10px;border:1px solid #d4d8e4;padding:12px 14px;margin-bottom:4px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:#1a1a1a">Overfill for cooling</div>
+            <div style="font-size:12px;color:#6a7a8a;margin-top:2px">Gas heats during filling and the pressure drops as it cools. Overfill to compensate.</div>
+          </div>
+          <label class="tog-sw"><input type="checkbox" id="bl-heat-tog" onchange="document.getElementById('bl-heat-inputs').style.display=this.checked?'block':'none';window.blendCalc()"><div class="tog-track"></div><div class="tog-knob"></div></label>
+        </div>
+        <div id="bl-heat-inputs" style="display:none">
+          <div class="frow" style="margin-bottom:0">
+            <div class="fld" style="margin-bottom:0"><label>Ambient temp (°C)</label><input type="number" id="bl-t-amb" value="20" inputmode="decimal" min="-10" max="50" step="1" oninput="window.blendCalc()"></div>
+            <div class="fld" style="margin-bottom:0"><label>Fill temp rise (°C)</label><input type="number" id="bl-t-rise" value="15" inputmode="decimal" min="0" max="60" step="1" oninput="window.blendCalc()"></div>
+          </div>
+          <div style="font-size:11px;color:#8a9aaa;margin-top:6px">Slow fill ≈ +5–15°C · Fast fill ≈ +20–40°C</div>
+        </div>
+      </div>
+
       <!-- Results -->
       <div id="blend-result" style="margin-top:20px"></div>
 
@@ -990,7 +1012,7 @@ window.AP=AP;
 
 var STORE_KEY='aeroplusDeco_v1';
 // Bump this string whenever HARDCODED_O defaults change — forces migration for existing users
-var SETTINGS_VERSION='2026-03-13k';
+var SETTINGS_VERSION='2026-03-14';
 
 function savePlans(){
 try{
@@ -1256,10 +1278,15 @@ innerSafe=pToD(ceilBar(ts,gfAt(nextD)),O.salinity,O.altitude)<=nextD+0.05;
 iter++;if(iter>80000)break;}
 var lst=stops[stops.length-1];
 if(lst&&lst.depth===depth){lst.time+=elapsed;lst.gasId=g.id;}
-else stops.push({depth:depth,time:elapsed,gasId:g.id});
+else stops.push({depth:depth,time:(O.minStopTime>=1?Math.ceil(elapsed):elapsed),gasId:g.id});
 var lstR=tblRows[tblRows.length-1];
 if(lstR&&lstR.sym==='→'&&lstR.depth===depth&&lstR.gasId===g.id){lstR.dt+=elapsed;lstR.rt=t;}
 else tblRows.push({sym:'→',depth:depth,rt:t,dt:elapsed,gasId:g.id,gsw:false});}}
+
+// If stop rounding is on, round all deco hold row durations to whole minutes
+if(O.minStopTime>=1){
+  tblRows.forEach(function(row){if(row.sym==='→')row.dt=Math.ceil(row.dt);});
+}
 
 var merged=[];
 for(var i=0;i<tblRows.length;i++){
@@ -1599,6 +1626,7 @@ document.getElementById('gas-bars').innerHTML=bh;
 var ct='';
 AP().cyls.filter(function(c){return c.role!=='bottom'||c.on!==false;}).forEach(function(c,i){
 var ub=Math.round((r.usage[c.id]||0)/c.size),rem=Math.max(0,c.fill-ub);
+if(!ub)return;
 var usedL=Math.round(r.usage[c.id]||0);
 ct+='<tr><td>'+(i+1)+'</td><td>'+m2s(c.fO2,c.fHe)+'</td><td>'+c.size.toFixed(1)+'</td><td>'+c.fill+' > '+rem+' ('+ub+')</td><td>'+usedL+'</td></tr>';});
 document.getElementById('cyl-tbody').innerHTML=ct;
@@ -1818,7 +1846,7 @@ _cel('cfg-ls').textContent=O.lastStop+' m';
 _cel('cfg-pp').textContent=O.maxPPO2.toFixed(2);
 _cel('cfg-dp').textContent=O.maxDecoPPO2.toFixed(2);
 _cel('cfg-gst').textContent=O.gasSwitchTime+' min';
-_cel('cfg-ms').textContent=(O.minStopTime||0)+' min';
+var togMs=document.getElementById('tog-ms');if(togMs)togMs.checked=O.minStopTime>=1;
 _cel('tog-sam').checked=!!O.switchAtMOD;
 _cel('cfg-cd').textContent=O.contingencyDeeper+' m';
 _cel('cfg-cl').textContent=O.contingencyLonger+' min';
@@ -1958,9 +1986,11 @@ lines.push('─'.repeat(42));
 var rb=rbBar(r);
 cyls.forEach(function(c){
 var used=Math.round(r.usage[c.id]||0);
+if(!used)return;
 var rbV=rb[c.id]||0;
-var depth=c.role==='bottom'?r.maxDepth:(r.firstStopD||r.maxDepth);
-if(c.role==='deco'){r.tblRows.forEach(function(row){if(row.gsw&&row.gasId===c.id)depth=row.depth;});}
+var depth;
+if(c.role==='bottom'){depth=r.maxDepth;}
+else{depth=Math.floor((O.maxDecoPPO2/c.fO2-1)*10);r.tblRows.forEach(function(row){if(row.sym==='⊙'&&row.gasId===c.id)depth=row.depth;});}
 var densV=gdens(c.fO2,c.fHe,depth,O.salinity,O.altitude);
 var densWarn=parseFloat(densV)>=6.2?' !! EXCEEDS LIMIT':parseFloat(densV)>=5.2?' ! HIGH':'';
 var rbStr=rbV>0?' Rock bottom: '+rbV+' bar':'';
@@ -2064,8 +2094,9 @@ return '<tr'+(i%2?' style="background:#f8f9fc"':'')+'><td>'+s.depth+' m</td><td>
 /* ── Gas limits/density table ── */
 var limHtml='<table class="tbl"><thead><tr><th>Mix</th><th>Depth</th><th>Density (g/l)</th><th>PPO2</th></tr></thead><tbody>';
 cyls.forEach(function(c){
-var depth=c.role==='bottom'?r.maxDepth:(r.firstStopD||r.maxDepth);
-if(c.role==='deco'){r.tblRows.forEach(function(row){if(row.gsw&&row.gasId===c.id)depth=row.depth;});}
+var depth;
+if(c.role==='bottom'){depth=r.maxDepth;}
+else{depth=Math.floor((O.maxDecoPPO2/c.fO2-1)*10);r.tblRows.forEach(function(row){if(row.sym==='⊙'&&row.gasId===c.id)depth=row.depth;});}
 var densV=parseFloat(gdens(c.fO2,c.fHe,depth,O.salinity,O.altitude));
 var densSt=densV>=6.2?'background:#fdeaea;color:#c0392b;font-weight:700':densV>=5.2?'background:#fff8e1;color:#8a6000;font-weight:700':'';
 var ppo2V=(c.fO2*(depth/10+1));
@@ -2083,6 +2114,8 @@ return '<div class="bar-seg" style="background:'+color+';width:'+pct.toFixed(1)+
 
 var gasBarsHtml='';
 cyls.forEach(function(c){
+var _usedL=Math.round(r.usage[c.id]||0);
+if(!_usedL)return;
 var usedBar=Math.round((r.usage[c.id]||0)/c.size);
 var rbBar_v=rb[c.id]||0;
 var normUsed=Math.max(0,usedBar-rbBar_v),unused=Math.max(0,c.fill-usedBar),f=c.fill||1;
@@ -2179,12 +2212,6 @@ stopsHtml+
 '</div>'+
 
 /* Gas limits card */
-'<div class="card">'+
-'<div class="sec-lbl">Gas Limits &amp; Density</div>'+
-'<div style="font-size:11px;color:#5a6472;padding:4px 16px 8px">Density at deepest point of use &middot; Warn >5.2 g/l &middot; Limit >6.2 g/l</div>'+
-limHtml+
-'</div>'+
-
 /* Gas plan */
 '<div class="card">'+
 '<div class="sec-lbl">Gas Plan</div>'+
@@ -2476,6 +2503,17 @@ window.blendCalc=function(){
   var the_=parseFloat(document.getElementById('bl-the').value)||0;
   var depth=parseFloat(document.getElementById('bl-depth').value)||40;
 
+  // Heat compensation — overfill to account for cooling after fill
+  var heatOn=document.getElementById('bl-heat-tog')&&document.getElementById('bl-heat-tog').checked;
+  var tpFill=tp;
+  var heatFactor=1;
+  if(heatOn){
+    var tAmb=(parseFloat(document.getElementById('bl-t-amb').value)||20)+273.15;
+    var tRise=parseFloat(document.getElementById('bl-t-rise').value)||15;
+    heatFactor=(tAmb+tRise)/tAmb;
+    tpFill=Math.round(tp*heatFactor*10)/10;
+  }
+
   // Top-up gas fractions
   var topupSel=document.getElementById('bl-topup').value;
   var tuO2,tuHe;
@@ -2488,15 +2526,22 @@ window.blendCalc=function(){
     tuHe=parseFloat(document.getElementById('bl-tuhe').value)||0;
   }
 
-  var r=doBlendCalc(sp,so2,she,tp,to2,the_,tuO2,tuHe);
-  renderBlendResult(r,to2,the_,sz,tp,sp,depth,tuO2,tuHe);
+  var r=doBlendCalc(sp,so2,she,tpFill,to2,the_,tuO2,tuHe);
+  renderBlendResult(r,to2,the_,sz,tp,sp,depth,tuO2,tuHe,heatOn?{factor:heatFactor,tpFill:tpFill}:null);
 };
 
-function renderBlendResult(r,to2,the_,sz,tp,sp,depth,tuO2,tuHe){
+function renderBlendResult(r,to2,the_,sz,tp,sp,depth,tuO2,tuHe,heat){
   var el=document.getElementById('blend-result');
   if(!r){el.innerHTML='';return;}
 
   var html='';
+
+  // Heat compensation banner
+  if(heat){
+    html+='<div style="background:#fff8e1;border:1px solid #f0c040;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:#7a5800;line-height:1.5">'+
+    '🌡 <strong>Heat compensation ON</strong> — fill pressures are overfilled to <strong>'+heat.tpFill.toFixed(1)+' bar</strong> '+
+    '(factor '+heat.factor.toFixed(3)+'×). Once the cylinder cools to ambient, it will read the target pressure of <strong>'+tp+' bar</strong>.</div>';
+  }
 
   // Hard error
   if(r.error){
@@ -2606,7 +2651,8 @@ function renderBlendResult(r,to2,the_,sz,tp,sp,depth,tuO2,tuHe){
     {lbl:'MOD @ 1.4 PPO₂',val:modLow+' m',warn:false,caution:false},
     {lbl:'MOD @ 1.6 PPO₂',val:modHigh+' m',warn:false,caution:false},
     {lbl:'Gas density at '+depth+' m',val:dens.toFixed(2)+' g/ℓ',warn:densWarn,caution:densCaution},
-    {lbl:'END at '+depth+' m (O₂ narcotic)',val:endNarc+' m',warn:false,caution:false},
+    {lbl:'EAD at '+depth+' m (planning standard)',val:endN2+' m',warn:false,caution:false},
+    {lbl:'END at '+depth+' m (O₂ narcotic, GUE)',val:endNarc+' m',warn:false,caution:false},
   ];
 
   html+='<div style="background:#fff;border-radius:12px;border:1px solid #d4d8e4;overflow:hidden;margin-bottom:18px">';
@@ -2710,7 +2756,7 @@ window.bmCalc=function(){
 };
 
 // ═══════════════════════════════════════════════
-// MOD / END CALCULATOR
+// MOD / EAD CALCULATOR
 // ═══════════════════════════════════════════════
 window.openMODeAD=function(){
   document.getElementById('modeAD-page').classList.add('open');
