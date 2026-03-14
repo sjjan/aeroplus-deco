@@ -120,12 +120,12 @@ input,select,textarea{font-size:16px!important}body{background:#edf0f5;font-fami
 .frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .savebtn{width:100%;background:#3451d1;color:#fff;border:none;border-radius:12px;padding:13px;font-size:16px;font-weight:700;cursor:pointer;margin-top:6px}
 .err{background:#fdeaea;border:1px solid #f0a0a0;border-radius:8px;padding:9px 12px;font-size:13px;color:#a02020;margin-bottom:10px}
-.cfg-page{position:fixed;inset:0;background:#f0f4ff;z-index:200;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1)}
+.cfg-page{position:fixed;inset:0;background:#f0f4ff;z-index:200;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);will-change:transform}
 .cfg-page.open{transform:translateX(0)}
 .cfg-hdr{background:#f0f4ff;padding:16px 16px 12px;border-bottom:1px solid #d0d4db;display:flex;align-items:center;gap:12px;flex-shrink:0}
 .cfg-back{background:none;border:none;font-size:22px;cursor:pointer;color:#1a1a1a;padding:4px 6px 4px 0}
 .cfg-hdr-t{font-size:20px;font-weight:700}
-.cfg-body{flex:1;overflow-y:auto;padding-bottom:40px}
+.cfg-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:40px}
 .cfg-sec{padding:20px 16px 4px}
 .cfg-sec-lbl{font-size:13px;font-weight:700;color:#3451d1;text-transform:uppercase;letter-spacing:.04em}
 .cfg-row{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-bottom:1px solid #e4e7ec;background:#f0f4ff;cursor:pointer}
@@ -214,7 +214,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     </svg>
     <div>
       <div class="ttl" style="font-size:22px;letter-spacing:-.02em">AeroPlus <span style="color:#3451d1;font-weight:800">Deco</span></div>
-      <div class="sub">v2026-03-12t</div>
+      <div class="sub">v2026-03-12x</div>
     </div>
   </div>
   <div class="hdr-r">
@@ -955,9 +955,9 @@ function copyO(o){return Object.assign({},o);}
 
 var HARDCODED_O={
 gfLo:.50,gfHi:.75,ascentRate:10,descentRate:18,
-sacNorm:20,sacEmerg:30,sacDeco:10,salinity:'fresh',altitude:0,
+sacNorm:25,sacEmerg:35,sacDeco:20,salinity:'fresh',altitude:0,
 maxPPO2:1.4,maxDecoPPO2:1.6,
-stopInterval:3,lastStop:6,gasSwitchTime:2,minStopTime:1,switchAtMOD:true,isCCR:false,ccrSP:1.3,ccrDecoSP:1.3,ccrDilFO2:0.21,ccrDilFHe:0,ccrO2Rate:1.5,bailoutSwitchTime:2,ccrO2Size:3,ccrO2Fill:200,ccrScrubberCap:180,
+stopInterval:3,lastStop:6,gasSwitchTime:2,minStopTime:0,switchAtMOD:true,isCCR:false,ccrSP:1.3,ccrDecoSP:1.3,ccrDilFO2:0.21,ccrDilFHe:0,ccrO2Rate:1.5,bailoutSwitchTime:2,ccrO2Size:3,ccrO2Fill:200,ccrScrubberCap:180,
 decoGasBetween:false,autoGFLo:false,contingencyDeeper:3,contingencyLonger:3
 };
 var HARDCODED_CYLS=[
@@ -988,7 +988,7 @@ window.AP=AP;
 
 var STORE_KEY='aeroplusDeco_v1';
 // Bump this string whenever HARDCODED_O defaults change — forces migration for existing users
-var SETTINGS_VERSION='2026-03-12t';
+var SETTINGS_VERSION='2026-03-12x';
 
 function savePlans(){
 try{
@@ -1772,42 +1772,42 @@ document.getElementById('cfg-page').classList.add('open');
 refreshCfgDisplay();};
 window.closeCfg=function(){document.getElementById('cfg-page').classList.remove('open');};
 
-var refreshCfgDisplay=window.refreshCfgDisplay=function refreshCfgDisplay(){
+var _cfgEls={};
+function _cel(id){return _cfgEls[id]||(_cfgEls[id]=document.getElementById(id));}
+window.refreshCfgDisplay=function refreshCfgDisplay(){
 var O=AP().O;
-document.getElementById('cfg-gf').textContent=Math.round(O.gfLo*100)+'/'+Math.round(O.gfHi*100);
-document.getElementById('cfg-sal').textContent=SLBL[O.salinity]||O.salinity;
-document.getElementById('cfg-alt').textContent=O.altitude+' m';
-document.getElementById('cfg-ar').textContent=O.ascentRate+' m/min';
-document.getElementById('cfg-dr').textContent=O.descentRate+' m/min';
-document.getElementById('cfg-sn').textContent=O.sacNorm+' l/min';
-document.getElementById('cfg-se').textContent=O.sacEmerg+' l/min';
-document.getElementById('cfg-sd').textContent=(O.sacDeco||10)+' l/min';
-document.getElementById('cfg-si').textContent=O.stopInterval+' m';
-document.getElementById('cfg-ls').textContent=O.lastStop+' m';
-document.getElementById('cfg-pp').textContent=O.maxPPO2.toFixed(2);
-document.getElementById('cfg-dp').textContent=O.maxDecoPPO2.toFixed(2);
-document.getElementById('cfg-gst').textContent=O.gasSwitchTime+' min';
-document.getElementById('cfg-ms').textContent=(O.minStopTime||0)+' min';
-document.getElementById('tog-sam').checked=!!O.switchAtMOD;
-document.getElementById('cfg-cd').textContent=O.contingencyDeeper+' m';
-document.getElementById('cfg-cl').textContent=O.contingencyLonger+' min';
-document.getElementById('tog-dbs').checked=O.decoGasBetween;
-// CCR fields
-var agChk=document.getElementById('tog-autogf');
-if(agChk){agChk.checked=!!O.autoGFLo;var agl=document.getElementById('cfg-autogf-lbl');if(agl&&!O.autoGFLo)agl.textContent='';}
-var ccrChk=document.getElementById('tog-ccr');
-if(ccrChk){ccrChk.checked=!!O.isCCR;document.getElementById('ccr-settings').style.display=O.isCCR?'block':'none';}
+_cel('cfg-gf').textContent=Math.round(O.gfLo*100)+'/'+Math.round(O.gfHi*100);
+_cel('cfg-sal').textContent=SLBL[O.salinity]||O.salinity;
+_cel('cfg-alt').textContent=O.altitude+' m';
+_cel('cfg-ar').textContent=O.ascentRate+' m/min';
+_cel('cfg-dr').textContent=O.descentRate+' m/min';
+_cel('cfg-sn').textContent=O.sacNorm+' l/min';
+_cel('cfg-se').textContent=O.sacEmerg+' l/min';
+_cel('cfg-sd').textContent=(O.sacDeco||10)+' l/min';
+_cel('cfg-si').textContent=O.stopInterval+' m';
+_cel('cfg-ls').textContent=O.lastStop+' m';
+_cel('cfg-pp').textContent=O.maxPPO2.toFixed(2);
+_cel('cfg-dp').textContent=O.maxDecoPPO2.toFixed(2);
+_cel('cfg-gst').textContent=O.gasSwitchTime+' min';
+_cel('cfg-ms').textContent=(O.minStopTime||0)+' min';
+_cel('tog-sam').checked=!!O.switchAtMOD;
+_cel('cfg-cd').textContent=O.contingencyDeeper+' m';
+_cel('cfg-cl').textContent=O.contingencyLonger+' min';
+_cel('tog-dbs').checked=O.decoGasBetween;
+var agChk=_cel('tog-autogf');
+if(agChk){agChk.checked=!!O.autoGFLo;var agl=_cel('cfg-autogf-lbl');if(agl&&!O.autoGFLo)agl.textContent='';}
+var ccrChk=_cel('tog-ccr');
+if(ccrChk){ccrChk.checked=!!O.isCCR;_cel('ccr-settings').style.display=O.isCCR?'block':'none';}
 var _el;
-if((_el=document.getElementById('cfg-ccrsp')))_el.textContent=(O.ccrSP||1.3)+' ata';
-if((_el=document.getElementById('cfg-ccrdsp')))_el.textContent=(O.ccrDecoSP||1.3)+' ata';
-if((_el=document.getElementById('cfg-ccrdo2')))_el.textContent=Math.round((O.ccrDilFO2||0.21)*100)+'%';
-if((_el=document.getElementById('cfg-ccrdhe')))_el.textContent=Math.round((O.ccrDilFHe||0)*100)+'%';
-if((_el=document.getElementById('cfg-ccro2r')))_el.textContent=(O.ccrO2Rate||1.5)+' l/min';
-if((_el=document.getElementById('cfg-bailswt')))_el.textContent=(O.bailoutSwitchTime!==undefined?O.bailoutSwitchTime:2)+' min';
-if((_el=document.getElementById('cfg-scrubcap')))_el.textContent=(O.ccrScrubberCap||180)+' min';
-if((_el=document.getElementById('cfg-ccro2sz')))_el.textContent=(O.ccrO2Size||3)+' l';
-if((_el=document.getElementById('cfg-ccro2f')))_el.textContent=(O.ccrO2Fill||200)+' bar';}
-
+if((_el=_cel('cfg-ccrsp')))_el.textContent=(O.ccrSP||1.3)+' ata';
+if((_el=_cel('cfg-ccrdsp')))_el.textContent=(O.ccrDecoSP||1.3)+' ata';
+if((_el=_cel('cfg-ccrdo2')))_el.textContent=Math.round((O.ccrDilFO2||0.21)*100)+'%';
+if((_el=_cel('cfg-ccrdhe')))_el.textContent=Math.round((O.ccrDilFHe||0)*100)+'%';
+if((_el=_cel('cfg-ccro2r')))_el.textContent=(O.ccrO2Rate||1.5)+' l/min';
+if((_el=_cel('cfg-bailswt')))_el.textContent=(O.bailoutSwitchTime!==undefined?O.bailoutSwitchTime:2)+' min';
+if((_el=_cel('cfg-scrubcap')))_el.textContent=(O.ccrScrubberCap||180)+' min';
+if((_el=_cel('cfg-ccro2sz')))_el.textContent=(O.ccrO2Size||3)+' l';
+if((_el=_cel('cfg-ccro2f')))_el.textContent=(O.ccrO2Fill||200)+' bar';}
 window.openNumEdit=function(key,title,desc,min,max,step,unit){
 _numKey=key;_numMin=min;_numMax=max;_numStep=step;_numUnit=unit;
 document.getElementById('num-ttl').textContent=title;
@@ -1881,8 +1881,11 @@ window.saveGFEdit=function(){
 var lo=parseInt(document.getElementById('gflo-inp').value);
 var hi=parseInt(document.getElementById('gfhi-inp').value);
 if(isNaN(lo)||isNaN(hi))return;
-AP().O.gfLo=Math.max(10,Math.min(100,lo))/100;
-AP().O.gfHi=Math.max(10,Math.min(100,hi))/100;
+lo=Math.max(10,Math.min(95,lo));
+hi=Math.max(10,Math.min(100,hi));
+if(hi<=lo){hi=Math.min(100,lo+10);}
+AP().O.gfLo=lo/100;
+AP().O.gfHi=hi/100;
 document.getElementById('gf-ovl').classList.add('hidden');refreshCfgDisplay();};
 
 window.openSelEdit=function(key,title,desc,vals,labels){
@@ -2759,6 +2762,12 @@ window.meCalc=function(){
 })();
 // Backfill any missing option keys (e.g. CCR keys added after plan was saved)
 _plans.forEach(function(p){Object.keys(HARDCODED_O).forEach(function(k){if(p.O[k]===undefined)p.O[k]=HARDCODED_O[k];});});
+// Sanity check GF values - gfHi must be > gfLo, both must be sensible
+_plans.forEach(function(p){
+  if(!p.O.gfLo||p.O.gfLo<0.1||p.O.gfLo>0.95)p.O.gfLo=HARDCODED_O.gfLo;
+  if(!p.O.gfHi||p.O.gfHi<0.1||p.O.gfHi>1.0)p.O.gfHi=HARDCODED_O.gfHi;
+  if(p.O.gfHi<=p.O.gfLo)p.O.gfHi=Math.min(1.0,p.O.gfLo+0.25);
+});
 function _doInit(){
 try{renderAll();}catch(err){
   console.error('AeroPlus init error:',err);
