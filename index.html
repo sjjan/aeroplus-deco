@@ -214,7 +214,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     </svg>
     <div>
       <div class="ttl" style="font-size:22px;letter-spacing:-.02em">AeroPlus <span style="color:#3451d1;font-weight:800">Deco</span></div>
-      <div class="sub">v2026-03-14</div>
+      <div class="sub">v2026-03-14b</div>
     </div>
   </div>
   <div class="hdr-r">
@@ -881,7 +881,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
       <!-- Heat compensation -->
       <div class="blend-sec-lbl">Heat compensation</div>
       <div style="background:#fff;border-radius:10px;border:1px solid #d4d8e4;padding:12px 14px;margin-bottom:4px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:8px">
           <div>
             <div style="font-size:14px;font-weight:600;color:#1a1a1a">Overfill for cooling</div>
             <div style="font-size:12px;color:#6a7a8a;margin-top:2px">Gas heats during filling and the pressure drops as it cools. Overfill to compensate.</div>
@@ -1012,7 +1012,7 @@ window.AP=AP;
 
 var STORE_KEY='aeroplusDeco_v1';
 // Bump this string whenever HARDCODED_O defaults change — forces migration for existing users
-var SETTINGS_VERSION='2026-03-14';
+var SETTINGS_VERSION='2026-03-14b';
 
 function savePlans(){
 try{
@@ -2114,13 +2114,15 @@ return '<div class="bar-seg" style="background:'+color+';width:'+pct.toFixed(1)+
 
 var gasBarsHtml='';
 cyls.forEach(function(c){
-var _usedL=Math.round(r.usage[c.id]||0);
-if(!_usedL)return;
 var usedBar=Math.round((r.usage[c.id]||0)/c.size);
+if(!usedBar)return;
+var _usedL=Math.round(r.usage[c.id]||0);
 var rbBar_v=rb[c.id]||0;
 var normUsed=Math.max(0,usedBar-rbBar_v),unused=Math.max(0,c.fill-usedBar),f=c.fill||1;
 function pct(v){return Math.min(100,Math.max(0,v/f*100));}
-var densV=parseFloat(gdens(c.fO2,c.fHe,r.maxDepth,O.salinity,O.altitude));
+var densV=parseFloat(gdens(c.fO2,c.fHe,
+  c.role==='bottom'?r.maxDepth:(function(){var d=Math.floor((O.maxDecoPPO2/c.fO2-1)*10);r.tblRows.forEach(function(row){if(row.sym==='⊙'&&row.gasId===c.id)d=row.depth;});return d;})(),
+  O.salinity,O.altitude));
 var densClass=densV>=6.2?'dens-danger':densV>=5.2?'dens-warn':'dens-ok';
 var densLabel=densV+' g/ℓ';
 gasBarsHtml+=
