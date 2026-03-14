@@ -214,7 +214,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     </svg>
     <div>
       <div class="ttl" style="font-size:22px;letter-spacing:-.02em">AeroPlus <span style="color:#3451d1;font-weight:800">Deco</span></div>
-      <div class="sub">v2026-03-13e</div>
+      <div class="sub">v2026-03-13k</div>
     </div>
   </div>
   <div class="hdr-r">
@@ -316,6 +316,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
       <div class="chart-leg">
         <div class="leg-i"><div style="width:20px;height:3px;background:#3451d1;border-radius:2px"></div>Depth</div>
         <div class="leg-i"><div style="width:20px;height:3px;background:#d9534f;border-radius:2px"></div>GF ceiling</div>
+        <div class="leg-i"><div style="width:20px;border-top:1.5px dashed #e8a0a0"></div>M-value</div>
         <div class="leg-i"><div style="width:20px;border-top:2px dashed #b0b8c4"></div>Avg. depth</div>
       </div>
       <svg id="chart" width="100%" viewBox="0 0 400 190" style="display:block"></svg>
@@ -327,6 +328,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     <div class="card-ttl">Rock bottom & TTS</div>
     <div class="rb-grid" id="rb-grid"></div>
     <div id="rb-bars"></div>
+    <p style="font-size:11px;color:#6a7a8a;margin:8px 0 12px;line-height:1.5"><strong>Rock bottom reserve:</strong> Minimum bottom gas for 2 divers at emergency SAC to ascend from max depth to the first deco gas switch depth, including the gas switch pause. Deco gases are not included — they are used after the switch.</p>
     <div class="divider"></div>
     <div style="font-size:15px;font-weight:600;margin-bottom:6px">Ascent trigger</div>
     <p style="font-size:12px;color:#6a7a8a;margin-bottom:10px;line-height:1.5">Start your ascent when <em>either</em> your dive computer shows TTS ≤ your target, <em>or</em> your gas reaches the rock bottom reserve — whichever comes first. Reduce the TTS below the plan maximum for extra conservancy.</p>
@@ -988,7 +990,7 @@ window.AP=AP;
 
 var STORE_KEY='aeroplusDeco_v1';
 // Bump this string whenever HARDCODED_O defaults change — forces migration for existing users
-var SETTINGS_VERSION='2026-03-13e';
+var SETTINGS_VERSION='2026-03-13k';
 
 function savePlans(){
 try{
@@ -1120,7 +1122,7 @@ var _initGas=_initSeg?(allGas.find(function(c){return c.id===_initSeg.gasId;})||
 var lastGasId=_initGas.id;
 var tdSum=0,ptCnt=0,maxD=0;
 
-function track(d,cM,tt){profile.push({t:tt!==undefined?tt:t,d:d,cM:cM||0});tdSum+=d;ptCnt++;}
+function track(d,cM,tt,cMv){profile.push({t:tt!==undefined?tt:t,d:d,cM:cM||0,cMv:cMv||0});tdSum+=d;ptCnt++;}
 function useGas(g,sac,d0,d1,mins){
 var pa=(ambP(d0,O.salinity,O.altitude)+ambP(d1,O.salinity,O.altitude))/2;
 usage[g.id]=(usage[g.id]||0)+sac*pa*mins;
@@ -1143,7 +1145,8 @@ var dt1=descentT/nSteps;
 var _segSP=O.isCCR?(seg.sp||O.ccrSP):O.ccrSP;var _cf3=O.isCCR?ccrFracs(d1s,d2s,_segSP,O.salinity,O.altitude):{fN2:fN2,fHe:g.fHe};
 expose(ts,d1s,d2s,dt1,_cf3.fN2,_cf3.fHe,O.salinity,O.altitude);
 var ceilNow=Math.max(0,pToD(ceilBar(ts,O.gfHi),O.salinity,O.altitude));
-track(d2s,ceilNow,t+descentT*(k+1)/nSteps);}
+var mvalNow=Math.max(0,pToD(ceilBar(ts,1),O.salinity,O.altitude));
+track(d2s,ceilNow,t+descentT*(k+1)/nSteps,mvalNow);}
 if(O.isCCR){var _pp3=Math.min(_segSP,ambP((prevD+seg.depth)/2,O.salinity,O.altitude));cns+=cnsR(_pp3)*descentT;otu+=otuR(_pp3)*descentT;usage['ccr_o2']=(usage['ccr_o2']||0)+O.ccrO2Rate*descentT;}
 else{useGas(g,O.sacNorm,prevD,seg.depth,descentT);}
 t+=descentT;maxD=Math.max(maxD,seg.depth);
@@ -1156,7 +1159,7 @@ for(var k=0;k<stepsAt;k++){
 var _cf4=O.isCCR?ccrFracs(seg.depth,seg.depth,_segSP,O.salinity,O.altitude):{fN2:fN2,fHe:g.fHe};
 expose(ts,seg.depth,seg.depth,dtAt,_cf4.fN2,_cf4.fHe,O.salinity,O.altitude);
 var ceilNow2=Math.max(0,pToD(ceilBar(ts,O.gfHi),O.salinity,O.altitude));
-track(seg.depth,ceilNow2,t+dtAt*(k+1));}
+track(seg.depth,ceilNow2,t+dtAt*(k+1),Math.max(0,pToD(ceilBar(ts,1),O.salinity,O.altitude)));}
 if(O.isCCR){var _pp4=Math.min(_segSP,ambP(seg.depth,O.salinity,O.altitude));cns+=cnsR(_pp4)*atDepth;otu+=otuR(_pp4)*atDepth;usage['ccr_o2']=(usage['ccr_o2']||0)+O.ccrO2Rate*atDepth;}
 else{useGas(g,O.sacNorm,seg.depth,seg.depth,atDepth);}
 t+=atDepth;
@@ -1175,7 +1178,7 @@ expose(ts,prevD,0,at,_cf5d.fN2,_cf5d.fHe,O.salinity,O.altitude);
 if(O.isCCR){cns+=cnsR(O.ccrDecoSP)*at;otu+=otuR(O.ccrDecoSP)*at;usage['ccr_o2']=(usage['ccr_o2']||0)+O.ccrO2Rate*at;}
 else{useGas(ag,O.sacDeco,prevD,0,at);}
 var nS=Math.max(4,Math.ceil(prevD));
-for(var k=0;k<=nS;k++)track(prevD*(1-k/nS),0,t+at*k/nS);
+for(var k=0;k<=nS;k++)track(prevD*(1-k/nS),0,t+at*k/nS,0);
 t+=at;
 tblRows.push({sym:'↗',depth:0,rt:t,dt:at,gasId:ag.id,gsw:ag.id!==lastGasId});
 return{ndl:ndl,stops:[],tts:Math.round(t-ascentStart),noStop:true,maxDepth:maxD,
@@ -1214,7 +1217,7 @@ expose(ts,depth,depth,swT,1-g.fO2-g.fHe,g.fHe,O.salinity,O.altitude);
 useGas(g,O.sacDeco,depth,depth,swT);
 var cMsw=Math.max(0,pToD(ceilBar(ts,gfAt(depth)),O.salinity,O.altitude));
 var nSw=Math.max(2,Math.ceil(swT));
-for(var k=0;k<=nSw;k++)track(depth,cMsw,t+swT*k/nSw);
+for(var k=0;k<=nSw;k++)track(depth,cMsw,t+swT*k/nSw,Math.max(0,pToD(ceilBar(ts,1),O.salinity,O.altitude)));
 t+=swT;
 tblRows.push({sym:'⊙',depth:depth,rt:t,dt:swT,gasId:g.id,gsw:true});
 continue;}}
@@ -1229,7 +1232,7 @@ else{useGas(g,O.sacDeco,depth,nextD,dt);}
 var nA=Math.max(3,Math.ceil((depth-nextD)*2));
 for(var k=0;k<=nA;k++){
 var fr=k/nA,d2=depth-fr*(depth-nextD);
-track(d2,Math.max(0,pToD(ceilBar(ts,gfAt(d2)),O.salinity,O.altitude)),t+fr*dt);}
+track(d2,Math.max(0,pToD(ceilBar(ts,gfAt(d2)),O.salinity,O.altitude)),t+fr*dt,Math.max(0,pToD(ceilBar(ts,1),O.salinity,O.altitude)));}
 t+=dt;
 tblRows.push({sym:'↗',depth:nextD,rt:t,dt:dt,gasId:g.id,gsw:gsw2&&!switched[g.id+'@'+Math.round(depth)]});
 decoAscending=true;depth=nextD;
@@ -1248,7 +1251,7 @@ else{useGas(g,O.sacDeco,depth,depth,FSTEP);}
 elapsed+=FSTEP;t+=FSTEP;
 var cM3=Math.max(0,pToD(ceilBar(ts,gfAt(depth)),O.salinity,O.altitude));
 if(cM3>deepestCeil)deepestCeil=cM3;
-track(depth,cM3,t);
+track(depth,cM3,t,Math.max(0,pToD(ceilBar(ts,1),O.salinity,O.altitude)));
 innerSafe=pToD(ceilBar(ts,gfAt(nextD)),O.salinity,O.altitude)<=nextD+0.05;
 iter++;if(iter>80000)break;}
 var lst=stops[stops.length-1];
@@ -1275,13 +1278,32 @@ cns:cns,otu:otu,profile:profile,usage:usage,finalTissues:cloneTS(ts)};}
 function rbBar(r){
 if(!r)return {};
 var O=AP().O,out={};
+
+// Find actual gas switch depth from the computed plan (first ⊙ row in tblRows)
+// This correctly handles both switchAtMOD=ON (switch at MOD) and OFF (switch at first stop)
+var gswDepth=0;
+if(r.tblRows){
+  for(var i=0;i<r.tblRows.length;i++){
+    if(r.tblRows[i].gsw&&r.tblRows[i].sym==='⊙'){
+      gswDepth=r.tblRows[i].depth;
+      break;
+    }
+  }
+}
+// If no gas switch found (no deco gas), ascend to surface
+var maxD=r.maxDepth||0;
+var ascentM=(maxD-gswDepth)/O.ascentRate;
+var avgAscent=(maxD+gswDepth)/2;
+var pAscent=ambP(avgAscent,O.salinity,O.altitude);
+var swT=O.gasSwitchTime||0;
+var pGsw=ambP(gswDepth,O.salinity,O.altitude);
+
 AP().cyls.forEach(function(c){
-if(c.role==='bottom'){
-var avg=r.maxDepth/2,mins=r.maxDepth/O.ascentRate;
-out[c.id]=Math.ceil(2*O.sacEmerg*ambP(avg,O.salinity,O.altitude)*mins/c.size);
-}else if(c.role==='deco'&&c.on!==false){
-var sd=r.firstStopD||6,avg2=sd/2,mins2=sd/O.ascentRate;
-out[c.id]=Math.ceil(2*O.sacEmerg*ambP(avg2,O.salinity,O.altitude)*mins2/c.size);}});
+  if(c.role==='bottom'&&c.on!==false){
+    var liters=2*O.sacEmerg*(pAscent*ascentM+pGsw*swT);
+    out[c.id]=Math.ceil(liters/c.size);
+  }
+});
 return out;}
 
 function fmtDur(m){
@@ -1302,6 +1324,7 @@ function tx(v){return PL+v/maxT*pw;}
 function ty(v){return PT+v/maxD2*ph;}
 var depPath='M'+profile.map(function(p){return tx(p.t).toFixed(1)+','+ty(p.d).toFixed(1);}).join('L');
 var ceilPath='M'+profile.map(function(p){return tx(p.t).toFixed(1)+','+ty(p.cM).toFixed(1);}).join('L');
+var mvalPath='M'+profile.map(function(p){return tx(p.t).toFixed(1)+','+ty(p.cMv||0).toFixed(1);}).join('L');
 var fillPath=ceilPath+'L'+profile.slice().reverse().map(function(p){return tx(p.t).toFixed(1)+','+ty(p.d).toFixed(1);}).join('L')+'Z';
 var xt='',yt='';
 for(var i=0;i<=5;i++){var v=Math.round(maxT/5*i),x=tx(v).toFixed(0);xt+='<line x1="'+x+'" y1="'+PT+'" x2="'+x+'" y2="'+(PT+ph)+'" stroke="#e8ebf0" stroke-width="1"/><text x="'+x+'" y="'+(H-6)+'" text-anchor="middle" font-size="9" fill="#9aa0aa">'+v+'</text>';}
@@ -1310,6 +1333,7 @@ var avgY=ty(avgD).toFixed(1);
 svg.innerHTML='<rect width="'+W+'" height="'+H+'" fill="white" rx="6"/>'+xt+yt+
 '<line x1="'+PL+'" y1="'+avgY+'" x2="'+(PL+pw)+'" y2="'+avgY+'" stroke="#b0b8c4" stroke-width="1.5" stroke-dasharray="5,3"/>'+
 '<path d="'+fillPath+'" fill="rgba(217,83,79,0.13)"/>'+
+'<path d="'+mvalPath+'" fill="none" stroke="#e8a0a0" stroke-width="1.2" stroke-dasharray="4,3"/>'+
 '<path d="'+ceilPath+'" fill="none" stroke="#d9534f" stroke-width="1.8"/>'+
 '<path d="'+depPath+'" fill="none" stroke="#3451d1" stroke-width="2.5" stroke-linejoin="round"/>'+
 '<text x="'+(PL+pw/2)+'" y="'+(H-2)+'" text-anchor="middle" font-size="9" fill="#9aa0aa">Time (min)</text>';}
@@ -1426,7 +1450,7 @@ html+='<div class="sum-lines">'+
 '<div><b>Average depth:</b> '+r.avgDepth.toFixed(2)+' meters</div>'+
 (r.noStop?'<div><b>NDL:</b> '+r.ndl+' minutes remaining</div>':
 '<div><b>Total deco time:</b> '+fmtDur(r.totalDecoTime)+' minutes</div>'+
-'<div><b>First deco after:</b> '+Math.round(r.firstDecoAfter)+' minutes</div>'+
+'<div><b>Deco starts at:</b> RT '+Math.round(r.ascentStart+r.firstDecoAfter)+' min</div>'+
 '<div><b>Deepest ceiling:</b> '+r.deepestCeiling.toFixed(2)+' meter</div>'+
 '<div><b>Max TTS:</b> '+r.tts+' min @ '+Math.round(r.ascentStart)+' min runtime (ascent start)</div>')+
 '</div>';
@@ -1439,7 +1463,9 @@ rc.classList.remove('hidden');
 var O=AP().O,rb=rbBar(r);
 var gridH='';
 AP().cyls.forEach(function(c){
-var bar=rb[c.id]||0,psi=Math.round(bar*14.5038),pct=bar/(c.fill||200);
+var bar=rb[c.id]||0;
+if(!bar)return; // skip cylinders with no rock bottom reserve
+var psi=Math.round(bar*14.5038),pct=bar/(c.fill||200);
 var sc=pct>0.55?'#d9534f':pct>0.35?'#c97b0a':'#3451d1';
 var sb=pct>0.55?'#fdeaea':pct>0.35?'#fff3e0':'#eef2ff';
 gridH+='<div class="rb-box" style="background:'+sb+';border:1px solid '+sc+'44">'+
@@ -1462,11 +1488,13 @@ gridH+='<div class="rb-box" style="background:#eef2ff;border:1px solid '+ttsColo
 '<div class="rb-sub">'+ttsLabel+'</div></div>';
 document.getElementById('rb-grid').innerHTML=gridH;
 var barsH='<div class="gleg" style="margin-bottom:10px">'+
-'<div class="leg-i"><div class="leg-dot" style="background:#b0b8c4"></div>Remaining</div>'+
+'<div class="leg-i"><div class="leg-dot" style="background:#b0b8c4"></div>Other</div>'+
 '<div class="leg-i"><div class="leg-dot" style="background:#3451d1"></div>Rock bottom reserve</div>'+
 '</div>';
 AP().cyls.forEach(function(c){
-var bar=rb[c.id]||0,unused=Math.max(0,c.fill-bar),f=c.fill||1;
+var bar=rb[c.id]||0;
+if(!bar)return; // only show cylinders with a rock bottom reserve
+var unused=Math.max(0,c.fill-bar),f=c.fill||1;
 var pct=bar/f*100,upct=unused/f*100;
 var pctR=bar/f,sc=pctR>0.55?'#d9534f':pctR>0.35?'#c97b0a':'#3451d1';
 barsH+='<div class="gbar-row">'+
@@ -1935,7 +1963,8 @@ var depth=c.role==='bottom'?r.maxDepth:(r.firstStopD||r.maxDepth);
 if(c.role==='deco'){r.tblRows.forEach(function(row){if(row.gsw&&row.gasId===c.id)depth=row.depth;});}
 var densV=gdens(c.fO2,c.fHe,depth,O.salinity,O.altitude);
 var densWarn=parseFloat(densV)>=6.2?' !! EXCEEDS LIMIT':parseFloat(densV)>=5.2?' ! HIGH':'';
-lines.push(m2s(c.fO2,c.fHe).padEnd(10)+' Used: '+used+' ltr  Rock bottom: '+rbV+' bar  Density: '+densV+' g/l @'+depth+'m'+densWarn);});
+var rbStr=rbV>0?' Rock bottom: '+rbV+' bar':'';
+lines.push(m2s(c.fO2,c.fHe).padEnd(10)+' Used: '+used+' ltr'+rbStr+'  Density: '+densV+' g/l @'+depth+'m'+densWarn);});
 lines.push('');
 lines.push('━'.repeat(42));
 lines.push('⚠ Always verify with a certified dive planning tool.');
@@ -1958,6 +1987,7 @@ for(var j=0;j<=4;j++){var dv=Math.round(dispMaxD/4*j),y=(PT+dv/dispMaxD*ph).toFi
 grid+='<text x="'+(PL-3)+'" y="'+y+'" text-anchor="end" dominant-baseline="middle" font-size="9" fill="#9aa0aa">'+dv+'</text>';}
 var depPath='M'+profile.map(function(p){return tx(p.t)+','+ty(p.d);}).join('L');
 var ceilPath='M'+profile.map(function(p){return tx(p.t)+','+ty(p.cM);}).join('L');
+var mvalPath='M'+profile.map(function(p){return tx(p.t)+','+ty(p.cMv||0);}).join('L');
 var fillPts=profile.slice().reverse().map(function(p){return tx(p.t)+','+ty(p.d);});
 var fillPath=ceilPath+'L'+fillPts.join('L')+'Z';
 var avgY=ty(avgD);
@@ -1965,6 +1995,7 @@ return '<svg width="100%" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/200
 '<rect width="'+W+'" height="'+H+'" fill="white"/>'+grid+
 '<line x1="'+PL+'" y1="'+avgY+'" x2="'+(PL+pw)+'" y2="'+avgY+'" stroke="#b0b8c4" stroke-width="1.2" stroke-dasharray="6,4"/>'+
 '<path d="'+fillPath+'" fill="rgba(217,83,79,0.10)"/>'+
+'<path d="'+mvalPath+'" fill="none" stroke="#e8a0a0" stroke-width="1.2" stroke-dasharray="4,3"/>'+
 '<path d="'+ceilPath+'" fill="none" stroke="#d9534f" stroke-width="1.8"/>'+
 '<path d="'+depPath+'" fill="none" stroke="#3451d1" stroke-width="2.4" stroke-linejoin="round"/>'+
 '<text x="'+(PL+pw/2)+'" y="'+(H-1)+'" text-anchor="middle" font-size="9" fill="#9aa0aa">Time (min)</text>'+
@@ -2075,7 +2106,9 @@ barSeg(pct(normUsed),'#3451d1',Math.round(normUsed)+'')+'</div>'+
 /* ── Rock bottom bars ── */
 var rbBarsHtml='';
 cyls.forEach(function(c){
-var bar=rb[c.id]||0,remaining=Math.max(0,c.fill-bar),f=c.fill||1;
+var bar=rb[c.id]||0;
+if(!bar)return;
+var remaining=Math.max(0,c.fill-bar),f=c.fill||1;
 var pctRb=bar/f;
 var col=pctRb>0.55?'#d9534f':pctRb>0.3?'#e67e22':'#3451d1';
 rbBarsHtml+=
@@ -2121,7 +2154,7 @@ var html=
 '<div class="row"><span class="lbl">NDL remaining</span><span class="val">'+r.ndl+' min</span></div>':
 '<div class="row"><span class="lbl">Deco zone starts</span><span class="val">'+r.firstStopD+' m</span></div>'+
 '<div class="row"><span class="lbl">Total deco time</span><span class="val">'+fmtDur(r.totalDecoTime)+' min</span></div>'+
-'<div class="row"><span class="lbl">First deco after</span><span class="val">'+Math.round(r.firstDecoAfter)+' min</span></div>'+
+'<div class="row"><span class="lbl">Deco starts at</span><span class="val">RT '+Math.round(r.ascentStart+r.firstDecoAfter)+' min</span></div>'+
 '<div class="row"><span class="lbl">Deepest ceiling</span><span class="val">'+r.deepestCeiling.toFixed(2)+' m</span></div>'+
 '<div class="row"><span class="lbl">TTS at ascent start</span><span class="val">'+r.tts+' min @ '+Math.round(r.ascentStart)+' min runtime</span></div>')+
 '</div>'+
@@ -2133,6 +2166,7 @@ var html=
 '<div class="legend">'+
 '<span><svg width="18" height="6"><line x1="0" y1="3" x2="18" y2="3" stroke="#3451d1" stroke-width="2.5"/></svg>Depth</span>'+
 '<span><svg width="18" height="6"><line x1="0" y1="3" x2="18" y2="3" stroke="#d9534f" stroke-width="2"/></svg>GF ceiling</span>'+
+'<span><svg width="18" height="6"><line x1="0" y1="3" x2="18" y2="3" stroke="#e8a0a0" stroke-width="1.5" stroke-dasharray="4,3"/></svg>M-value</span>'+
 '<span><svg width="18" height="6"><line x1="0" y1="3" x2="18" y2="3" stroke="#b0b8c4" stroke-width="1.5" stroke-dasharray="5,3"/></svg>Avg depth</span>'+
 '</div></div></div>'+
 
