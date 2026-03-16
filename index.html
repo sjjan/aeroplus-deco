@@ -214,7 +214,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     </svg>
     <div>
       <div class="ttl" style="font-size:22px;letter-spacing:-.02em">AeroPlus <span style="color:#3451d1;font-weight:800">Deco</span></div>
-      <div class="sub">v2026-03-14d</div>
+      <div class="sub">v2026-03-14g</div>
     </div>
   </div>
   <div class="hdr-r">
@@ -321,8 +321,16 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
       </div>
       <svg id="chart" width="100%" viewBox="0 0 400 190" style="display:block"></svg>
       <div style="margin-top:8px;font-size:11px;font-weight:600;color:#3451d1;letter-spacing:.04em">GF99 — TISSUE SATURATION</div>
-      <div style="font-size:10px;color:#8a9aaa;margin-bottom:4px;line-height:1.4">Negative = on-gassing &nbsp;·&nbsp; 0% = equilibrium &nbsp;·&nbsp; Positive = off-gassing &nbsp;·&nbsp; Dashed line = GFhi/2 target</div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin:4px 0 4px;font-size:10px;color:#6a7a8a;align-items:center">
+        <span><svg width="20" height="6"><line x1="0" y1="3" x2="20" y2="3" stroke="#27ae60" stroke-width="2.2"/></svg> GF99</span>
+        <span><svg width="20" height="6"><line x1="0" y1="3" x2="20" y2="3" stroke="#3451d1" stroke-width="1.5" stroke-dasharray="6,3"/></svg> Target GF99</span>
+        <span><svg width="20" height="6"><line x1="0" y1="3" x2="20" y2="3" stroke="#d9534f" stroke-width="1" stroke-dasharray="4,3"/></svg> GF(hi)</span>
+        <span style="color:#27ae60">■</span><span style="color:#6a7a8a">Off-gassing</span>
+        <span style="color:#d9534f">■</span><span style="color:#6a7a8a">On-gassing</span>
+      </div>
+      <div style="font-size:10px;color:#8a9aaa;margin-bottom:4px;line-height:1.4">Negative = on-gassing &nbsp;·&nbsp; 0% = equilibrium &nbsp;·&nbsp; Positive = off-gassing &nbsp;·&nbsp; Target GF99 = GF(hi)/2</div>
       <svg id="chart-gf99" width="100%" viewBox="0 0 400 120" style="display:block"></svg>
+      <p style="font-size:11px;color:#6a7a8a;margin:8px 0 0;line-height:1.6"><strong>About GF99:</strong> GF99 is the percentage of the M-value currently in use across all tissue compartments. A negative value means you are on-gassing — nitrogen is being added to your tissues. Zero is equilibrium. A positive value means you are off-gassing. For efficient decompression, there must be enough inert gas tension in the tissues relative to ambient pressure to drive off-gassing — without tension, gas cannot leave. The recommended target during deco stops and the ascent is a GF99 of approximately <strong>50% of your GF(hi) setting</strong> (shown as the blue dashed Target GF99 line). Spending deco time near this line means your tissues are offgassing efficiently without approaching the ceiling.</p>
     </div>
     <div id="deco-body"></div>
   </div>
@@ -1017,7 +1025,7 @@ window.AP=AP;
 
 var STORE_KEY='aeroplusDeco_v1';
 // Bump this string whenever HARDCODED_O defaults change — forces migration for existing users
-var SETTINGS_VERSION='2026-03-14d';
+var SETTINGS_VERSION='2026-03-14g';
 
 function savePlans(){
 try{
@@ -1382,68 +1390,55 @@ svg.innerHTML='<rect width="'+W+'" height="'+H+'" fill="white" rx="6"/>'+xt+yt+
 '<path d="'+depPath+'" fill="none" stroke="#3451d1" stroke-width="2.5" stroke-linejoin="round"/>'+
 '<text x="'+(PL+pw/2)+'" y="'+(H-2)+'" text-anchor="middle" font-size="9" fill="#9aa0aa">Time (min)</text>';}
 
-function drawGF99Chart(profile,gfHi){
+function drawGF99Chart(profile,gfHi,ascentStart){
 var svg=document.getElementById('chart-gf99');
 if(!svg)return;
 if(!profile||profile.length<2){svg.innerHTML='';return;}
-var W=400,H=120,PL=36,PR=8,PT=8,PB=20,pw=W-PL-PR,ph=H-PT-PB;
-var pts=profile.filter(function(p){return p.gf99!==null&&p.gf99!==undefined;});
-if(!pts.length){svg.innerHTML='';return;}
+var W=400,H=120,PL=36,PR=8,PT=10,PB=20,pw=W-PL-PR,ph=H-PT-PB;
+var pts=profile.filter(function(p){return p.gf99!==null&&p.gf99!==undefined&&isFinite(p.gf99);});
+if(!pts.length){svg.innerHTML='<text x="200" y="60" text-anchor="middle" font-size="11" fill="#9aa0aa">GF99 data not available</text>';return;}
 var maxT=0;profile.forEach(function(p){if(p.t>maxT)maxT=p.t;});
-// y-range: show -100 to +100, centred on 0
-var yMin=-100,yMax=100;
-// If all values fit in a tighter range, use that with padding
 var gfMin=Infinity,gfMax=-Infinity;
 pts.forEach(function(p){if(p.gf99<gfMin)gfMin=p.gf99;if(p.gf99>gfMax)gfMax=p.gf99;});
-yMin=Math.min(-20,Math.floor(gfMin/10)*10-10);
-yMax=Math.max(gfHi+20,Math.ceil(gfMax/10)*10+10);
-function tx(v){return PL+v/maxT*pw;}
-function ty(v){return PT+ph-(v-yMin)/(yMax-yMin)*ph;}
-// Grid lines & labels
-var xt='',yl='';
-for(var i=0;i<=5;i++){var v=Math.round(maxT/5*i),x=tx(v).toFixed(0);
+var yMin=Math.min(-30,Math.floor((gfMin-10)/10)*10);
+var yMax=Math.max(gfHi+25,Math.ceil((gfMax+10)/10)*10);
+function tx(v){return (PL+v/maxT*pw).toFixed(1);}
+function ty(v){return (PT+ph-(v-yMin)/(yMax-yMin)*ph).toFixed(1);}
+// Time grid
+var xt='';
+for(var i=0;i<=5;i++){var tv=Math.round(maxT/5*i),x=(PL+tv/maxT*pw).toFixed(0);
   xt+='<line x1="'+x+'" y1="'+PT+'" x2="'+x+'" y2="'+(PT+ph)+'" stroke="#e8ebf0" stroke-width="1"/>';}
-// y axis ticks at meaningful values
-var yticks=[yMin,0,Math.round(gfHi/2),gfHi,yMax];
-yticks=yticks.filter(function(v,i,a){return a.indexOf(v)===i&&v>=yMin&&v<=yMax;});
-yticks.forEach(function(v){
-  var y=ty(v).toFixed(0);
-  yl+='<line x1="'+PL+'" y1="'+y+'" x2="'+(PL+pw)+'" y2="'+y+'" stroke="'+(v===0?'#8a9aaa':'#e8ebf0')+'" stroke-width="'+(v===0?'1.2':'1')+'" '+(v!==0?'stroke-dasharray="3,3"':'')+'/>';
-  yl+='<text x="'+(PL-3)+'" y="'+y+'" text-anchor="end" dominant-baseline="middle" font-size="8" fill="#9aa0aa">'+v+'</text>';
-});
 // Zero line
-var y0=ty(0).toFixed(1);
-// GFhi/2 target dashed line
-var yTarget=ty(gfHi/2).toFixed(1);
-// GFhi ceiling dashed line  
-var yGfhi=ty(gfHi).toFixed(1);
-// GF99 path - colour segments by value
-var pathPos='',pathNeg='',pathMid='';
-var posD='',negD='',midD='';
-pts.forEach(function(p,i){
-  var x=tx(p.t).toFixed(1),y=ty(p.gf99).toFixed(1);
-  var cmd=i===0?'M':'L';
-  if(p.gf99<0)negD+=cmd+x+','+y;
-  else if(p.gf99>gfHi*0.9)posD+=cmd+x+','+y;
-  else midD+=cmd+x+','+y;
+var y0=ty(0);
+// GF(hi)/2 target line
+var yTarget=ty(gfHi/2);
+// GF(hi) ceiling line
+var yGfhi=ty(gfHi);
+// GF99 path
+var fullPath='M'+pts.map(function(p){return tx(p.t)+','+ty(p.gf99);}).join('L');
+// Fill offgassing zone (above 0) green, ongassing (below 0) red
+var fillAbove='M'+pts.map(function(p){return tx(p.t)+','+ty(Math.max(p.gf99,0));}).join('L')+
+  'L'+tx(pts[pts.length-1].t)+','+y0+'L'+tx(pts[0].t)+','+y0+'Z';
+var fillBelow='M'+pts.map(function(p){return tx(p.t)+','+ty(Math.min(p.gf99,0));}).join('L')+
+  'L'+tx(pts[pts.length-1].t)+','+y0+'L'+tx(pts[0].t)+','+y0+'Z';
+// Y-axis labels (only 0, target, gfHi, yMin)
+var ylabels='';
+[[0,'#8a9aaa'],[gfHi/2,'#3451d1'],[gfHi,'#d9534f'],[yMin,'#cccccc']].forEach(function(pair){
+  var v=pair[0],col=pair[1],y=ty(v);
+  ylabels+='<text x="'+(PL-3)+'" y="'+y+'" text-anchor="end" dominant-baseline="middle" font-size="8" fill="'+col+'">'+Math.round(v)+'</text>';
 });
-// Single path with colour coding via gradient not possible simply - use one path, colour by zone
-var fullPath='M'+pts.map(function(p){return tx(p.t).toFixed(1)+','+ty(p.gf99).toFixed(1);}).join('L');
-// Fill area under gf99 line above 0 (offgassing zone) light green
-var fillAbove=fullPath+'L'+tx(pts[pts.length-1].t).toFixed(1)+','+y0+'L'+tx(pts[0].t).toFixed(1)+','+y0+'Z';
-var fillBelow='M'+pts.map(function(p){return tx(p.t).toFixed(1)+','+ty(Math.min(p.gf99,0)).toFixed(1);}).join('L')+'L'+tx(pts[pts.length-1].t).toFixed(1)+','+y0+'L'+tx(pts[0].t).toFixed(1)+','+y0+'Z';
 svg.innerHTML=
-'<rect width="'+W+'" height="'+H+'" fill="white" rx="6"/>'+
-xt+yl+
-'<path d="'+fillAbove+'" fill="rgba(39,174,96,0.10)"/>'+
-'<path d="'+fillBelow+'" fill="rgba(217,83,79,0.10)"/>'+
-'<line x1="'+PL+'" y1="'+yTarget+'" x2="'+(PL+pw)+'" y2="'+yTarget+'" stroke="#3451d1" stroke-width="1" stroke-dasharray="5,3"/>'+
-'<line x1="'+PL+'" y1="'+yGfhi+'" x2="'+(PL+pw)+'" y2="'+yGfhi+'" stroke="#d9534f" stroke-width="1" stroke-dasharray="3,3"/>'+
-'<path d="'+fullPath+'" fill="none" stroke="#27ae60" stroke-width="2" stroke-linejoin="round"/>'+
-'<text x="'+(PL+pw-2)+'" y="'+(parseFloat(yTarget)-3)+'" text-anchor="end" font-size="8" fill="#3451d1">GFhi/2</text>'+
-'<text x="'+(PL+pw-2)+'" y="'+(parseFloat(yGfhi)-3)+'" text-anchor="end" font-size="8" fill="#d9534f">GFhi</text>'+
-'<text x="'+(PL+pw/2)+'" y="'+(H-2)+'" text-anchor="middle" font-size="9" fill="#9aa0aa">Time (min)</text>'+
-'<text x="'+(PL-2)+'" y="'+(ty(0)).toFixed(0)+'" text-anchor="end" dominant-baseline="middle" font-size="8" fill="#8a9aaa">0</text>';
+'<rect width="'+W+'" height="'+H+'" fill="white" rx="6"/>'+xt+
+'<path d="'+fillAbove+'" fill="rgba(39,174,96,0.12)"/>'+
+'<path d="'+fillBelow+'" fill="rgba(217,83,79,0.12)"/>'+
+'<line x1="'+PL+'" y1="'+y0+'" x2="'+(PL+pw)+'" y2="'+y0+'" stroke="#8a9aaa" stroke-width="1"/>'+
+'<line x1="'+tx(ascentStart||0)+'" y1="'+yTarget+'" x2="'+(PL+pw)+'" y2="'+yTarget+'" stroke="#3451d1" stroke-width="1.5" stroke-dasharray="6,3"/>'+
+'<line x1="'+PL+'" y1="'+yGfhi+'" x2="'+(PL+pw)+'" y2="'+yGfhi+'" stroke="#d9534f" stroke-width="1" stroke-dasharray="4,3"/>'+
+'<path d="'+fullPath+'" fill="none" stroke="#27ae60" stroke-width="2.2" stroke-linejoin="round"/>'+
+ylabels+
+'<text x="'+(PL+pw-2)+'" y="'+(parseFloat(yTarget)-4)+'" text-anchor="end" font-size="8" fill="#3451d1">Target GF99</text>'+
+'<text x="'+(PL+pw-2)+'" y="'+(parseFloat(yGfhi)-4)+'" text-anchor="end" font-size="8" fill="#d9534f">GF(hi)</text>'+
+'<text x="'+(PL+pw/2)+'" y="'+(H-3)+'" text-anchor="middle" font-size="9" fill="#9aa0aa">Time (min)</text>';
 }
 
 function renderPlansBar(){
@@ -1531,7 +1526,7 @@ if(!r){dc.classList.add('hidden');return;}
 dc.classList.remove('hidden');
 document.getElementById('lbl-d').textContent=AP().O.contingencyDeeper;
 document.getElementById('lbl-l').textContent=AP().O.contingencyLonger;
-drawChart(r.profile);drawGF99Chart(r.profile,AP().O.gfHi||0.75);
+drawChart(r.profile);drawGF99Chart(r.profile,(AP().O.gfHi||0.75)*100,r.ascentStart||0);
 var html='';
 if(_activePlan>0){
 var prev=_plans[_activePlan-1];
