@@ -8,6 +8,17 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>AeroPlus Deco</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%233451d1'/%3E%3Cpath d='M20 82 L50 16 L80 82 L62 82 L50 54 L38 82 Z' fill='white'/%3E%3Cpath d='M38 82 L50 54 L62 82 Z' fill='%2372c4e8'/%3E%3Cpath d='M50 16 L67 44 Q74 37 70 26 Z' fill='%2372c4e8'/%3E%3C/svg%3E">
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#3451d1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AeroPlus Deco">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="apple-touch-icon" sizes="192x192" href="/icon-192.png">
+<link rel="apple-touch-icon" sizes="512x512" href="/icon-512.png">
+<meta name="msapplication-TileColor" content="#3451d1">
+<meta name="msapplication-TileImage" content="/icon-192.png">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 input,select,textarea{font-size:16px!important}body{background:#edf0f5;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;color:#1a1a1a;min-height:100vh;-webkit-tap-highlight-color:transparent;overflow-x:hidden}
@@ -481,12 +492,12 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
       <div class="cfg-row-l"><div class="cfg-row-name">Gas switch time</div><div class="cfg-row-desc">Time in minutes to perform a gas switch at a switch depth. Diver breathes new gas during this pause.</div></div>
       <div class="cfg-row-val" id="cfg-gst">1 min</div>
     </div>
-    <div class="cfg-row" onclick="window.openNumEdit('minSurfacePPO2','Min surface PPO&#8322;','Minimum PPO&#8322; at which a bottom gas is breathable from the surface. 0.16 ata = 16% O&#8322;. Used to flag hypoxic mixes.',0.16,0.21,0.01,'ata')">
+    <div class="cfg-row" onclick="window.openNumEdit('minSurfacePPO2','Min surface PPO&#8322;','Minimum PPO&#8322; at which a bottom gas is breathable from the surface. 0.16 ata = 16% O&#8322;.',0.16,0.21,0.01,'ata')">
       <div class="cfg-row-l"><div class="cfg-row-name">Min surface PPO&#8322;</div><div class="cfg-row-desc">Threshold to identify a hypoxic bottom mix. Shown in gas plan as the depth at which bottom gas is breathable for emergency ascent.</div></div>
       <div class="cfg-row-val" id="cfg-mspp">0.16</div>
     </div>
-    <div class="cfg-row" onclick="window.openNumEdit('travelGasReserve','Travel gas reserve','Minimum pressure (bar) kept in the travel cylinder for an emergency abort to the surface. Switch to bottom gas when travel gas reaches this reserve OR its MOD — whichever comes first.',10,100,5,'bar')">
-      <div class="cfg-row-l"><div class="cfg-row-name">Travel gas reserve</div><div class="cfg-row-desc">Reserve pressure kept in the travel cylinder. Switch to bottom gas when travel gas hits this reserve OR its MOD — whichever comes first.</div></div>
+    <div class="cfg-row" onclick="window.openNumEdit('travelGasReserve','Travel gas reserve','Reserve pressure kept in the travel cylinder for emergency abort. Switch to bottom gas at this reserve OR travel MOD — whichever comes first.',10,100,5,'bar')">
+      <div class="cfg-row-l"><div class="cfg-row-name">Travel gas reserve</div><div class="cfg-row-desc">Reserve pressure in the travel cylinder. Switch to bottom gas when travel gas hits this reserve OR its MOD — whichever comes first.</div></div>
       <div class="cfg-row-val" id="cfg-tgr">50 bar</div>
     </div>
     <div class="cfg-row notap" style="align-items:center"><div class="cfg-row-l"><div class="cfg-row-name">Round stop times</div><div class="cfg-row-desc">Round deco stop times up to whole minutes — easier to follow underwater, matches dive computers like Shearwater. Off = exact times (e.g. 1:20).</div></div>
@@ -3077,5 +3088,29 @@ else{_doInit();}
     </div>
   </div></div>
 </div>
+
+<!-- PWA Service Worker -->
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('/sw.js')
+      .then(function(reg){
+        console.log('[AeroPlus] SW registered');
+        reg.addEventListener('updatefound',function(){
+          var nw=reg.installing;
+          nw.addEventListener('statechange',function(){
+            if(nw.state==='installed'&&navigator.serviceWorker.controller){
+              var b=document.createElement('div');
+              b.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#3451d1;color:#fff;border-radius:50px;padding:12px 20px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(52,81,209,.4);z-index:9999;font-family:-apple-system,sans-serif;white-space:nowrap';
+              b.innerHTML='New version available &nbsp;<button id="ap-upd" style="background:#fff;color:#3451d1;border:none;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:700;cursor:pointer">Update now</button>';
+              document.body.appendChild(b);
+              document.getElementById('ap-upd').onclick=function(){nw.postMessage({type:'SKIP_WAITING'});location.reload();};
+            }
+          });
+        });
+      }).catch(function(e){console.warn('[AeroPlus] SW failed:',e);});
+  });
+}
+</script>
 </body>
 </html>
