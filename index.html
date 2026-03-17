@@ -120,7 +120,7 @@ input,select,textarea{font-size:16px!important}body{background:#edf0f5;font-fami
 .hidden{display:none!important}
 .muted{color:#8a9aaa;font-size:13px;padding:8px 0;font-style:italic}
 .mbg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;display:flex;align-items:flex-end;justify-content:center}
-.mpanel{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:540px;padding:20px 16px 44px;max-height:88vh;overflow-y:auto}
+.mpanel{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:540px;padding:20px 16px 44px;max-height:94vh;overflow-y:auto}
 .mhdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 .mttl{font-size:20px;font-weight:700}
 .mcls{background:#d0d4db;border:none;border-radius:50%;width:32px;height:32px;font-size:16px;cursor:pointer}
@@ -496,7 +496,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
       <div class="cfg-row-l"><div class="cfg-row-name">Gas switch time</div><div class="cfg-row-desc">Time in minutes to perform a gas switch at a switch depth. Diver breathes new gas during this pause.</div></div>
       <div class="cfg-row-val" id="cfg-gst">1 min</div>
     </div>
-    <div class="cfg-row" onclick="window.openNumEdit('minSurfacePPO2','Min surface PPO&#8322;','Minimum PPO&#8322; at which a bottom gas is breathable from the surface. 0.16 ata = 16% O&#8322;.',0.16,0.21,0.01,'ata')">
+    <div class="cfg-row" onclick="window.openNumEdit('minSurfacePPO2','Min surface PPO&#8322;','Minimum PPO&#8322; at which a bottom gas is breathable from the surface.',0.16,0.21,0.01,'ata')">
       <div class="cfg-row-l"><div class="cfg-row-name">Min surface PPO&#8322;</div><div class="cfg-row-desc">Threshold to identify a hypoxic bottom mix.</div></div>
       <div class="cfg-row-val" id="cfg-mspp">0.16</div>
     </div>
@@ -3050,11 +3050,45 @@ else{_doInit();}
       <div style="font-size:22px;font-weight:700">AeroPlus <span style="color:#3451d1">Deco</span></div>
       <div style="font-size:13px;color:#6a7a9a;margin-top:4px">Install as a native-style app &#8212; free, no App Store needed</div>
     </div>
-    <div id="install-ios" style="display:none"><div style="background:#eef2ff;border-left:3px solid #3451d1;border-radius:0 12px 12px 0;padding:14px 16px;margin-bottom:16px;font-size:13px;color:#2a3a5a;line-height:1.8"><div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:#3451d1;margin-bottom:10px">INSTALL ON iPHONE / iPAD</div><div style="display:flex;gap:12px;margin-bottom:12px"><div style="background:#3451d1;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">1</div><div>Tap the <strong>Share button</strong> at the bottom of Safari (box with arrow pointing up)</div></div><div style="display:flex;gap:12px;margin-bottom:12px"><div style="background:#3451d1;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">2</div><div>Scroll down and tap <strong>"Add to Home Screen"</strong></div></div><div style="display:flex;gap:12px"><div style="background:#3451d1;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">3</div><div>Tap <strong>Add</strong> &#8212; the icon appears on your home screen</div></div></div><div style="background:#fff8e1;border:1px solid #ffc107;border-radius:10px;padding:10px 14px;font-size:12px;color:#5d4037;line-height:1.6;margin-bottom:20px">&#9888; <strong>Must use Safari.</strong> Chrome and other iOS browsers do not support Add to Home Screen.</div></div>
-    <div id="install-android" style="display:none"><div style="background:#eef2ff;border-left:3px solid #3451d1;border-radius:0 12px 12px 0;padding:14px 16px;margin-bottom:20px;font-size:13px;color:#2a3a5a;line-height:1.8"><div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:#3451d1;margin-bottom:10px">INSTALL ON ANDROID</div><div style="display:flex;gap:12px;margin-bottom:12px"><div style="background:#3451d1;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">1</div><div>Chrome shows an <strong>"Install app"</strong> banner at the bottom &#8212; tap it</div></div><div style="display:flex;gap:12px;margin-bottom:12px"><div style="background:#3451d1;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">2</div><div>If dismissed, tap the <strong>&#8942; menu</strong> and select <strong>"Add to Home Screen"</strong></div></div><div style="display:flex;gap:12px"><div style="background:#3451d1;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">3</div><div>Tap <strong>Install</strong> &#8212; opens in its own window with no browser bar</div></div></div></div>
-    <div id="install-desktop" style="display:none"><div style="background:#eef2ff;border-left:3px solid #3451d1;border-radius:0 12px 12px 0;padding:14px 16px;margin-bottom:20px;font-size:13px;color:#2a3a5a;line-height:1.8"><div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:#3451d1;margin-bottom:10px">INSTALL ON DESKTOP (CHROME / EDGE)</div><div style="display:flex;gap:12px;margin-bottom:12px"><div style="background:#3451d1;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">1</div><div>Look for the <strong>install icon</strong> in the right side of the address bar</div></div><div style="display:flex;gap:12px"><div style="background:#3451d1;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">2</div><div>Click it and select <strong>"Install"</strong> &#8212; opens as a standalone window</div></div></div></div>
+    <div id="install-ios" style="display:none">
+      <div style="background:#eef2ff;border-left:3px solid #3451d1;border-radius:0 12px 12px 0;padding:14px 16px;margin-bottom:16px;font-size:13px;color:#2a3a5a;line-height:1.8">
+        <div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:#3451d1;margin-bottom:10px">INSTALL ON iPHONE / iPAD</div>
+        <div style="display:flex;gap:12px;margin-bottom:12px"><div style="background:#3451d1;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">1</div><div>Tap the <strong>Share button</strong> at the bottom of Safari (box with arrow pointing up)</div></div>
+        <div style="display:flex;gap:12px;margin-bottom:12px"><div style="background:#3451d1;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">2</div><div>Scroll down and tap <strong>"Add to Home Screen"</strong></div></div>
+        <div style="display:flex;gap:12px"><div style="background:#3451d1;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">3</div><div>Tap <strong>Add</strong> &#8212; the icon appears on your home screen</div></div>
+      </div>
+      <div style="background:#fff8e1;border:1px solid #ffc107;border-radius:10px;padding:10px 14px;font-size:12px;color:#5d4037;line-height:1.6;margin-bottom:20px">&#9888; <strong>Must use Safari.</strong> Chrome and other iOS browsers do not support Add to Home Screen.</div>
+    </div>
+    <div id="install-android" style="display:none">
+      <div style="background:#eef2ff;border-left:3px solid #3451d1;border-radius:0 12px 12px 0;padding:14px 16px;margin-bottom:20px;font-size:13px;color:#2a3a5a;line-height:1.8">
+        <div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:#3451d1;margin-bottom:10px">INSTALL ON ANDROID</div>
+        <div style="display:flex;gap:12px;margin-bottom:12px"><div style="background:#3451d1;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">1</div><div>Chrome shows an <strong>"Install app"</strong> banner at the bottom &#8212; tap it</div></div>
+        <div style="display:flex;gap:12px;margin-bottom:12px"><div style="background:#3451d1;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">2</div><div>If dismissed, tap the <strong>&#8942; menu</strong> and select <strong>"Add to Home Screen"</strong></div></div>
+        <div style="display:flex;gap:12px"><div style="background:#3451d1;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">3</div><div>Tap <strong>Install</strong> &#8212; opens in its own window with no browser bar</div></div>
+      </div>
+    </div>
+    <div id="install-desktop" style="display:none">
+      <div style="background:#eef2ff;border-left:3px solid #3451d1;border-radius:0 12px 12px 0;padding:14px 16px;margin-bottom:20px;font-size:13px;color:#2a3a5a;line-height:1.8">
+        <div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:#3451d1;margin-bottom:10px">INSTALL ON DESKTOP (CHROME / EDGE)</div>
+        <div style="display:flex;gap:12px;margin-bottom:12px"><div style="background:#3451d1;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">1</div><div>Look for the <strong>install icon</strong> in the right side of the address bar</div></div>
+        <div style="display:flex;gap:12px"><div style="background:#3451d1;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">2</div><div>Click it and select <strong>"Install"</strong> &#8212; opens as a standalone window</div></div>
+      </div>
+    </div>
     <div style="font-size:13px;font-weight:600;color:#1a1a1a;margin-bottom:10px">Why install?</div>
-    <div style="font-size:13px;color:#3a4a5a;line-height:2;margin-bottom:20px;padding-left:4px">&#10003; &nbsp;Launches instantly from your home screen<br>&#10003; &nbsp;Full screen &#8212; no browser address bar<br>&#10003; &nbsp;Your plans are saved locally on your device<br>&#10003; &nbsp;Updates automatically when a new version is available</div>
+    <div style="font-size:13px;color:#3a4a5a;line-height:2;margin-bottom:20px;padding-left:4px">
+      &#10003; &nbsp;Launches instantly from your home screen<br>
+      &#10003; &nbsp;Full screen &#8212; no browser address bar<br>
+      &#10003; &nbsp;Your plans are saved locally on your device<br>
+      &#10003; &nbsp;Updates automatically when a new version is available
+    </div>
+    <div style="background:#eef2ff;border-radius:14px;padding:14px 16px;margin-bottom:8px">
+      <div style="font-size:13px;font-weight:700;color:#3451d1;margin-bottom:8px">&#9992;&#65039; Works offline &#8212; on the boat, on the reef</div>
+      <div style="font-size:13px;color:#2a3a5a;line-height:1.7">
+        AeroPlus Deco runs entirely on your device. The decompression algorithm, all gas calculations and your saved plans are stored locally &#8212; <strong>no internet connection needed</strong> once the app has been loaded.<br><br>
+        The first time you open the installed app, it caches itself automatically. After that, it works fully offline. This means you can plan dives on the boat, at the dive site, or anywhere without a signal.<br><br>
+        <span style="color:#3451d1;font-weight:600">&#10003; Before heading offshore:</span> open the app once while connected to make sure the latest version is cached on your device.
+      </div>
+    </div>
   </div></div>
 </div>
 <!-- PWA Service Worker -->
