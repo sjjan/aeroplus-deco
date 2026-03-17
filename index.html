@@ -8,17 +8,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>AeroPlus Deco</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%233451d1'/%3E%3Cpath d='M20 82 L50 16 L80 82 L62 82 L50 54 L38 82 Z' fill='white'/%3E%3Cpath d='M38 82 L50 54 L62 82 Z' fill='%2372c4e8'/%3E%3Cpath d='M50 16 L67 44 Q74 37 70 26 Z' fill='%2372c4e8'/%3E%3C/svg%3E">
-<!-- PWA -->
-<link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#3451d1">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="AeroPlus Deco">
-<link rel="apple-touch-icon" href="/icon-192.png">
-<link rel="apple-touch-icon" sizes="192x192" href="/icon-192.png">
-<link rel="apple-touch-icon" sizes="512x512" href="/icon-512.png">
-<meta name="msapplication-TileColor" content="#3451d1">
-<meta name="msapplication-TileImage" content="/icon-192.png">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 input,select,textarea{font-size:16px!important}body{background:#edf0f5;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;color:#1a1a1a;min-height:100vh;-webkit-tap-highlight-color:transparent;overflow-x:hidden}
@@ -225,7 +214,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     </svg>
     <div>
       <div class="ttl" style="font-size:22px;letter-spacing:-.02em">AeroPlus <span style="color:#3451d1;font-weight:800">Deco</span></div>
-      <div class="sub">v2026-03-14g</div>
+      <div class="sub">v2026-03-17g</div>
     </div>
   </div>
   <div class="hdr-r">
@@ -388,6 +377,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     <div class="mhdr"><span class="mttl" id="m-cyl-t">Add cylinder</span><button class="mcls" onclick="window.closeModals()">✕</button></div>
     <div class="rtog">
       <button class="rtog-btn on" id="rb-b" onclick="window.setRole('bottom')">Bottom gas</button>
+      <button class="rtog-btn" id="rb-tr" onclick="window.setRole('travel')">Travel gas</button>
       <button class="rtog-btn" id="rb-o" onclick="window.setRole('bailout')">Bailout gas</button>
       <button class="rtog-btn" id="rb-d" onclick="window.setRole('deco')">Deco gas</button>
     </div>
@@ -490,6 +480,14 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     <div class="cfg-row" onclick="window.openNumEdit('gasSwitchTime','Gas switch time','Time in minutes spent switching to a decompression gas. The diver breathes the new gas during this time.',0,10,1,'min')">
       <div class="cfg-row-l"><div class="cfg-row-name">Gas switch time</div><div class="cfg-row-desc">Time in minutes to perform a gas switch at a switch depth. Diver breathes new gas during this pause.</div></div>
       <div class="cfg-row-val" id="cfg-gst">1 min</div>
+    </div>
+    <div class="cfg-row" onclick="window.openNumEdit('minSurfacePPO2','Min surface PPO&#8322;','Minimum PPO&#8322; at which a bottom gas is breathable from the surface. 0.16 ata = 16% O&#8322;. Used to flag hypoxic mixes.',0.16,0.21,0.01,'ata')">
+      <div class="cfg-row-l"><div class="cfg-row-name">Min surface PPO&#8322;</div><div class="cfg-row-desc">Threshold to identify a hypoxic bottom mix. Shown in gas plan as the depth at which bottom gas is breathable for emergency ascent.</div></div>
+      <div class="cfg-row-val" id="cfg-mspp">0.16</div>
+    </div>
+    <div class="cfg-row" onclick="window.openNumEdit('travelGasReserve','Travel gas reserve','Minimum pressure (bar) kept in the travel cylinder for an emergency abort to the surface. Switch to bottom gas when travel gas reaches this reserve OR its MOD — whichever comes first.',10,100,5,'bar')">
+      <div class="cfg-row-l"><div class="cfg-row-name">Travel gas reserve</div><div class="cfg-row-desc">Reserve pressure kept in the travel cylinder. Switch to bottom gas when travel gas hits this reserve OR its MOD — whichever comes first.</div></div>
+      <div class="cfg-row-val" id="cfg-tgr">50 bar</div>
     </div>
     <div class="cfg-row notap" style="align-items:center"><div class="cfg-row-l"><div class="cfg-row-name">Round stop times</div><div class="cfg-row-desc">Round deco stop times up to whole minutes — easier to follow underwater, matches dive computers like Shearwater. Off = exact times (e.g. 1:20).</div></div>
       <label class="tog-sw"><input type="checkbox" id="tog-ms" onchange="AP().O.minStopTime=this.checked?1:0;window.refreshCfgDisplay();if(AP().result)try{window.runAll();}catch(e){}"><div class="tog-track"></div><div class="tog-knob"></div></label>
@@ -1007,7 +1005,7 @@ gfLo:.50,gfHi:.75,ascentRate:10,decoAscentRate:3,descentRate:18,
 sacNorm:25,sacEmerg:35,sacDeco:20,salinity:'fresh',altitude:0,
 maxPPO2:1.4,maxDecoPPO2:1.6,
 stopInterval:3,lastStop:6,gasSwitchTime:1,minStopTime:0,switchAtMOD:false,isCCR:false,ccrSP:1.3,ccrDecoSP:1.3,ccrDilFO2:0.21,ccrDilFHe:0,ccrO2Rate:1.5,bailoutSwitchTime:2,ccrO2Size:3,ccrO2Fill:200,ccrScrubberCap:180,
-decoGasBetween:false,autoGFLo:false,contingencyDeeper:3,contingencyLonger:3
+decoGasBetween:false,autoGFLo:false,contingencyDeeper:3,contingencyLonger:3,minSurfacePPO2:0.16,travelGasReserve:50
 };
 var HARDCODED_CYLS=[
 {fO2:.21,fHe:0,size:24,fill:232,role:'bottom'},
@@ -1037,7 +1035,7 @@ window.AP=AP;
 
 var STORE_KEY='aeroplusDeco_v1';
 // Bump this string whenever HARDCODED_O defaults change — forces migration for existing users
-var SETTINGS_VERSION='2026-03-14g';
+var SETTINGS_VERSION='2026-03-17g';
 
 function savePlans(){
 try{
@@ -1138,9 +1136,23 @@ var intv=AP().surfaceInterval;
 if(intv&&intv>0){expose(ts,0,0,intv,0.7902,0,prev.O.salinity,prev.O.altitude);}
 return ts;}
 
+function calcTravelSwitchDepth(tg,O){
+var modD=Math.floor((O.maxPPO2/tg.fO2-1)*10);
+var reserve=O.travelGasReserve||50;
+var usable=(tg.fill-reserve)*tg.size;
+if(usable<=0)return{depth:0,reason:'reserve'};
+var sac=O.sacNorm||25,dr=O.descentRate||18,cum=0;
+for(var dd=1;dd<=modD;dd++){
+  cum+=sac/dr*ambP(dd,O.salinity,O.altitude);
+  if(cum>=usable)return{depth:Math.floor(dd/3)*3,reason:'volume'};}
+return{depth:Math.floor(modD/3)*3,reason:'MOD'};}
+
 function planDive(initialTs){
 var O=AP().O;
 var SS=O.stopInterval,LS=O.lastStop;
+var travelGas=AP().cyls.find(function(c){return c.role==='travel';});
+var travelSwitch=travelGas?calcTravelSwitchDepth(travelGas,O):null;
+var travelSwitchDepth=travelSwitch?travelSwitch.depth:null;
 var allGas=AP().cyls.filter(function(c){return c.role==='bottom'&&c.on!==false;}).concat(
 AP().cyls.filter(function(c){return c.role==='deco'&&c.on!==false;}));
 // Fallback: if no bottom gas is marked on, use the first one
@@ -1195,22 +1207,42 @@ if(gsw)lastGasId=g.id;
 var descentT=0;
 if(Math.abs(seg.depth-prevD)>0.01){
 var going=seg.depth>prevD;
-descentT=Math.abs(seg.depth-prevD)/(going?O.descentRate:O.ascentRate);
-var nSteps=Math.max(4,Math.ceil(Math.abs(seg.depth-prevD)));
-for(var k=0;k<nSteps;k++){
-var d1s=prevD+(seg.depth-prevD)*k/nSteps;
-var d2s=prevD+(seg.depth-prevD)*(k+1)/nSteps;
-var dt1=descentT/nSteps;
-var _segSP=O.isCCR?(seg.sp||O.ccrSP):O.ccrSP;var _cf3=O.isCCR?ccrFracs(d1s,d2s,_segSP,O.salinity,O.altitude):{fN2:fN2,fHe:g.fHe};
-expose(ts,d1s,d2s,dt1,_cf3.fN2,_cf3.fHe,O.salinity,O.altitude);
-var ceilNow=Math.max(0,pToD(ceilBar(ts,O.gfHi),O.salinity,O.altitude));
-var mvalNow=Math.max(0,pToD(ceilBar(ts,1),O.salinity,O.altitude));
-track(d2s,ceilNow,t+descentT*(k+1)/nSteps,mvalNow,gf99Calc(ts,d2s));}
-if(O.isCCR){var _pp3=Math.min(_segSP,ambP((prevD+seg.depth)/2,O.salinity,O.altitude));cns+=cnsR(_pp3)*descentT;otu+=otuR(_pp3)*descentT;usage['ccr_o2']=(usage['ccr_o2']||0)+O.ccrO2Rate*descentT;}
-else{useGas(g,O.sacNorm,prevD,seg.depth,descentT);}
-t+=descentT;maxD=Math.max(maxD,seg.depth);
-tblRows.push({sym:going?'↘':'↗',depth:seg.depth,rt:t,dt:descentT,gasId:g.id,gsw:gsw});
-prevD=seg.depth;}
+var _segSP=O.isCCR?(seg.sp||O.ccrSP):O.ccrSP;
+var useTravel=(!O.isCCR&&travelGas&&going&&travelSwitchDepth!==null&&prevD<travelSwitchDepth&&g.fO2<(O.minSurfacePPO2||0.16));
+var descentPhases=[];
+if(useTravel&&seg.depth>travelSwitchDepth){
+  descentPhases.push({from:prevD,to:travelSwitchDepth,gasObj:travelGas,isTravel:true});
+  descentPhases.push({from:travelSwitchDepth,to:seg.depth,gasObj:g,isTravel:false});
+}else if(useTravel){
+  descentPhases.push({from:prevD,to:seg.depth,gasObj:travelGas,isTravel:true});
+}else{
+  descentPhases.push({from:prevD,to:seg.depth,gasObj:g,isTravel:false});
+}
+descentT=0;
+for(var pi=0;pi<descentPhases.length;pi++){
+  var ph=descentPhases[pi];
+  var phG=ph.gasObj,phDist=Math.abs(ph.to-ph.from);
+  if(phDist<0.01)continue;
+  var phT=phDist/(going?O.descentRate:O.ascentRate);
+  var phN2=1-phG.fO2-phG.fHe,phSteps=Math.max(4,Math.ceil(phDist));
+  for(var k=0;k<phSteps;k++){
+    var d1s=ph.from+(ph.to-ph.from)*k/phSteps;
+    var d2s=ph.from+(ph.to-ph.from)*(k+1)/phSteps;
+    var _cf3=O.isCCR?ccrFracs(d1s,d2s,_segSP,O.salinity,O.altitude):{fN2:phN2,fHe:phG.fHe};
+    expose(ts,d1s,d2s,phT/phSteps,_cf3.fN2,_cf3.fHe,O.salinity,O.altitude);
+    track(d2s,Math.max(0,pToD(ceilBar(ts,O.gfHi),O.salinity,O.altitude)),t+descentT+phT*(k+1)/phSteps,Math.max(0,pToD(ceilBar(ts,1),O.salinity,O.altitude)),gf99Calc(ts,d2s));}
+  if(O.isCCR){var _pp3=Math.min(_segSP,ambP((ph.from+ph.to)/2,O.salinity,O.altitude));cns+=cnsR(_pp3)*phT;otu+=otuR(_pp3)*phT;usage['ccr_o2']=(usage['ccr_o2']||0)+O.ccrO2Rate*phT;}
+  else{useGas(phG,O.sacNorm,ph.from,ph.to,phT);}
+  tblRows.push({sym:going?'↘':'↗',depth:ph.to,rt:t+descentT+phT,dt:phT,gasId:phG.id,gsw:(pi===0&&gsw)||(pi>0&&!ph.isTravel)});
+  descentT+=phT;
+  if(ph.isTravel&&pi+1<descentPhases.length&&O.gasSwitchTime>0){
+    var swT2=O.gasSwitchTime;
+    expose(ts,ph.to,ph.to,swT2,1-g.fO2-g.fHe,g.fHe,O.salinity,O.altitude);
+    useGas(g,O.sacNorm,ph.to,ph.to,swT2);
+    t+=descentT;descentT=0;
+    tblRows.push({sym:'⊙',depth:ph.to,rt:t+swT2,dt:swT2,gasId:g.id,gsw:true,isTravelSwitch:true});
+    t+=swT2;lastGasId=g.id;}}
+t+=descentT;maxD=Math.max(maxD,seg.depth);prevD=seg.depth;}
 var atDepth=Math.max(0,seg.time-descentT);
 if(atDepth>0.01){
 var stepsAt=Math.ceil(atDepth);var dtAt=atDepth/stepsAt;
@@ -1485,9 +1517,10 @@ function renderCyls(){
 var el=document.getElementById('cyl-list');
 var isCCR=AP().O.isCCR;
 var bot=AP().cyls.filter(function(c){return c.role==='bottom';});
+var trav=AP().cyls.filter(function(c){return c.role==='travel';});
 var bail=AP().cyls.filter(function(c){return c.role==='bailout';});
 var dec=AP().cyls.filter(function(c){return c.role==='deco';});
-if(!bot.length&&!bail.length&&!dec.length){el.innerHTML='<div class="muted">No cylinders added yet.</div>';return;}
+if(!bot.length&&!trav.length&&!bail.length&&!dec.length){el.innerHTML='<div class="muted">No cylinders added yet.</div>';return;}
 var h='';
 var botLabel=isCCR?'Diluent':'Bottom gas';
 if(bot.length){
@@ -1502,6 +1535,32 @@ h+='<div class="grow">'+
 '<span class="glbl" onclick="window.openEditCyl('+c.id+')">'+m2s(c.fO2,c.fHe)+' - '+c.fill+' bar ('+c.size.toFixed(1)+' ℓ)</span>'+
 '<button class="dbtn" onclick="window.delCyl('+c.id+')">🗑</button>'+
 '</div>';});}
+if(trav.length){
+h+='<div style="font-size:13px;font-weight:600;margin:10px 0 7px;color:#27ae60">Travel gas <span style="font-size:11px;font-weight:400;color:#5a6472">— descent gas for hypoxic bottom mixes</span></div>';
+trav.forEach(function(c){
+  var O2=AP().O;
+  var modD=Math.floor((O2.maxPPO2/c.fO2-1)*10);
+  var reserve=O2.travelGasReserve||50;
+  var usableLitres=(c.fill-reserve)*c.size;
+  var sacRate=O2.sacNorm||25,descentRate=O2.descentRate||18,cumVol=0,volSwitchD=0;
+  for(var dd=1;dd<=modD;dd++){cumVol+=sacRate/descentRate*(1+dd/10);if(cumVol>=usableLitres){volSwitchD=dd;break;}}
+  var rawSwitch=volSwitchD>0&&volSwitchD<modD?volSwitchD:modD;
+  var actualSwitch=Math.floor(rawSwitch/3)*3;
+  var limitReason=volSwitchD>0&&volSwitchD<modD?'volume':'MOD';
+  var minBreadD=bot.length?Math.ceil(((O2.minSurfacePPO2||0.16)/((bot.find(function(b){return b.on!==false;})||{fO2:0.10}).fO2)-1)*10):0;
+  var secondaryInfo=limitReason==='volume'
+    ? 'exact MOD '+modD+'m · reserve '+reserve+' bar · bottom gas ok ≥'+minBreadD+'m'
+    : 'reserve '+reserve+' bar · bottom gas ok ≥'+minBreadD+'m';
+  h+='<div class="grow">'+
+  '<div class="chk" style="background:#27ae60;font-size:12px;font-weight:800;color:#fff;width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0">T</div>'+
+  '<span class="gico">🪣</span>'+
+  '<span class="glbl" onclick="window.openEditCyl('+c.id+')">'+
+    m2s(c.fO2,c.fHe)+' - '+c.fill+' bar ('+c.size.toFixed(1)+' ℓ)'+
+    '<br><span style="font-size:11px;color:#27ae60">switch @ '+actualSwitch+'m ('+limitReason+')</span>'+
+    '<span style="font-size:11px;color:#8a9aaa;margin-left:8px">'+secondaryInfo+'</span>'+
+  '</span>'+
+  '<button class="dbtn" onclick="window.delCyl('+c.id+')">&#128465;</button>'+
+  '</div>';});}
 if(bail.length){
 h+='<div style="font-size:13px;font-weight:600;margin:10px 0 7px;color:#c97b0a">Bailout gas</div>';
 bail.forEach(function(c){
@@ -1699,10 +1758,11 @@ scrubHtml+
 document.getElementById('gas-bars').innerHTML=ccrHtml;
 } else {
 var rb=rbBar(r),bh='';
-AP().cyls.filter(function(c){return c.role!=='bottom'||c.on!==false;}).forEach(function(c){
+AP().cyls.filter(function(c){return c.role==='travel'||c.role!=='bottom'||c.on!==false;}).forEach(function(c){
 var used=(r.usage[c.id]||0)/c.size,emerg=rb[c.id]||0,normUsed=Math.max(0,used-emerg),unused=Math.max(0,c.fill-used),f=c.fill||1;
+var tTag=c.role==='travel'?'&nbsp;<span style="font-size:10px;color:#27ae60;font-weight:700">TRAVEL</span>':'';
 function pct(v){return Math.min(100,Math.max(0,v/f*100)).toFixed(1);}
-bh+='<div class="gbar-row"><div class="gbar-lbl">'+m2s(c.fO2,c.fHe)+'</div>'+
+bh+='<div class="gbar-row"><div class="gbar-lbl">'+m2s(c.fO2,c.fHe)+tTag+'</div>'+
 '<div class="gbar-track">'+
 '<div class="b-u" style="width:'+pct(unused)+'%"><span class="b-t">'+(unused>15?Math.round(unused):'')+'</span></div>'+
 '<div class="b-e" style="width:'+pct(emerg)+'%"><span class="b-t">'+(emerg>10?emerg:'')+'</span></div>'+
@@ -1712,13 +1772,28 @@ bh+='<div class="gbar-row"><div class="gbar-lbl">'+m2s(c.fO2,c.fHe)+'</div>'+
 document.getElementById('gas-bars').innerHTML=bh;
 }
 var ct='';
-AP().cyls.filter(function(c){return c.role!=='bottom'||c.on!==false;}).forEach(function(c,i){
+AP().cyls.filter(function(c){return c.role==='travel'||c.role!=='bottom'||c.on!==false;}).forEach(function(c,i){
 var ub=Math.round((r.usage[c.id]||0)/c.size),rem=Math.max(0,c.fill-ub);
 if(!ub)return;
 var usedL=Math.round(r.usage[c.id]||0);
 ct+='<tr><td>'+(i+1)+'</td><td>'+m2s(c.fO2,c.fHe)+'</td><td>'+c.size.toFixed(1)+'</td><td>'+c.fill+' > '+rem+' ('+ub+')</td><td>'+usedL+'</td></tr>';});
 document.getElementById('cyl-tbody').innerHTML=ct;
 var lt='';
+var travG2=AP().cyls.find(function(c){return c.role==='travel';});
+if(travG2){
+  var tSw=calcTravelSwitchDepth(travG2,AP().O);
+  var tDens=gdens(travG2.fO2,travG2.fHe,tSw.depth,sal,alt);
+  var tDensN=parseFloat(tDens),tDensCls=tDensN>=6.2?'rcell':tDensN>=5.2?'wcell':'';
+  var tPPO2=(travG2.fO2*ambP(tSw.depth,sal,alt)).toFixed(2);
+  var tMOD=Math.floor((AP().O.maxPPO2/travG2.fO2-1)*10);
+  var tMinBread=Math.ceil(((AP().O.minSurfacePPO2||0.16)/travG2.fO2-1)*10);
+  var tSecondary=tSw.reason==='volume'
+    ? 'exact MOD '+tMOD+'m · bottom gas ok ≥'+tMinBread+'m'
+    : 'bottom gas ok ≥'+tMinBread+'m';
+  lt+='<tr style="background:#f0faf0"><td>'+m2s(travG2.fO2,travG2.fHe)+'&nbsp;<span style="font-size:10px;color:#27ae60;font-weight:700">TRAVEL</span></td>'+
+  '<td>switch&nbsp;@&nbsp;'+tSw.depth+'m&nbsp;<span style="font-size:10px;color:#27ae60">('+tSw.reason+')</span>'+
+  '<br><span style="font-size:10px;color:#8a9aaa">'+tSecondary+'</span></td>'+
+  '<td class="'+tDensCls+'">'+tDens+'</td><td>'+tPPO2+'</td></tr>';}
 AP().segs.forEach(function(s){
 var g=AP().cyls.find(function(c){return c.id===s.gasId;})||AP().cyls[0];if(!g)return;
 var P=ambP(s.depth,sal,alt),dens=gdens(g.fO2,g.fHe,s.depth,sal,alt);
@@ -1875,10 +1950,12 @@ window.setRole=function(r){_role=r;updRoleTog();};
 function updRoleTog(){
 var isCCR=AP().O.isCCR;
 var bb=document.getElementById('rb-b');
+var btr=document.getElementById('rb-tr');
 var bo=document.getElementById('rb-o');
 var bd=document.getElementById('rb-d');
 if(bb)bb.textContent=isCCR?'Diluent':'Bottom gas';
 if(bb)bb.className='rtog-btn'+(_role==='bottom'?' on':'');
+if(btr){btr.style.display=isCCR?'none':'';btr.className='rtog-btn'+(_role==='travel'?' on':'');}
 if(bo){bo.style.display=isCCR?'':'none';bo.className='rtog-btn'+(_role==='bailout'?' on':'');}
 if(bd)bd.className='rtog-btn'+(_role==='deco'?' on':'');}
 
@@ -1935,6 +2012,8 @@ _cel('cfg-ls').textContent=O.lastStop+' m';
 _cel('cfg-pp').textContent=O.maxPPO2.toFixed(2);
 _cel('cfg-dp').textContent=O.maxDecoPPO2.toFixed(2);
 _cel('cfg-gst').textContent=O.gasSwitchTime+' min';
+var _mspEl=document.getElementById('cfg-mspp');if(_mspEl)_mspEl.textContent=(O.minSurfacePPO2||0.16).toFixed(2);
+var _tgrEl=document.getElementById('cfg-tgr');if(_tgrEl)_tgrEl.textContent=(O.travelGasReserve||50)+' bar';
 var togMs=document.getElementById('tog-ms');if(togMs)togMs.checked=O.minStopTime>=1;
 _cel('tog-sam').checked=!!O.switchAtMOD;
 _cel('cfg-cd').textContent=O.contingencyDeeper+' m';
@@ -2441,16 +2520,7 @@ document.getElementById('support-ovl').classList.remove('hidden');};
 
 window.toggleMenu=function(){var d=document.getElementById('menu-drop'),b=document.getElementById('menu-bg');var hidden=d.classList.contains('hidden');d.classList.toggle('hidden',!hidden);b.classList.toggle('hidden',!hidden);};
 window.closeMenu=function(){document.getElementById('menu-drop').classList.add('hidden');document.getElementById('menu-bg').classList.add('hidden');};
-window.openInstall=function(){
-  var ovl=document.getElementById('install-ovl');
-  ovl.classList.add('open');
-  var ua=navigator.userAgent||'';
-  var isIOS=/iPad|iPhone|iPod/.test(ua)&&!window.MSStream;
-  var isAndroid=/Android/.test(ua);
-  document.getElementById('install-ios').style.display=isIOS?'block':'none';
-  document.getElementById('install-android').style.display=isAndroid?'block':'none';
-  document.getElementById('install-desktop').style.display=(!isIOS&&!isAndroid)?'block':'none';
-};
+window.openInstall=function(){var ovl=document.getElementById('install-ovl');ovl.classList.add('open');var ua=navigator.userAgent||'';var isIOS=/iPad|iPhone|iPod/.test(ua)&&!window.MSStream;var isAndroid=/Android/.test(ua);document.getElementById('install-ios').style.display=isIOS?'block':'none';document.getElementById('install-android').style.display=isAndroid?'block':'none';document.getElementById('install-desktop').style.display=(!isIOS&&!isAndroid)?'block':'none';};
 window.closeInstall=function(){document.getElementById('install-ovl').classList.remove('open');};
 window.openAbout=function(){document.getElementById('about-ovl').classList.add('open');};
 window.closeAbout=function(){document.getElementById('about-ovl').classList.remove('open');};
@@ -2964,21 +3034,12 @@ else{_doInit();}
 })();
 </script>
 
-<!-- INSTALL PANEL -->
 <div class="cfg-page" id="install-ovl">
-  <div class="cfg-hdr">
-    <button class="cfg-back" onclick="window.closeInstall()">&#8592;</button>
-    <span class="cfg-hdr-t">Install AeroPlus Deco</span>
-  </div>
-  <div class="cfg-body">
-  <div style="padding:20px 16px 40px">
+  <div class="cfg-hdr"><button class="cfg-back" onclick="window.closeInstall()">&#8592;</button><span class="cfg-hdr-t">Install AeroPlus Deco</span></div>
+  <div class="cfg-body"><div style="padding:20px 16px 40px">
     <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:24px">
       <div style="background:#3451d1;border-radius:20px;width:80px;height:80px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;box-shadow:0 4px 16px rgba(52,81,209,.3)">
-        <svg width="52" height="52" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M18 82 L50 14 L82 82 L62 82 L50 52 L38 82 Z" fill="#fff"/>
-          <path d="M38 82 L50 52 L62 82 Z" fill="#72c4e8"/>
-          <path d="M50 14 L66 42 Q72 36 68 28 Z" fill="#72c4e8"/>
-        </svg>
+        <svg width="52" height="52" viewBox="0 0 100 100" fill="none"><path d="M18 82 L50 14 L82 82 L62 82 L50 52 L38 82 Z" fill="#fff"/><path d="M38 82 L50 52 L62 82 Z" fill="#72c4e8"/><path d="M50 14 L66 42 Q72 36 68 28 Z" fill="#72c4e8"/></svg>
       </div>
       <div style="font-size:22px;font-weight:700">AeroPlus <span style="color:#3451d1">Deco</span></div>
       <div style="font-size:13px;color:#6a7a9a;margin-top:4px">Install as a native-style app &#8212; free, no App Store needed</div>
@@ -3009,37 +3070,12 @@ else{_doInit();}
     </div>
     <div style="font-size:13px;font-weight:600;color:#1a1a1a;margin-bottom:10px">Why install?</div>
     <div style="font-size:13px;color:#3a4a5a;line-height:2;margin-bottom:20px;padding-left:4px">
-      &#10003; &nbsp;Works fully <strong>offline</strong> &#8212; no signal needed underwater or in remote locations<br>
       &#10003; &nbsp;Launches instantly from your home screen<br>
       &#10003; &nbsp;Full screen &#8212; no browser address bar<br>
       &#10003; &nbsp;Your plans are saved locally on your device<br>
       &#10003; &nbsp;Updates automatically when a new version is available
     </div>
-  </div>
-  </div>
+  </div></div>
 </div>
-<!-- PWA Service Worker -->
-<script>
-if('serviceWorker' in navigator){
-  window.addEventListener('load',function(){
-    navigator.serviceWorker.register('/sw.js')
-      .then(function(reg){
-        console.log('[AeroPlus] SW registered');
-        reg.addEventListener('updatefound',function(){
-          var nw=reg.installing;
-          nw.addEventListener('statechange',function(){
-            if(nw.state==='installed'&&navigator.serviceWorker.controller){
-              var b=document.createElement('div');
-              b.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#3451d1;color:#fff;border-radius:50px;padding:12px 20px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(52,81,209,.4);z-index:9999;font-family:-apple-system,sans-serif;white-space:nowrap';
-              b.innerHTML='New version available &nbsp;<button id="ap-upd" style="background:#fff;color:#3451d1;border:none;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:700;cursor:pointer">Update now</button>';
-              document.body.appendChild(b);
-              document.getElementById('ap-upd').onclick=function(){nw.postMessage({type:'SKIP_WAITING'});location.reload();};
-            }
-          });
-        });
-      }).catch(function(e){console.warn('[AeroPlus] SW failed:',e);});
-  });
-}
-</script>
 </body>
 </html>
