@@ -71,6 +71,9 @@ input,select,textarea{font-size:16px!important}body{background:#edf0f5;font-fami
 .btn-add{background:#3451d1;color:#fff;border:none;border-radius:22px;padding:11px 24px;font-size:15px;font-weight:600;cursor:pointer}
 .calc-btn{width:100%;background:#3451d1;color:#fff;border:none;border-radius:14px;padding:14px;font-size:17px;font-weight:700;cursor:pointer;margin-bottom:6px}
 .calc-note{font-size:12px;color:#8a9aaa;text-align:center;margin-bottom:12px;font-style:italic}
+.warn-banner{border-radius:14px;padding:14px 16px;margin-bottom:12px}
+.warn-banner-item{display:flex;align-items:flex-start;gap:8px;padding:5px 0;font-size:13px;line-height:1.4}
+.warn-banner-item:not(:last-child){border-bottom:1px solid rgba(0,0,0,.07)}
 .dl-wrap{display:flex;gap:8px;margin-bottom:14px}
 .dl-btn{flex:1;padding:10px 6px;font-size:14px;font-weight:500;background:#f2f4f7;border:1.5px solid #c8cdd6;color:#5a6472;border-radius:22px;cursor:pointer}
 .dl-btn.on{background:#dce6ff;border-color:#3451d1;color:#3451d1;font-weight:700}
@@ -225,7 +228,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     </svg>
     <div>
       <div class="ttl" style="font-size:22px;letter-spacing:-.02em">AeroPlus <span style="color:#3451d1;font-weight:800">Deco</span></div>
-      <div class="sub">v2026-03-17g</div>
+      <div class="sub">v2026-03-17h</div>
     </div>
   </div>
   <div class="hdr-r">
@@ -317,6 +320,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 <button class="calc-btn" onclick="window.calculate()">Calculate dive plan</button>
 
   <div id="calc-note" class="calc-note">Enter cylinders and profile, then press Calculate</div>
+  <div id="plan-warnings" class="hidden"></div>
 
   <div class="card hidden" id="deco-card">
     <div class="card-ttl">Deco plan <span id="ccr-badge" style="display:none;font-size:11px;font-weight:700;background:#3451d1;color:#fff;border-radius:6px;padding:2px 8px;letter-spacing:0.5px;vertical-align:middle">CCR</span></div>
@@ -493,11 +497,11 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
       <div class="cfg-row-val" id="cfg-gst">1 min</div>
     </div>
     <div class="cfg-row" onclick="window.openNumEdit('minSurfacePPO2','Min surface PPO&#8322;','Minimum PPO&#8322; at which a bottom gas is breathable from the surface. 0.16 ata = 16% O&#8322;.',0.16,0.21,0.01,'ata')">
-      <div class="cfg-row-l"><div class="cfg-row-name">Min surface PPO&#8322;</div><div class="cfg-row-desc">Threshold to identify a hypoxic bottom mix. Shown in gas plan as the depth at which bottom gas is breathable for emergency ascent.</div></div>
+      <div class="cfg-row-l"><div class="cfg-row-name">Min surface PPO&#8322;</div><div class="cfg-row-desc">Threshold to identify a hypoxic bottom mix.</div></div>
       <div class="cfg-row-val" id="cfg-mspp">0.16</div>
     </div>
-    <div class="cfg-row" onclick="window.openNumEdit('travelGasReserve','Travel gas reserve','Reserve pressure kept in the travel cylinder for emergency abort. Switch to bottom gas at this reserve OR travel MOD — whichever comes first.',10,100,5,'bar')">
-      <div class="cfg-row-l"><div class="cfg-row-name">Travel gas reserve</div><div class="cfg-row-desc">Reserve pressure in the travel cylinder. Switch to bottom gas when travel gas hits this reserve OR its MOD — whichever comes first.</div></div>
+    <div class="cfg-row" onclick="window.openNumEdit('travelGasReserve','Travel gas reserve','Reserve pressure in the travel cylinder. Switch to bottom gas at this reserve OR travel MOD — whichever comes first.',10,100,5,'bar')">
+      <div class="cfg-row-l"><div class="cfg-row-name">Travel gas reserve</div><div class="cfg-row-desc">Reserve pressure in the travel cylinder. Switch when this reserve is reached OR at travel MOD.</div></div>
       <div class="cfg-row-val" id="cfg-tgr">50 bar</div>
     </div>
     <div class="cfg-row notap" style="align-items:center"><div class="cfg-row-l"><div class="cfg-row-name">Round stop times</div><div class="cfg-row-desc">Round deco stop times up to whole minutes — easier to follow underwater, matches dive computers like Shearwater. Off = exact times (e.g. 1:20).</div></div>
@@ -1046,7 +1050,7 @@ window.AP=AP;
 
 var STORE_KEY='aeroplusDeco_v1';
 // Bump this string whenever HARDCODED_O defaults change — forces migration for existing users
-var SETTINGS_VERSION='2026-03-17g';
+var SETTINGS_VERSION='2026-03-17h';
 
 function savePlans(){
 try{
@@ -1148,19 +1152,12 @@ if(intv&&intv>0){expose(ts,0,0,intv,0.7902,0,prev.O.salinity,prev.O.altitude);}
 return ts;}
 
 function calcTravelSwitchDepth(tg,O){
-var modD=Math.floor((O.maxPPO2/tg.fO2-1)*10);
-var reserve=O.travelGasReserve||50;
-var usable=(tg.fill-reserve)*tg.size;
-if(usable<=0)return{depth:0,reason:'reserve'};
-var sac=O.sacNorm||25,dr=O.descentRate||18,cum=0;
-for(var dd=1;dd<=modD;dd++){
-  cum+=sac/dr*ambP(dd,O.salinity,O.altitude);
-  if(cum>=usable)return{depth:Math.floor(dd/3)*3,reason:'volume'};}
+var modD=Math.floor((O.maxPPO2/tg.fO2-1)*10);var reserve=O.travelGasReserve||50;var usable=(tg.fill-reserve)*tg.size;
+if(usable<=0)return{depth:0,reason:'reserve'};var sac=O.sacNorm||25,dr=O.descentRate||18,cum=0;
+for(var dd=1;dd<=modD;dd++){cum+=sac/dr*ambP(dd,O.salinity,O.altitude);if(cum>=usable)return{depth:Math.floor(dd/3)*3,reason:'volume'};}
 return{depth:Math.floor(modD/3)*3,reason:'MOD'};}
-
 function planDive(initialTs){
-var O=AP().O;
-var SS=O.stopInterval,LS=O.lastStop;
+var O=AP().O;var SS=O.stopInterval,LS=O.lastStop;
 var travelGas=AP().cyls.find(function(c){return c.role==='travel';});
 var travelSwitch=travelGas?calcTravelSwitchDepth(travelGas,O):null;
 var travelSwitchDepth=travelSwitch?travelSwitch.depth:null;
@@ -1217,28 +1214,18 @@ var fN2=1-g.fO2-g.fHe,gsw=g.id!==lastGasId;
 if(gsw)lastGasId=g.id;
 var descentT=0;
 if(Math.abs(seg.depth-prevD)>0.01){
-var going=seg.depth>prevD;
-var _segSP=O.isCCR?(seg.sp||O.ccrSP):O.ccrSP;
+var going=seg.depth>prevD;var _segSP=O.isCCR?(seg.sp||O.ccrSP):O.ccrSP;
 var useTravel=(!O.isCCR&&travelGas&&going&&travelSwitchDepth!==null&&prevD<travelSwitchDepth&&g.fO2<(O.minSurfacePPO2||0.16));
 var descentPhases=[];
-if(useTravel&&seg.depth>travelSwitchDepth){
-  descentPhases.push({from:prevD,to:travelSwitchDepth,gasObj:travelGas,isTravel:true});
-  descentPhases.push({from:travelSwitchDepth,to:seg.depth,gasObj:g,isTravel:false});
-}else if(useTravel){
-  descentPhases.push({from:prevD,to:seg.depth,gasObj:travelGas,isTravel:true});
-}else{
-  descentPhases.push({from:prevD,to:seg.depth,gasObj:g,isTravel:false});
-}
+if(useTravel&&seg.depth>travelSwitchDepth){descentPhases.push({from:prevD,to:travelSwitchDepth,gasObj:travelGas,isTravel:true});descentPhases.push({from:travelSwitchDepth,to:seg.depth,gasObj:g,isTravel:false});}
+else if(useTravel){descentPhases.push({from:prevD,to:seg.depth,gasObj:travelGas,isTravel:true});}
+else{descentPhases.push({from:prevD,to:seg.depth,gasObj:g,isTravel:false});}
 descentT=0;
 for(var pi=0;pi<descentPhases.length;pi++){
-  var ph=descentPhases[pi];
-  var phG=ph.gasObj,phDist=Math.abs(ph.to-ph.from);
-  if(phDist<0.01)continue;
-  var phT=phDist/(going?O.descentRate:O.ascentRate);
-  var phN2=1-phG.fO2-phG.fHe,phSteps=Math.max(4,Math.ceil(phDist));
+  var ph=descentPhases[pi];var phG=ph.gasObj,phDist=Math.abs(ph.to-ph.from);if(phDist<0.01)continue;
+  var phT=phDist/(going?O.descentRate:O.ascentRate);var phN2=1-phG.fO2-phG.fHe,phSteps=Math.max(4,Math.ceil(phDist));
   for(var k=0;k<phSteps;k++){
-    var d1s=ph.from+(ph.to-ph.from)*k/phSteps;
-    var d2s=ph.from+(ph.to-ph.from)*(k+1)/phSteps;
+    var d1s=ph.from+(ph.to-ph.from)*k/phSteps;var d2s=ph.from+(ph.to-ph.from)*(k+1)/phSteps;
     var _cf3=O.isCCR?ccrFracs(d1s,d2s,_segSP,O.salinity,O.altitude):{fN2:phN2,fHe:phG.fHe};
     expose(ts,d1s,d2s,phT/phSteps,_cf3.fN2,_cf3.fHe,O.salinity,O.altitude);
     track(d2s,Math.max(0,pToD(ceilBar(ts,O.gfHi),O.salinity,O.altitude)),t+descentT+phT*(k+1)/phSteps,Math.max(0,pToD(ceilBar(ts,1),O.salinity,O.altitude)),gf99Calc(ts,d2s));}
@@ -1247,12 +1234,8 @@ for(var pi=0;pi<descentPhases.length;pi++){
   tblRows.push({sym:going?'↘':'↗',depth:ph.to,rt:t+descentT+phT,dt:phT,gasId:phG.id,gsw:(pi===0&&gsw)||(pi>0&&!ph.isTravel)});
   descentT+=phT;
   if(ph.isTravel&&pi+1<descentPhases.length&&O.gasSwitchTime>0){
-    var swT2=O.gasSwitchTime;
-    expose(ts,ph.to,ph.to,swT2,1-g.fO2-g.fHe,g.fHe,O.salinity,O.altitude);
-    useGas(g,O.sacNorm,ph.to,ph.to,swT2);
-    t+=descentT;descentT=0;
-    tblRows.push({sym:'⊙',depth:ph.to,rt:t+swT2,dt:swT2,gasId:g.id,gsw:true,isTravelSwitch:true});
-    t+=swT2;lastGasId=g.id;}}
+    var swT2=O.gasSwitchTime;expose(ts,ph.to,ph.to,swT2,1-g.fO2-g.fHe,g.fHe,O.salinity,O.altitude);useGas(g,O.sacNorm,ph.to,ph.to,swT2);
+    t+=descentT;descentT=0;tblRows.push({sym:'⊙',depth:ph.to,rt:t+swT2,dt:swT2,gasId:g.id,gsw:true,isTravelSwitch:true});t+=swT2;lastGasId=g.id;}}
 t+=descentT;maxD=Math.max(maxD,seg.depth);prevD=seg.depth;}
 var atDepth=Math.max(0,seg.time-descentT);
 if(atDepth>0.01){
@@ -1549,29 +1532,14 @@ h+='<div class="grow">'+
 if(trav.length){
 h+='<div style="font-size:13px;font-weight:600;margin:10px 0 7px;color:#27ae60">Travel gas <span style="font-size:11px;font-weight:400;color:#5a6472">— descent gas for hypoxic bottom mixes</span></div>';
 trav.forEach(function(c){
-  var O2=AP().O;
-  var modD=Math.floor((O2.maxPPO2/c.fO2-1)*10);
-  var reserve=O2.travelGasReserve||50;
-  var usableLitres=(c.fill-reserve)*c.size;
-  var sacRate=O2.sacNorm||25,descentRate=O2.descentRate||18,cumVol=0,volSwitchD=0;
+  var O2=AP().O;var modD=Math.floor((O2.maxPPO2/c.fO2-1)*10);var reserve=O2.travelGasReserve||50;
+  var usableLitres=(c.fill-reserve)*c.size;var sacRate=O2.sacNorm||25,descentRate=O2.descentRate||18,cumVol=0,volSwitchD=0;
   for(var dd=1;dd<=modD;dd++){cumVol+=sacRate/descentRate*(1+dd/10);if(cumVol>=usableLitres){volSwitchD=dd;break;}}
-  var rawSwitch=volSwitchD>0&&volSwitchD<modD?volSwitchD:modD;
-  var actualSwitch=Math.floor(rawSwitch/3)*3;
+  var rawSwitch=volSwitchD>0&&volSwitchD<modD?volSwitchD:modD;var actualSwitch=Math.floor(rawSwitch/3)*3;
   var limitReason=volSwitchD>0&&volSwitchD<modD?'volume':'MOD';
   var minBreadD=bot.length?Math.ceil(((O2.minSurfacePPO2||0.16)/((bot.find(function(b){return b.on!==false;})||{fO2:0.10}).fO2)-1)*10):0;
-  var secondaryInfo=limitReason==='volume'
-    ? 'exact MOD '+modD+'m · reserve '+reserve+' bar · bottom gas ok ≥'+minBreadD+'m'
-    : 'reserve '+reserve+' bar · bottom gas ok ≥'+minBreadD+'m';
-  h+='<div class="grow">'+
-  '<div class="chk" style="background:#27ae60;font-size:12px;font-weight:800;color:#fff;width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0">T</div>'+
-  '<span class="gico">🪣</span>'+
-  '<span class="glbl" onclick="window.openEditCyl('+c.id+')">'+
-    m2s(c.fO2,c.fHe)+' - '+c.fill+' bar ('+c.size.toFixed(1)+' ℓ)'+
-    '<br><span style="font-size:11px;color:#27ae60">switch @ '+actualSwitch+'m ('+limitReason+')</span>'+
-    '<span style="font-size:11px;color:#8a9aaa;margin-left:8px">'+secondaryInfo+'</span>'+
-  '</span>'+
-  '<button class="dbtn" onclick="window.delCyl('+c.id+')">&#128465;</button>'+
-  '</div>';});}
+  var secondaryInfo=limitReason==='volume'?'exact MOD '+modD+'m · reserve '+reserve+' bar · bottom gas ok ≥'+minBreadD+'m':'reserve '+reserve+' bar · bottom gas ok ≥'+minBreadD+'m';
+  h+='<div class="grow"><div class="chk" style="background:#27ae60;font-size:12px;font-weight:800;color:#fff;width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0">T</div><span class="gico">🪣</span><span class="glbl" onclick="window.openEditCyl('+c.id+')">'+m2s(c.fO2,c.fHe)+' - '+c.fill+' bar ('+c.size.toFixed(1)+' ℓ)<br><span style="font-size:11px;color:#27ae60">switch @ '+actualSwitch+'m ('+limitReason+')</span><span style="font-size:11px;color:#8a9aaa;margin-left:8px">'+secondaryInfo+'</span></span><button class="dbtn" onclick="window.delCyl('+c.id+')">&#128465;</button></div>';});}
 if(bail.length){
 h+='<div style="font-size:13px;font-weight:600;margin:10px 0 7px;color:#c97b0a">Bailout gas</div>';
 bail.forEach(function(c){
@@ -1625,7 +1593,9 @@ r.tblRows.forEach(function(row,i){
 var g=AP().cyls.find(function(c){return c.id===row.gasId;})||{fO2:.21,fHe:0};
 var rtRounded=Math.max(prevRt+1,Math.round(row.rt));
 var dtDisplay=fmtDur(row.dt);prevRt=rtRounded;
-var rowBg=row.gsw?' style="background:#e8edff"':'';html+='<tr'+(i%2&&!row.gsw?' class="alt"':'')+rowBg+'><td>'+row.sym+'</td><td>'+row.depth.toFixed(1)+'</td><td>'+rtRounded+'</td><td>+'+dtDisplay+'</td><td>'+(row.gsw&&row.sym!=='⊙'&&i>0?'<span style="color:#3451d1">⊙</span> ':'')+m2s(g.fO2,g.fHe)+'</td></tr>';});
+var isStop=row.sym==='→';
+var rowBg=row.gsw?' style="background:#e8edff"':isStop?' style="background:#edf7f0"':'';
+html+='<tr'+(i%2&&!row.gsw&&!isStop?' class="alt"':'')+rowBg+'><td>'+row.sym+'</td><td>'+row.depth.toFixed(1)+'</td><td>'+rtRounded+'</td><td>+'+dtDisplay+'</td><td>'+(row.gsw&&row.sym!=='⊙'&&i>0?'<span style="color:#3451d1">⊙</span> ':'')+m2s(g.fO2,g.fHe)+'</td></tr>';});
 html+='</tbody></table>';
 if(r.noStop){
 html='<div class="ndl-box"><div style="font-size:11px;color:#3451d1;text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:4px">No decompression limit (NDL)</div><div class="ndl-num">'+r.ndl+'</div><div style="font-size:13px;color:#3451d1;margin-top:4px">minutes remaining</div></div>'+html;
@@ -1791,34 +1761,61 @@ ct+='<tr><td>'+(i+1)+'</td><td>'+m2s(c.fO2,c.fHe)+'</td><td>'+c.size.toFixed(1)+
 document.getElementById('cyl-tbody').innerHTML=ct;
 var lt='';
 var travG2=AP().cyls.find(function(c){return c.role==='travel';});
-if(travG2){
-  var tSw=calcTravelSwitchDepth(travG2,AP().O);
-  var tDens=gdens(travG2.fO2,travG2.fHe,tSw.depth,sal,alt);
-  var tDensN=parseFloat(tDens),tDensCls=tDensN>=6.2?'rcell':tDensN>=5.2?'wcell':'';
-  var tPPO2=(travG2.fO2*ambP(tSw.depth,sal,alt)).toFixed(2);
-  var tMOD=Math.floor((AP().O.maxPPO2/travG2.fO2-1)*10);
-  var tMinBread=Math.ceil(((AP().O.minSurfacePPO2||0.16)/travG2.fO2-1)*10);
-  var tSecondary=tSw.reason==='volume'
-    ? 'exact MOD '+tMOD+'m · bottom gas ok ≥'+tMinBread+'m'
-    : 'bottom gas ok ≥'+tMinBread+'m';
-  lt+='<tr style="background:#f0faf0"><td>'+m2s(travG2.fO2,travG2.fHe)+'&nbsp;<span style="font-size:10px;color:#27ae60;font-weight:700">TRAVEL</span></td>'+
-  '<td>switch&nbsp;@&nbsp;'+tSw.depth+'m&nbsp;<span style="font-size:10px;color:#27ae60">('+tSw.reason+')</span>'+
-  '<br><span style="font-size:10px;color:#8a9aaa">'+tSecondary+'</span></td>'+
-  '<td class="'+tDensCls+'">'+tDens+'</td><td>'+tPPO2+'</td></tr>';}
+if(travG2){var tSw=calcTravelSwitchDepth(travG2,AP().O);var tDens=gdens(travG2.fO2,travG2.fHe,tSw.depth,sal,alt);
+  var tDensN=parseFloat(tDens),tDensCls=tDensN>=6.2?'rcell':tDensN>=5.2?'wcell':'';var tPPO2=(travG2.fO2*ambP(tSw.depth,sal,alt)).toFixed(2);
+  var tMOD=Math.floor((AP().O.maxPPO2/travG2.fO2-1)*10);var tMinBread=Math.ceil(((AP().O.minSurfacePPO2||0.16)/travG2.fO2-1)*10);
+  var tSecondary=tSw.reason==='volume'?'exact MOD '+tMOD+'m · bottom gas ok ≥'+tMinBread+'m':'bottom gas ok ≥'+tMinBread+'m';
+  lt+='<tr style="background:#f0faf0"><td>'+m2s(travG2.fO2,travG2.fHe)+'&nbsp;<span style="font-size:10px;color:#27ae60;font-weight:700">TRAVEL</span></td><td>switch&nbsp;@&nbsp;'+tSw.depth+'m&nbsp;<span style="font-size:10px;color:#27ae60">('+tSw.reason+')</span><br><span style="font-size:10px;color:#8a9aaa">'+tSecondary+'</span></td><td class="'+tDensCls+'">'+tDens+'</td><td>'+tPPO2+'</td></tr>';}
 AP().segs.forEach(function(s){
 var g=AP().cyls.find(function(c){return c.id===s.gasId;})||AP().cyls[0];if(!g)return;
-var P=ambP(s.depth,sal,alt),dens=gdens(g.fO2,g.fHe,s.depth,sal,alt);
-var ppo2Raw=g.fO2*P,ppo2=(ppo2Raw).toFixed(2);
+var P=ambP(s.depth,sal,alt),dens=gdens(g.fO2,g.fHe,s.depth,sal,alt);var ppo2Raw=g.fO2*P,ppo2=(ppo2Raw).toFixed(2);
 var densN=parseFloat(dens),densCls=densN>=6.2?'rcell':densN>=5.2?'wcell':'';
-var isBack=g.role==='bottom';
-var ppo2Limit=isBack?AP().O.maxPPO2:AP().O.maxDecoPPO2;
-var ppo2Cls=ppo2Raw>ppo2Limit+0.001?'rcell':'';
+var isBack=g.role==='bottom';var ppo2Limit=isBack?AP().O.maxPPO2:AP().O.maxDecoPPO2;var ppo2Cls=ppo2Raw>ppo2Limit+0.001?'rcell':'';
 lt+='<tr><td>'+m2s(g.fO2,g.fHe)+'</td><td>'+s.depth+'m</td><td class="'+densCls+'">'+dens+'</td><td class="'+ppo2Cls+'">'+(ppo2Cls?'⚠ ':'')+ppo2+'</td></tr>';});
 document.getElementById('lim-tbody').innerHTML=lt;}
 
+
+function renderWarnings(r){
+  var el=document.getElementById('plan-warnings');
+  if(!r){el.innerHTML='';el.classList.add('hidden');return;}
+  var O=AP().O,sal=O.salinity,alt=O.altitude;
+  var rb=rbBar(r);var issues=[];
+  AP().segs.forEach(function(s){
+    var g=AP().cyls.find(function(c){return c.id===s.gasId;})||AP().cyls[0];if(!g)return;
+    var dens=parseFloat(gdens(g.fO2,g.fHe,s.depth,sal,alt));
+    if(dens>=6.2)issues.push({level:'danger',text:'Gas density EXCEEDS LIMIT: '+m2s(g.fO2,g.fHe)+' at '+s.depth+'m = '+dens.toFixed(2)+' g/ℓ (limit 6.2) — serious breathing risk'});
+    else if(dens>=5.2)issues.push({level:'warning',text:'Gas density high: '+m2s(g.fO2,g.fHe)+' at '+s.depth+'m = '+dens.toFixed(2)+' g/ℓ (warn 5.2) — increased work of breathing'});
+  });
+  AP().segs.forEach(function(s){
+    var g=AP().cyls.find(function(c){return c.id===s.gasId;})||AP().cyls[0];if(!g)return;
+    var P=ambP(s.depth,sal,alt),ppo2=g.fO2*P;var lim=g.role==='bottom'?O.maxPPO2:O.maxDecoPPO2;
+    if(ppo2>lim+0.001)issues.push({level:'danger',text:'PPO₂ exceeded: '+m2s(g.fO2,g.fHe)+' at '+s.depth+'m = '+ppo2.toFixed(2)+' ata (limit '+lim.toFixed(2)+') — O₂ toxicity risk'});
+  });
+  AP().cyls.forEach(function(c){
+    var bar=rb[c.id]||0;
+    if(bar>0&&bar>=c.fill)issues.push({level:'danger',text:'Rock bottom IMPOSSIBLE: '+m2s(c.fO2,c.fHe)+' needs '+bar+' bar reserve but cylinder only has '+c.fill+' bar — not enough gas to abort'});
+  });
+  AP().cyls.filter(function(c){return c.role==='travel'||c.role!=='bottom'||c.on!==false;}).forEach(function(c){
+    var usedBar=Math.round((r.usage[c.id]||0)/c.size);
+    if(usedBar>c.fill)issues.push({level:'danger',text:'Gas shortfall: '+m2s(c.fO2,c.fHe)+' requires '+usedBar+' bar but cylinder only has '+c.fill+' bar — plan cannot be completed'});
+  });
+  if(!issues.length){
+    el.innerHTML='<div style="background:#f0faf0;border:1px solid #90d090;border-radius:14px;padding:12px 16px;margin-bottom:12px;font-size:13px;color:#2a6a2a;display:flex;align-items:center;gap:10px"><span style="font-size:18px">✅</span><span><strong>Plan looks good</strong> — no critical warnings.</span></div>';
+    el.classList.remove('hidden');return;}
+  var hasDanger=issues.some(function(i){return i.level==='danger';});
+  var bg=hasDanger?'#fdeaea':'#fff8e1',border=hasDanger?'2px solid #d9534f':'2px solid #e0a800';
+  var titleColor=hasDanger?'#c0392b':'#8a6000';
+  var title=hasDanger?'⚠️ Critical warnings — do not dive until resolved':'⚠️ Warnings — review before diving';
+  var dI='<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:4px;background:#d9534f;color:#fff;font-size:11px;font-weight:800;flex-shrink:0;margin-top:1px">!</span>',wI='<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:4px;background:#e0a800;color:#fff;font-size:11px;font-weight:800;flex-shrink:0;margin-top:1px">!</span>';
+  var out='<div class="warn-banner" style="background:'+bg+';border:'+border+'">';
+  out+='<div style="font-size:14px;font-weight:700;color:'+titleColor+';margin-bottom:8px">'+title+'</div>';
+  issues.forEach(function(issue){out+='<div class="warn-banner-item">'+(issue.level==='danger'?dI:wI)+'<span style="color:'+(issue.level==='danger'?'#c0392b':'#7a5800')+'">'+issue.text+'</span></div>';});
+  out+='</div>';el.innerHTML=out;el.classList.remove('hidden');
+}
+
 function renderResults(){
-if(AP().result){renderDeco(AP().result);renderRockBottom(AP().result);renderGasPlan(AP().result);}
-else{document.getElementById('deco-card').classList.add('hidden');document.getElementById('rb-card').classList.add('hidden');document.getElementById('gp-card').classList.add('hidden');}}
+if(AP().result){renderDeco(AP().result);renderRockBottom(AP().result);renderGasPlan(AP().result);renderWarnings(AP().result);}
+else{document.getElementById('deco-card').classList.add('hidden');document.getElementById('rb-card').classList.add('hidden');document.getElementById('gp-card').classList.add('hidden');renderWarnings(null);}}
 
 var refreshCCRCard=window.refreshCCRCard=function(){
 var O=AP().O;
@@ -1860,7 +1857,7 @@ try{
 window.applyAutoGFLo();
 var initialTs=getInitialTissues();
 AP().result=planDive(initialTs);
-renderDeco(AP().result);renderRockBottom(AP().result);renderGasPlan(AP().result);
+renderDeco(AP().result);renderRockBottom(AP().result);renderGasPlan(AP().result);renderWarnings(AP().result);
 }catch(e){document.getElementById('calc-note').textContent='Error: '+e.message;console.error(e);}
 savePlans();};
 
@@ -3049,68 +3046,20 @@ else{_doInit();}
   <div class="cfg-hdr"><button class="cfg-back" onclick="window.closeInstall()">&#8592;</button><span class="cfg-hdr-t">Install AeroPlus Deco</span></div>
   <div class="cfg-body"><div style="padding:20px 16px 40px">
     <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:24px">
-      <div style="background:#3451d1;border-radius:20px;width:80px;height:80px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;box-shadow:0 4px 16px rgba(52,81,209,.3)">
-        <svg width="52" height="52" viewBox="0 0 100 100" fill="none"><path d="M18 82 L50 14 L82 82 L62 82 L50 52 L38 82 Z" fill="#fff"/><path d="M38 82 L50 52 L62 82 Z" fill="#72c4e8"/><path d="M50 14 L66 42 Q72 36 68 28 Z" fill="#72c4e8"/></svg>
-      </div>
+      <div style="background:#3451d1;border-radius:20px;width:80px;height:80px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;box-shadow:0 4px 16px rgba(52,81,209,.3)"><svg width="52" height="52" viewBox="0 0 100 100" fill="none"><path d="M18 82 L50 14 L82 82 L62 82 L50 52 L38 82 Z" fill="#fff"/><path d="M38 82 L50 52 L62 82 Z" fill="#72c4e8"/><path d="M50 14 L66 42 Q72 36 68 28 Z" fill="#72c4e8"/></svg></div>
       <div style="font-size:22px;font-weight:700">AeroPlus <span style="color:#3451d1">Deco</span></div>
       <div style="font-size:13px;color:#6a7a9a;margin-top:4px">Install as a native-style app &#8212; free, no App Store needed</div>
     </div>
-    <div id="install-ios" style="display:none">
-      <div style="background:#eef2ff;border-left:3px solid #3451d1;border-radius:0 12px 12px 0;padding:14px 16px;margin-bottom:16px;font-size:13px;color:#2a3a5a;line-height:1.8">
-        <div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:#3451d1;margin-bottom:10px">INSTALL ON iPHONE / iPAD</div>
-        <div style="display:flex;gap:12px;margin-bottom:12px"><div style="background:#3451d1;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">1</div><div>Tap the <strong>Share button</strong> at the bottom of Safari (box with arrow pointing up)</div></div>
-        <div style="display:flex;gap:12px;margin-bottom:12px"><div style="background:#3451d1;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">2</div><div>Scroll down and tap <strong>"Add to Home Screen"</strong></div></div>
-        <div style="display:flex;gap:12px"><div style="background:#3451d1;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">3</div><div>Tap <strong>Add</strong> &#8212; the icon appears on your home screen</div></div>
-      </div>
-      <div style="background:#fff8e1;border:1px solid #ffc107;border-radius:10px;padding:10px 14px;font-size:12px;color:#5d4037;line-height:1.6;margin-bottom:20px">&#9888; <strong>Must use Safari.</strong> Chrome and other iOS browsers do not support Add to Home Screen.</div>
-    </div>
-    <div id="install-android" style="display:none">
-      <div style="background:#eef2ff;border-left:3px solid #3451d1;border-radius:0 12px 12px 0;padding:14px 16px;margin-bottom:20px;font-size:13px;color:#2a3a5a;line-height:1.8">
-        <div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:#3451d1;margin-bottom:10px">INSTALL ON ANDROID</div>
-        <div style="display:flex;gap:12px;margin-bottom:12px"><div style="background:#3451d1;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">1</div><div>Chrome shows an <strong>"Install app"</strong> banner at the bottom &#8212; tap it</div></div>
-        <div style="display:flex;gap:12px;margin-bottom:12px"><div style="background:#3451d1;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">2</div><div>If dismissed, tap the <strong>&#8942; menu</strong> and select <strong>"Add to Home Screen"</strong></div></div>
-        <div style="display:flex;gap:12px"><div style="background:#3451d1;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">3</div><div>Tap <strong>Install</strong> &#8212; opens in its own window with no browser bar</div></div>
-      </div>
-    </div>
-    <div id="install-desktop" style="display:none">
-      <div style="background:#eef2ff;border-left:3px solid #3451d1;border-radius:0 12px 12px 0;padding:14px 16px;margin-bottom:20px;font-size:13px;color:#2a3a5a;line-height:1.8">
-        <div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:#3451d1;margin-bottom:10px">INSTALL ON DESKTOP (CHROME / EDGE)</div>
-        <div style="display:flex;gap:12px;margin-bottom:12px"><div style="background:#3451d1;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">1</div><div>Look for the <strong>install icon</strong> in the right side of the address bar</div></div>
-        <div style="display:flex;gap:12px"><div style="background:#3451d1;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">2</div><div>Click it and select <strong>"Install"</strong> &#8212; opens as a standalone window</div></div>
-      </div>
-    </div>
+    <div id="install-ios" style="display:none"><div style="background:#eef2ff;border-left:3px solid #3451d1;border-radius:0 12px 12px 0;padding:14px 16px;margin-bottom:16px;font-size:13px;color:#2a3a5a;line-height:1.8"><div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:#3451d1;margin-bottom:10px">INSTALL ON iPHONE / iPAD</div><div style="display:flex;gap:12px;margin-bottom:12px"><div style="background:#3451d1;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">1</div><div>Tap the <strong>Share button</strong> at the bottom of Safari (box with arrow pointing up)</div></div><div style="display:flex;gap:12px;margin-bottom:12px"><div style="background:#3451d1;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">2</div><div>Scroll down and tap <strong>"Add to Home Screen"</strong></div></div><div style="display:flex;gap:12px"><div style="background:#3451d1;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">3</div><div>Tap <strong>Add</strong> &#8212; the icon appears on your home screen</div></div></div><div style="background:#fff8e1;border:1px solid #ffc107;border-radius:10px;padding:10px 14px;font-size:12px;color:#5d4037;line-height:1.6;margin-bottom:20px">&#9888; <strong>Must use Safari.</strong> Chrome and other iOS browsers do not support Add to Home Screen.</div></div>
+    <div id="install-android" style="display:none"><div style="background:#eef2ff;border-left:3px solid #3451d1;border-radius:0 12px 12px 0;padding:14px 16px;margin-bottom:20px;font-size:13px;color:#2a3a5a;line-height:1.8"><div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:#3451d1;margin-bottom:10px">INSTALL ON ANDROID</div><div style="display:flex;gap:12px;margin-bottom:12px"><div style="background:#3451d1;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">1</div><div>Chrome shows an <strong>"Install app"</strong> banner at the bottom &#8212; tap it</div></div><div style="display:flex;gap:12px;margin-bottom:12px"><div style="background:#3451d1;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">2</div><div>If dismissed, tap the <strong>&#8942; menu</strong> and select <strong>"Add to Home Screen"</strong></div></div><div style="display:flex;gap:12px"><div style="background:#3451d1;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">3</div><div>Tap <strong>Install</strong> &#8212; opens in its own window with no browser bar</div></div></div></div>
+    <div id="install-desktop" style="display:none"><div style="background:#eef2ff;border-left:3px solid #3451d1;border-radius:0 12px 12px 0;padding:14px 16px;margin-bottom:20px;font-size:13px;color:#2a3a5a;line-height:1.8"><div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:#3451d1;margin-bottom:10px">INSTALL ON DESKTOP (CHROME / EDGE)</div><div style="display:flex;gap:12px;margin-bottom:12px"><div style="background:#3451d1;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">1</div><div>Look for the <strong>install icon</strong> in the right side of the address bar</div></div><div style="display:flex;gap:12px"><div style="background:#3451d1;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">2</div><div>Click it and select <strong>"Install"</strong> &#8212; opens as a standalone window</div></div></div></div>
     <div style="font-size:13px;font-weight:600;color:#1a1a1a;margin-bottom:10px">Why install?</div>
-    <div style="font-size:13px;color:#3a4a5a;line-height:2;margin-bottom:20px;padding-left:4px">
-      &#10003; &nbsp;Launches instantly from your home screen<br>
-      &#10003; &nbsp;Full screen &#8212; no browser address bar<br>
-      &#10003; &nbsp;Your plans are saved locally on your device<br>
-      &#10003; &nbsp;Updates automatically when a new version is available
-    </div>
+    <div style="font-size:13px;color:#3a4a5a;line-height:2;margin-bottom:20px;padding-left:4px">&#10003; &nbsp;Launches instantly from your home screen<br>&#10003; &nbsp;Full screen &#8212; no browser address bar<br>&#10003; &nbsp;Your plans are saved locally on your device<br>&#10003; &nbsp;Updates automatically when a new version is available</div>
   </div></div>
 </div>
-
 <!-- PWA Service Worker -->
 <script>
-if('serviceWorker' in navigator){
-  window.addEventListener('load',function(){
-    navigator.serviceWorker.register('/sw.js')
-      .then(function(reg){
-        console.log('[AeroPlus] SW registered');
-        reg.addEventListener('updatefound',function(){
-          var nw=reg.installing;
-          nw.addEventListener('statechange',function(){
-            if(nw.state==='installed'&&navigator.serviceWorker.controller){
-              var b=document.createElement('div');
-              b.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#3451d1;color:#fff;border-radius:50px;padding:12px 20px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(52,81,209,.4);z-index:9999;font-family:-apple-system,sans-serif;white-space:nowrap';
-              b.innerHTML='New version available &nbsp;<button id="ap-upd" style="background:#fff;color:#3451d1;border:none;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:700;cursor:pointer">Update now</button>';
-              document.body.appendChild(b);
-              document.getElementById('ap-upd').onclick=function(){nw.postMessage({type:'SKIP_WAITING'});location.reload();};
-            }
-          });
-        });
-      }).catch(function(e){console.warn('[AeroPlus] SW failed:',e);});
-  });
-}
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').then(function(reg){reg.addEventListener('updatefound',function(){var nw=reg.installing;nw.addEventListener('statechange',function(){if(nw.state==='installed'&&navigator.serviceWorker.controller){var b=document.createElement('div');b.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#3451d1;color:#fff;border-radius:50px;padding:12px 20px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(52,81,209,.4);z-index:9999;font-family:-apple-system,sans-serif;white-space:nowrap';b.innerHTML='New version available &nbsp;<button id="ap-upd" style="background:#fff;color:#3451d1;border:none;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:700;cursor:pointer">Update now</button>';document.body.appendChild(b);document.getElementById('ap-upd').onclick=function(){nw.postMessage({type:'SKIP_WAITING'});location.reload();};}});});}).catch(function(e){console.warn('[AeroPlus] SW failed:',e);});});}
 </script>
 </body>
 </html>
