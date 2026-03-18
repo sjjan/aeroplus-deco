@@ -1,6 +1,6 @@
 // AeroPlus Deco — Service Worker
 // Bump this version string whenever you deploy a new version of index.html
-const CACHE_VERSION = '2026-03-17j';
+const CACHE_VERSION = '2026-03-17k';
 const CACHE_NAME = `aeroplus-deco-${CACHE_VERSION}`;
 
 const ASSETS = [
