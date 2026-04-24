@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>AeroPlus NOTAM</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%233451d1'/%3E%3Cpath d='M20 82 L50 16 L80 82 L62 82 L50 54 L38 82 Z' fill='white'/%3E%3Cpath d='M38 82 L50 54 L62 82 Z' fill='%2372c4e8'/%3E%3Cpath d='M50 16 L67 44 Q74 37 70 26 Z' fill='%2372c4e8'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#3451d1">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+input,select,textarea{font-size:16px!important}
+body{background:#edf0f5;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;color:#1a1a1a;min-height:100vh;-webkit-tap-highlight-color:transparent;overflow-x:hidden}
+.hdr{background:#fff;padding:12px 16px 10px;border-bottom:1px solid #d8dde8;box-shadow:0 1px 4px rgba(52,81,209,.07);display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;z-index:10}
+.hdr-l{display:flex;align-items:center;gap:10px}
+.ttl{font-size:22px;font-weight:700;letter-spacing:-.02em}
+.sub{font-size:13px;color:#6a7a9a}
+.menu-btn{background:none;border:1.5px solid #d0d4db;border-radius:10px;cursor:pointer;padding:6px 12px;color:#3451d1;font-size:20px;line-height:1;font-family:inherit;margin-top:6px}
+.menu-drop{position:fixed;top:64px;right:12px;background:#fff;border-radius:16px;box-shadow:0 8px 32px rgba(52,81,209,.18);min-width:220px;overflow:hidden;z-index:300}
+.menu-bg{position:fixed;inset:0;z-index:299}
+.menu-item{display:flex;align-items:center;gap:14px;padding:13px 18px;font-size:15px;font-weight:500;color:#1a1a1a;cursor:pointer;border:none;background:none;width:100%;font-family:inherit;text-align:left}
+.menu-item:active{background:#f0f4ff}
+.menu-icon{font-size:18px;width:26px;text-align:center}
+.wrap{max-width:540px;margin:0 auto;padding:12px 10px 80px}
+.card{background:#edf1f8;border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid #cdd3e0}
+.card-ttl{font-size:22px;font-weight:700;margin-bottom:10px}
+.card-sub{font-size:13px;color:#6a7a9a;margin-bottom:12px;line-height:1.5}
+.search-row{display:flex;gap:8px;margin-bottom:12px}
+.icao-inp{flex:1;border:1.5px solid #c0c8d4;border-radius:12px;padding:12px 14px;font-size:20px!important;font-weight:700;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;background:#fff;outline:none;color:#3451d1;text-align:center}
+.icao-inp:focus{border-color:#3451d1}
+.icao-inp::placeholder{color:#b0b8c4;font-weight:500;letter-spacing:0}
+.search-btn{background:#3451d1;color:#fff;border:none;border-radius:12px;padding:12px 20px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0}
+.search-btn:disabled{background:#9aa0aa;cursor:not-allowed}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.chip{background:#fff;border:1px solid #cdd3e0;border-radius:14px;padding:5px 12px;font-size:12px;font-weight:600;color:#3451d1;cursor:pointer;font-family:monospace;letter-spacing:.04em}
+.chip:active{background:#dce6ff}
+.chip-lbl{font-size:11px;color:#6a7a9a;text-transform:uppercase;letter-spacing:.06em;margin-top:10px;margin-bottom:4px;font-weight:700}
+.status{text-align:center;padding:20px;color:#6a7a9a;font-size:14px}
+.err{background:#fdeaea;border:1px solid #f0a0a0;border-radius:10px;padding:12px 14px;font-size:13px;color:#a02020;margin-bottom:12px;line-height:1.5}
+.info{background:#eef2ff;border:1px solid #c8d4f4;border-radius:10px;padding:12px 14px;font-size:13px;color:#3451d1;margin-bottom:12px;line-height:1.5}
+.demo-tag{display:inline-block;background:#fff3e0;color:#c97b0a;border:1px solid #ffc107;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:700;margin-left:8px;letter-spacing:.04em}
+.result-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding:0 4px}
+.result-count{font-size:14px;font-weight:700;color:#1a1a1a}
+.result-icao{font-size:14px;color:#6a7a9a;font-family:monospace}
+.notam{background:#fff;border:1px solid #cdd3e0;border-radius:12px;margin-bottom:10px;overflow:hidden}
+.notam-hdr{padding:10px 14px;background:#f4f6fb;border-bottom:1px solid #e4e7ec;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.notam-id{font-family:monospace;font-weight:700;font-size:14px;color:#3451d1}
+.notam-type{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:10px}
+.t-rwy{background:#fdeaea;color:#a02020}
+.t-twy{background:#fff3e0;color:#c97b0a}
+.t-nav{background:#eef2ff;color:#3451d1}
+.t-obs{background:#fff8e1;color:#5d4037}
+.t-svc{background:#f0faf0;color:#2a6a2a}
+.t-oth{background:#e8eaed;color:#5a6472}
+.notam-subj{font-size:14px;font-weight:600;color:#1a1a1a;padding:10px 14px 4px}
+.notam-valid{font-size:12px;color:#6a7a9a;padding:0 14px 10px;font-family:monospace}
+.notam-sec{padding:12px 14px;border-top:1px solid #eaecf2}
+.notam-sec-lbl{font-size:11px;font-weight:700;color:#3451d1;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.notam-plain{font-size:15px;line-height:1.55;color:#1a1a1a}
+.notam-raw{font-family:monospace;font-size:12px;line-height:1.55;color:#1a1a1a;white-space:pre-wrap;word-break:break-word;background:#f8f9fc;padding:10px;border-radius:8px;border:1px solid #e4e7ec}
+.mbg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;display:flex;align-items:flex-end;justify-content:center}
+.mpanel{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:540px;padding:20px 16px 44px;max-height:94vh;overflow-y:auto}
+.mhdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.mttl{font-size:20px;font-weight:700}
+.mcls{background:#d0d4db;border:none;border-radius:50%;width:32px;height:32px;font-size:16px;cursor:pointer}
+.fld{margin-bottom:14px}
+.fld label{display:block;font-size:11px;color:#6a7a8a;font-weight:600;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em}
+.fld input{width:100%;border:1px solid #c0c8d4;border-radius:8px;padding:9px 12px;font-size:16px;background:#fff;outline:none;font-family:monospace}
+.fld input:focus{border-color:#3451d1}
+.savebtn{width:100%;background:#3451d1;color:#fff;border:none;border-radius:12px;padding:13px;font-size:16px;font-weight:700;cursor:pointer;margin-top:6px;font-family:inherit}
+.mbody{font-size:14px;line-height:1.6;color:#1a1a1a}
+.mbody p{margin-bottom:10px}
+.mbody a{color:#3451d1;font-weight:600}
+.mbody code{background:#f0f3f6;padding:1px 5px;border-radius:4px;font-size:12px}
+.hidden{display:none!important}
+.spin{display:inline-block;width:16px;height:16px;border:2px solid #c8d4f4;border-top-color:#3451d1;border-radius:50%;animation:sp .7s linear infinite;vertical-align:middle;margin-right:8px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.disc{font-size:11px;color:#8a9aaa;line-height:1.5;padding:12px 4px 0;text-align:center;font-style:italic}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-l">
+    <svg width="36" height="36" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M18 82 L50 14 L82 82 L62 82 L50 52 L38 82 Z" fill="#3451d1"/>
+      <path d="M38 82 L50 52 L62 82 Z" fill="#72c4e8"/>
+      <path d="M50 14 L66 42 Q72 36 68 28 Z" fill="#72c4e8"/>
+    </svg>
+    <div>
+      <div class="ttl">AeroPlus <span style="color:#3451d1;font-weight:800">NOTAM</span></div>
+      <div class="sub">Plain-English NOTAMs for African Flying Adventures</div>
+    </div>
+  </div>
+  <button class="menu-btn" onclick="toggleMenu()">☰</button>
+</div>
+
+<div class="menu-bg hidden" id="menu-bg" onclick="closeMenu()"></div>
+<div class="menu-drop hidden" id="menu-drop">
+  <button class="menu-item" onclick="closeMenu();openSettings()"><span class="menu-icon">⚙</span>API settings</button>
+  <button class="menu-item" onclick="closeMenu();openAbout()"><span class="menu-icon">ℹ</span>About</button>
+</div>
+
+<div class="wrap">
+
+  <div class="card">
+    <div class="card-ttl">Search NOTAMs</div>
+    <div class="card-sub">Enter an ICAO 4-letter airport code to fetch and translate the current NOTAMs.</div>
+    <div class="search-row">
+      <input class="icao-inp" id="icao" maxlength="4" placeholder="ICAO" autocomplete="off" autocapitalize="characters" spellcheck="false" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')doSearch()">
+      <button class="search-btn" id="search-btn" onclick="doSearch()">Search</button>
+    </div>
+    <div class="chip-lbl">Quick select</div>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div id="results"></div>
+
+  <div class="disc">For operational planning only. Always cross-check with the official AIS of the State of the aerodrome before flight.</div>
+
+</div>
+
+<div class="mbg hidden" id="settings-modal">
+  <div class="mpanel">
+    <div class="mhdr">
+      <div class="mttl">API settings</div>
+      <button class="mcls" onclick="closeSettings()">✕</button>
+    </div>
+    <div class="mbody" style="margin-bottom:14px">
+      <p>Live NOTAM fetching uses the free <b>FAA External NOTAM API</b>, which covers airports worldwide including African aerodromes.</p>
+      <p>Register at <a href="https://api.faa.gov" target="_blank" rel="noopener">api.faa.gov</a> to obtain a free <code>client_id</code> and <code>client_secret</code>. Credentials are stored locally on this device only.</p>
+    </div>
+    <div class="fld"><label>Client ID</label><input type="text" id="cfg-id" placeholder="FAA API client_id"></div>
+    <div class="fld"><label>Client Secret</label><input type="password" id="cfg-secret" placeholder="FAA API client_secret"></div>
+    <button class="savebtn" onclick="saveSettings()">Save credentials</button>
+    <button class="savebtn" style="background:#e8eaed;color:#5a6472;margin-top:8px" onclick="clearSettings()">Clear and use demo mode</button>
+  </div>
+</div>
+
+<div class="mbg hidden" id="about-modal">
+  <div class="mpanel">
+    <div class="mhdr">
+      <div class="mttl">About AeroPlus NOTAM</div>
+      <button class="mcls" onclick="closeAbout()">✕</button>
+    </div>
+    <div class="mbody">
+      <p><b>AeroPlus NOTAM</b> fetches NOTAMs for an airport and presents them in two forms: the raw ICAO-formatted message and a plain-English translation that expands Q-codes and contractions so that non-pilot staff can quickly understand what is affected.</p>
+      <p>Data source: <b>FAA External NOTAM API</b> (international coverage). Without credentials, the app runs in <b>demo mode</b> using built-in sample NOTAMs for common African airports.</p>
+      <p>The translator is heuristic. It covers most standard ICAO contractions and Q-code categories but may not capture every nuance. The raw NOTAM is always shown alongside so operators can verify.</p>
+      <p style="color:#a02020"><b>Not for navigation.</b> Always verify with the official AIS before flight.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Q-code subject (2nd-3rd letters) ──
+const Q_SUBJ = {
+ LA:"approach lighting system",LB:"aerodrome beacon",LC:"runway centre line lights",LE:"runway edge lights",
+ LH:"runway high intensity lights",LI:"runway end identifier lights",LL:"runway low intensity lights",
+ LM:"runway medium intensity lights",LP:"PAPI (precision approach path indicator)",LR:"runway lighting",
+ LT:"threshold lights",LV:"visual approach slope indicator (VASI)",LX:"taxiway centre line lights",
+ LY:"taxiway edge lights",LZ:"runway touchdown zone lights",
+ MA:"movement area",MB:"pavement bearing strength",MC:"clearway",MD:"declared distances",MK:"parking area",
+ MM:"daylight markings",MN:"apron",MP:"aircraft stands",MR:"runway",MS:"stopway",MT:"threshold",
+ MU:"runway turning bay",MW:"runway strip / shoulder",MX:"taxiway",MY:"rapid exit taxiway",
+ NA:"radio navigation aids",NB:"non-directional beacon (NDB)",ND:"DME",NL:"locator",NM:"VOR/DME",
+ NN:"TACAN",NV:"VOR",NX:"direction-finding station",
+ IC:"ILS",ID:"ILS DME",IG:"glide path",II:"inner marker",IM:"middle marker",IN:"localizer",
+ IO:"outer marker",IS:"ILS Cat I",IT:"ILS Cat II",IU:"ILS Cat III",IW:"MLS",
+ CA:"air/ground facility",CE:"en-route surveillance radar",CG:"ground controlled approach (GCA)",
+ CM:"surface movement radar",CP:"precision approach radar (PAR)",CS:"secondary surveillance radar (SSR)",
+ CT:"terminal approach radar",
+ FA:"aerodrome",FF:"fire fighting and rescue",FG:"ground movement control",FM:"meteorological service",
+ FS:"snow removal equipment",FU:"fuel availability",FZ:"customs / immigration",
+ GA:"GNSS (airfield)",GW:"GNSS (area-wide)",
+ OB:"obstacle",OL:"obstacle lighting",OR:"rescue coordination",OT:"aerodrome tower",
+ PA:"standard instrument arrival (STAR)",PD:"standard instrument departure (SID)",PH:"holding procedure",
+ PI:"instrument approach procedure",PL:"flight plan processing",PM:"aerodrome operating minima",
+ PO:"obstacle clearance altitude",PR:"radio failure procedure",PT:"transition altitude/level",
+ PU:"missed approach procedure",
+ RA:"airspace reservation",RD:"danger area",RM:"military operating area",RP:"prohibited area",
+ RR:"restricted area",RT:"temporary restricted area",
+ SA:"ATIS",SC:"area control centre (ACC)",SE:"flight information service (FIS)",
+ SF:"aerodrome flight information service (AFIS)",SP:"approach control service",ST:"aerodrome tower service",
+ SV:"VOLMET broadcast",
+ WA:"air display",WB:"aerobatics",WE:"military exercises",WG:"glider flying",WM:"missile/gun firing",
+ WP:"parachute jumping",WS:"burning or blowing gas",WU:"unmanned aircraft",WW:"volcanic activity",
+ WY:"aerial survey",WZ:"model flying",
+ AA:"minimum altitude",AC:"airspace classification",AD:"aerodrome",AE:"control area",
+ AF:"flight information region (FIR)",AH:"upper control area",AL:"minimum usable flight level",
+ AN:"area navigation route",AP:"reporting point",AR:"ATS route",AT:"terminal control area (TMA)",
+ AU:"upper FIR",AX:"intersection",AZ:"ADIZ"
+};
+
+// ── Q-code condition (4th-5th letters) ──
+const Q_COND = {
+ AC:"withdrawn for maintenance",AD:"available for daylight operations",AF:"flight-checked and reliable",
+ AK:"resumed normal operations",AL:"operative subject to previously published limitations",
+ AM:"military operations only",AN:"available for night operations",AO:"operational",
+ AP:"available, prior permission required",AR:"available on request",AS:"unserviceable",
+ AU:"not available",AW:"completely withdrawn",AX:"previously announced shutdown cancelled",
+ CA:"activated",CC:"completed",CD:"deactivated",CE:"erected",CF:"operating frequency changed",
+ CG:"downgraded",CH:"changed",CI:"identification changed",CL:"realigned",CM:"displaced",
+ CN:"cancelled",CO:"operating",CP:"operating on reduced power",CR:"temporarily replaced",
+ CS:"installed",CT:"on test, do not use",
+ HA:"braking action",HB:"friction coefficient",HC:"covered by compacted snow",HD:"covered by dry snow",
+ HE:"covered by water",HF:"totally free of snow and ice",HI:"covered by ice",HK:"bird migration in progress",
+ HL:"snow clearance completed",HM:"marked",HN:"covered by wet snow or slush",HO:"obscured by snow",
+ HP:"snow clearance in progress",HQ:"operation cancelled",HR:"standing water",HS:"sanding in progress",
+ HV:"work completed",HW:"work in progress",HX:"concentration of birds",HY:"snow banks present",
+ HZ:"covered by frozen ruts and ridges",
+ LA:"operating on auxiliary power",LB:"reserved for based aircraft",LC:"closed",LD:"unsafe",
+ LE:"operating without auxiliary power",LF:"interference reported",LG:"operating without identification",
+ LH:"unserviceable for aircraft heavier than specified",LI:"closed to IFR operations",
+ LK:"operating as a fixed light",LL:"usable, length and width restricted",LN:"closed to night operations",
+ LP:"prohibited",LR:"aircraft restricted to runways and taxiways",LS:"subject to interruption",
+ LT:"limited",LV:"closed to VFR operations",LW:"will take place",LX:"operating but caution advised",
+ XX:"plain language"
+};
+
+// ── Abbreviations / contractions ──
+const ABBR = {
+ ACFT:"aircraft",ACT:"active",AD:"aerodrome",ADJ:"adjacent",ADZ:"advise",AFT:"after",AGL:"above ground level",
+ AMSL:"above mean sea level",APCH:"approach",APN:"apron",APP:"approach",APRX:"approximately",
+ ARP:"aerodrome reference point",ARR:"arrival",ATC:"air traffic control",ATIS:"ATIS",ATS:"air traffic service",
+ AUTH:"authorised",AVBL:"available",AWY:"airway",AZM:"azimuth",
+ BCN:"beacon",BFR:"before",BLW:"below",BTN:"between",
+ CAT:"category",CGL:"circling",CIRC:"circle",CL:"centre line",CLD:"cleared",CLSD:"closed",CMB:"climb",
+ CNL:"cancel",CONT:"continuous",COORD:"coordinates",CTA:"control area",CTC:"contact",CTL:"control",
+ CTN:"caution",CTR:"control zone",CUST:"customs",
+ DEP:"departure",DER:"departure end of runway",DEST:"destination",DLA:"delay",DLY:"daily",DME:"DME",
+ DRG:"during",DTG:"date-time group",DTHR:"displaced threshold",DUE:"due to",
+ EFC:"expect further clearance",ELEV:"elevation",EMERG:"emergency",ENG:"engine",ENR:"en route",EQPT:"equipment",
+ EST:"estimated",EXC:"except",
+ FAC:"facility",FIR:"flight information region",FIS:"flight information service",FL:"flight level",
+ FLW:"follow",FM:"from",FPM:"feet per minute",FREQ:"frequency",FRNG:"firing",FT:"feet",
+ GA:"general aviation",GLD:"glider",GND:"ground",GPS:"GPS",
+ HEL:"helicopter",HGT:"height",HJ:"sunrise to sunset",HN:"sunset to sunrise",HOL:"holiday",HPA:"hPa",HR:"hour",
+ HS:"service during scheduled hours",HX:"no specific working hours",
+ IAP:"instrument approach procedure",IDENT:"identification",IFR:"IFR",ILS:"ILS",IMC:"IMC",INFO:"information",
+ INOP:"inoperative",INSTR:"instrument",INT:"intersection",INTL:"international",
+ KT:"knots",
+ LDA:"landing distance available",LDG:"landing",LEN:"length",LGT:"light",LGTD:"lighted",LGTG:"lighting",
+ LOC:"localizer",LTD:"limited",LTD:"lighted",
+ MAINT:"maintenance",MAX:"maximum",MDA:"minimum descent altitude",MET:"meteorological",MHZ:"MHz",MIL:"military",
+ MIN:"minute",MNM:"minimum",MON:"Monday",MOV:"movement",MSA:"minimum sector altitude",MSG:"message",
+ MSL:"mean sea level",MTN:"mountain",
+ NAV:"navigation",NAVAID:"navigation aid",NDB:"NDB",NEG:"no / negative",NM:"nautical miles",NML:"normal",
+ NOPS:"not operating",NOTAM:"NOTAM",NR:"number",NW:"northwest",
+ OBS:"observation",OBST:"obstacle",OCA:"obstacle clearance altitude",OPR:"operating",OPS:"operations",
+ OVR:"over",
+ PAX:"passengers",PCL:"pilot-controlled lighting",PCN:"pavement classification number",PERM:"permanent",
+ PJE:"parachute jumping exercise",POSS:"possible",PPR:"prior permission required",PROC:"procedure",
+ PROHIB:"prohibited",PSN:"position",
+ RAG:"arresting gear",RCL:"runway centre line",RCLL:"runway centre line lighting",REF:"reference",
+ REQ:"required",RESTR:"restricted",RNAV:"area navigation",RNP:"required navigation performance",
+ RTE:"route",RUF:"rough",RVR:"runway visual range",RWY:"runway",
+ SFC:"surface",SID:"SID",SKED:"scheduled",SR:"sunrise",SS:"sunset",STAR:"STAR",STD:"standard",
+ SUP:"supplement",SVC:"service",SVCBL:"serviceable",
+ TA:"transition altitude",TDZ:"touchdown zone",TEMPO:"temporary",TFC:"traffic",THR:"threshold",TIL:"until",
+ TKOF:"take-off",TL:"transition level",TMA:"terminal control area",TODA:"take-off distance available",
+ TORA:"take-off run available",TWR:"tower",TWY:"taxiway",TXWY:"taxiway",
+ U:"unserviceable",UAB:"until advised by",UFN:"until further notice",UNAVBL:"unavailable",UNL:"unlimited",
+ UNREL:"unreliable",US:"unserviceable","U/S":"unserviceable",UTC:"UTC",
+ VASI:"VASI",VFR:"VFR",VIC:"vicinity",VIS:"visibility",VMC:"VMC",VOR:"VOR",
+ WI:"within",WIP:"work in progress",WKD:"weekday",WX:"weather",
+ YR:"year"
+};
+
+// ── Multi-word phrase replacements (applied first) ──
+const PHRASES = [
+ [/\bDUE\s+TO\b/gi,"because of"],[/\bU\/S\b/gi,"unserviceable"],[/\bO\/R\b/gi,"on request"],
+ [/\bOUT\s+OF\s+SVC\b/gi,"out of service"],[/\bOUT\s+OF\s+SERVICE\b/gi,"out of service"],
+ [/\bIN\s+SVC\b/gi,"in service"],[/\bIN\s+USE\b/gi,"in use"],[/\bNO\s+SVC\b/gi,"no service"],
+ [/\bRMK\s*:/gi,"Remark:"],[/\bREF\s*:/gi,"Reference:"],
+ [/\bCONT\s+CLSD\b/gi,"remains closed"],[/\bTEMP\s+CLSD\b/gi,"temporarily closed"]
+];
+</script>
+<script>
+// ── Quick-select African airports ──
+const AIRPORTS = [
+ {c:"FAJS",n:"Johannesburg OR Tambo"},{c:"FACT",n:"Cape Town"},{c:"FALE",n:"Durban King Shaka"},
+ {c:"FAGG",n:"George"},{c:"FAPE",n:"Port Elizabeth"},{c:"FAKN",n:"Kruger Mpumalanga"},
+ {c:"FYWH",n:"Windhoek Hosea Kutako"},{c:"FVHA",n:"Harare"},{c:"FBSK",n:"Gaborone"},
+ {c:"FLLS",n:"Livingstone"},{c:"FWKI",n:"Lilongwe"},{c:"HKJK",n:"Nairobi Jomo Kenyatta"},
+ {c:"HTDA",n:"Dar es Salaam"},{c:"HUEN",n:"Entebbe"},{c:"HAAB",n:"Addis Ababa"}
+];
+
+// ── Parse raw ICAO NOTAM text into structured fields ──
+function parseNotam(raw){
+ if(!raw)return{};
+ const r={raw:raw.trim()};
+ // Header line: e.g. "A1234/25 NOTAMN" or "A1234/25 NOTAMR A1100/25"
+ const hm=r.raw.match(/^([A-Z]\d{3,4}\/\d{2})\s+(NOTAM[NRC])(?:\s+([A-Z]\d{3,4}\/\d{2}))?/);
+ if(hm){r.id=hm[1];r.kind=hm[2];r.replaces=hm[3]||null;}
+ // Q-line
+ const qm=r.raw.match(/Q\)\s*([^\n\r]+)/);
+ if(qm){
+  r.qline=qm[1].trim();
+  const parts=r.qline.split("/");
+  if(parts.length>=2){
+   const sc=parts[1];
+   if(/^Q[A-Z]{4}$/.test(sc)){r.qcode=sc;r.qsubj=sc.slice(1,3);r.qcond=sc.slice(3,5);}
+  }
+ }
+ // A/B/C/D/E/F/G fields
+ const fields=["A","B","C","D","E","F","G"];
+ fields.forEach(f=>{
+  const re=new RegExp("\\b"+f+"\\)\\s*([\\s\\S]*?)(?=\\n?\\s*[A-G]\\)|\\s*CREATED:|\\s*SOURCE:|$)","i");
+  const m=r.raw.match(re);
+  if(m)r[f.toLowerCase()]=m[1].trim();
+ });
+ return r;
+}
+
+// ── Parse YYMMDDHHMM into JS Date ──
+function parseNotamDate(s){
+ if(!s)return null;
+ const m=s.match(/(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/);
+ if(!m)return null;
+ return new Date(Date.UTC(2000+ +m[1],+m[2]-1,+m[3],+m[4],+m[5]));
+}
+function fmtDate(d){
+ if(!d)return"—";
+ const mo=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+ const pad=n=>String(n).padStart(2,"0");
+ return `${pad(d.getUTCDate())} ${mo[d.getUTCMonth()]} ${d.getUTCFullYear()} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}Z`;
+}
+
+// ── Describe the Q-code in plain English ──
+function describeQCode(subj,cond){
+ if(!subj||!cond)return null;
+ const s=Q_SUBJ[subj];const c=Q_COND[cond];
+ if(s&&c)return c.charAt(0).toUpperCase()+c.slice(1)+" — "+s;
+ if(s)return "Affects: "+s;
+ if(c)return c.charAt(0).toUpperCase()+c.slice(1);
+ return null;
+}
+
+// ── Categorise for colour tag ──
+function notamCategory(subj,cond){
+ if(!subj)return{cls:"t-oth",label:"NOTAM"};
+ if(subj[0]==="M"){
+  if(subj==="MR")return{cls:"t-rwy",label:"Runway"};
+  if(subj==="MX"||subj==="MY")return{cls:"t-twy",label:"Taxiway"};
+  return{cls:"t-twy",label:"Movement area"};
+ }
+ if(subj[0]==="L")return{cls:"t-rwy",label:"Lighting"};
+ if(subj[0]==="I"||subj[0]==="N"||subj[0]==="G")return{cls:"t-nav",label:"Navigation"};
+ if(subj[0]==="O")return{cls:"t-obs",label:"Obstacle"};
+ if(subj[0]==="F"||subj[0]==="S"||subj[0]==="C")return{cls:"t-svc",label:"Service"};
+ if(subj[0]==="R"||subj[0]==="W")return{cls:"t-obs",label:"Airspace"};
+ if(subj[0]==="P"||subj[0]==="A")return{cls:"t-nav",label:"Procedure"};
+ return{cls:"t-oth",label:"NOTAM"};
+}
+
+// Acronyms to keep uppercase even after translation
+const KEEP_UPPER=new Set(["ILS","VOR","DME","NDB","GPS","GNSS","RNAV","RNP","ATIS","ATC","AFIS","IFR","VFR","IMC","VMC","TACAN","MLS","PAPI","VASI","LOC","GP","PAR","GCA","SSR","TAR","CAT","UTC","SID","STAR","ACC","FIR","TMA","CTR","CTA","UIR","ADIZ","MSA","MDA","NOTAM","AFS","AIS","AIP","AVGAS","DEP","ARR","PPR","WIP","RWY","TWY","APN","THR","SFC","FL","FT","NM","HPA","MHZ","KT","PCN","PSN","DTHR","CLSD","UNAVBL","AVBL","UFN","PERM","TEMPO","HJ","HN","HX","HS","SR","SS","TORA","TODA","ASDA","LDA","RVR","TDZ","FL","AGL","AMSL","MSL","UTC","OCA","LGTD","OPR","OPS","ACFT","TKOF","LDG","APCH","PROC","INOP","RCL","PAX","REF","RMK","CTN"]);
+// English connector words that should become lowercase after translation
+const LOW_EN=new Set(["AND","OR","FOR","ON","IN","AT","TO","BY","OF","THE","A","AN","NOT","IS","ARE","WAS","WERE","BE","WITH","WITHOUT","EXCEPT","INCLUDING","UNTIL","ONLY","NOW","UP","DOWN","OUT","INTO","FROM","BEFORE","AFTER","DURING","BETWEEN","BOTH","EITHER","EACH","EVERY","ALL","SOME","ANY","NO","ALSO","THEN","THAN","THIS","THAT","THESE","THOSE","HAS","HAVE","HAD","WILL","SHALL","SHOULD","WOULD","MAY","CAN","DO","DOES","DID","BEEN","BEING","EXPECT","REFUELING","REFUELLING","BIRD","BIRDS","USE"]);
+
+// ── Translate contraction-heavy NOTAM text into plain English ──
+function translateText(txt){
+ if(!txt)return"";
+ let t=" "+txt.replace(/\s+/g," ").trim()+" ";
+ PHRASES.forEach(([re,rep])=>{t=t.replace(re,rep);});
+ t=t.replace(/\b([A-Z][A-Z0-9\/]{1,9})\b/g,(m,w)=>{
+  if(ABBR[w])return ABBR[w];
+  const stripped=w.replace(/[^A-Z]/g,"");
+  if(stripped&&ABBR[stripped])return ABBR[stripped];
+  return m;
+ });
+ // Lowercase remaining all-caps English words (skip short designators and kept acronyms)
+ t=t.replace(/\b([A-Z]{2,})\b/g,(m,w)=>{
+  if(KEEP_UPPER.has(w))return w;
+  if(LOW_EN.has(w))return w.toLowerCase();
+  if(w.length<=3)return w; // short unknown token likely a designator/code
+  return w.toLowerCase();
+ });
+ t=t.replace(/\s+/g," ").trim();
+ // Capitalise first letter of each sentence
+ t=t.replace(/(^|[.!?]\s+)([a-z])/g,(m,p,c)=>p+c.toUpperCase());
+ if(t&&!/[.!?]$/.test(t))t+=".";
+ return t;
+}
+
+// ── Build a short human summary from Q-code + E-field ──
+function notamSummary(p){
+ const q=describeQCode(p.qsubj,p.qcond);
+ if(q)return q;
+ if(p.e){
+  const first=p.e.split(/[\.\n]/)[0];
+  return translateText(first).replace(/\.$/,"");
+ }
+ return "NOTAM";
+}
+</script>
+<script>
+// ── Demo NOTAMs (used when no API credentials are configured) ──
+const DEMO = {
+ FAJS:[
+  "A1247/26 NOTAMN\nQ) FAJA/QMRLC/IV/NBO/A/000/999/2608S02814E005\nA) FAJS\nB) 2604240800 C) 2604241600\nE) RWY 03L/21R CLSD DUE TO WIP. ARR AND DEP ON RWY 03R/21L ONLY.",
+  "A1189/26 NOTAMN\nQ) FAJA/QICAS/I/NBO/A/000/999/2608S02814E005\nA) FAJS\nB) 2604200600 C) 2604271800\nE) ILS RWY 03R U/S DUE TO MAINT. LOC AND GP UNAVBL. EXPECT VOR/DME APCH.",
+  "A1201/26 NOTAMN\nQ) FAJA/QOBCE/IV/M/AE/000/005/2608S02814E005\nA) FAJS\nB) 2604220000 C) PERM\nE) CRANE ERECTED PSN 260805S 0281420E, HGT 85FT AGL/5620FT AMSL, LGTD."
+ ],
+ FACT:[
+  "A0831/26 NOTAMN\nQ) FACA/QLRAS/IV/BO/A/000/999/3358S01836E005\nA) FACT\nB) 2604230500 C) 2604301900\nE) APCH LGT RWY 19 U/S. CTN ADZ.",
+  "A0812/26 NOTAMN\nQ) FACA/QFAHX/IV/NBO/A/000/999/3358S01836E005\nA) FACT\nB) 2604240000 C) 2604242359\nE) BIRD CONCENTRATION VIC AD. CTN ON TKOF AND LDG."
+ ],
+ FYWH:[
+  "A0218/26 NOTAMN\nQ) FYWC/QMXLC/IV/M/A/000/999/2227S01708E005\nA) FYWH\nB) 2604240700 C) 2604241500\nE) TWY A BTN TWY B AND APN 1 CLSD DUE TO WIP. USE TWY C."
+ ],
+ HKJK:[
+  "A2034/26 NOTAMN\nQ) HKNA/QNVAS/IV/BO/AE/000/999/0119S03655E025\nA) HKJK\nB) 2604221200 C) 2604262359\nE) NAI VOR/DME U/S DUE TO MAINT."
+ ],
+ FVHA:[
+  "A0477/26 NOTAMN\nQ) FVHF/QFUAU/IV/NBO/A/000/999/1754S03106E005\nA) FVHA\nB) 2604240000 C) 2604302359\nE) JET A-1 FUEL UNAVBL. AVGAS AVBL. PPR FOR REFUELING."
+ ]
+};
+
+// ── Settings ──
+function getCreds(){
+ try{const s=localStorage.getItem("notam_creds");return s?JSON.parse(s):null;}catch(e){return null;}
+}
+function setCreds(id,secret){
+ localStorage.setItem("notam_creds",JSON.stringify({id:id,secret:secret}));
+}
+function clearCreds(){localStorage.removeItem("notam_creds");}
+
+// ── Fetch live NOTAMs from FAA External NOTAM API ──
+async function fetchLive(icao,creds){
+ const url=`https://external-api.faa.gov/notamapi/v1/notams?icaoLocation=${encodeURIComponent(icao)}&pageSize=50&pageNum=1&responseFormat=geoJson`;
+ const res=await fetch(url,{headers:{client_id:creds.id,client_secret:creds.secret,Accept:"application/json"}});
+ if(res.status===401||res.status===403)throw new Error("Invalid API credentials. Check settings.");
+ if(res.status===429)throw new Error("API rate limit reached. Try again in a few minutes.");
+ if(!res.ok)throw new Error("API returned HTTP "+res.status+". Try again later.");
+ const data=await res.json();
+ const items=(data&&data.items)||[];
+ return items.map(it=>{
+  const core=it.properties&&it.properties.coreNOTAMData&&it.properties.coreNOTAMData.notam;
+  const tr=it.properties&&it.properties.coreNOTAMData&&it.properties.coreNOTAMData.notamTranslation;
+  let raw=null;
+  if(tr&&tr.length){
+   const icaoT=tr.find(x=>x.type==="ICAO");
+   raw=(icaoT&&icaoT.formattedText)||tr[0].formattedText;
+  }
+  if(!raw&&core){
+   raw=`${core.number||""} ${core.type?"NOTAM"+core.type:""}\nQ) ${core.classification||""}/${core.selectionCode||""}\nA) ${core.location||icao}\nB) ${core.effectiveStart||""} C) ${core.effectiveEnd||""}\nE) ${core.text||""}`;
+  }
+  return raw;
+ }).filter(Boolean);
+}
+
+// ── UI ──
+const $=id=>document.getElementById(id);
+function toggleMenu(){$("menu-drop").classList.toggle("hidden");$("menu-bg").classList.toggle("hidden");}
+function closeMenu(){$("menu-drop").classList.add("hidden");$("menu-bg").classList.add("hidden");}
+function openSettings(){
+ const c=getCreds()||{id:"",secret:""};
+ $("cfg-id").value=c.id;$("cfg-secret").value=c.secret;
+ $("settings-modal").classList.remove("hidden");
+}
+function closeSettings(){$("settings-modal").classList.add("hidden");}
+function saveSettings(){
+ const id=$("cfg-id").value.trim(),s=$("cfg-secret").value.trim();
+ if(!id||!s){alert("Enter both client_id and client_secret, or use demo mode.");return;}
+ setCreds(id,s);closeSettings();
+}
+function clearSettings(){clearCreds();closeSettings();}
+function openAbout(){$("about-modal").classList.remove("hidden");}
+function closeAbout(){$("about-modal").classList.add("hidden");}
+
+function renderChips(){
+ $("chips").innerHTML=AIRPORTS.map(a=>`<button class="chip" title="${a.n}" onclick="pickIcao('${a.c}')">${a.c}</button>`).join("");
+}
+function pickIcao(c){$("icao").value=c;doSearch();}
+
+function showStatus(html){$("results").innerHTML=`<div class="status">${html}</div>`;}
+function showError(msg){$("results").innerHTML=`<div class="err">${msg}</div>`;}
+
+async function doSearch(){
+ const icao=$("icao").value.trim().toUpperCase();
+ if(!/^[A-Z]{4}$/.test(icao)){showError("Enter a valid 4-letter ICAO airport code.");return;}
+ $("search-btn").disabled=true;
+ showStatus(`<span class="spin"></span> Fetching NOTAMs for ${icao}…`);
+ const creds=getCreds();
+ let rawList=[],demo=false,err=null;
+ if(creds){
+  try{rawList=await fetchLive(icao,creds);}
+  catch(e){err=e.message||"Network error.";}
+ }else{demo=true;rawList=DEMO[icao]||[];}
+ $("search-btn").disabled=false;
+ if(err){showError(err+" Configure API credentials in settings, or clear them to use demo mode.");return;}
+ if(!rawList.length){
+  const ap=AIRPORTS.find(a=>a.c===icao);
+  const name=ap?` (${ap.n})`:"";
+  if(demo)showStatus(`<div class="info">No demo NOTAMs bundled for <b>${icao}</b>${name}.<br>Configure FAA API credentials in settings for live data, or try: ${Object.keys(DEMO).join(", ")}.</div>`);
+  else showStatus(`<div class="info">No active NOTAMs for <b>${icao}</b>${name}.</div>`);
+  return;
+ }
+ renderResults(icao,rawList,demo);
+}
+
+function renderResults(icao,rawList,demo){
+ const ap=AIRPORTS.find(a=>a.c===icao);
+ const name=ap?ap.n:"";
+ const parsed=rawList.map(parseNotam);
+ const hdr=`<div class="result-hdr">
+  <div class="result-count">${parsed.length} NOTAM${parsed.length===1?"":"s"}${demo?' <span class="demo-tag">DEMO</span>':""}</div>
+  <div class="result-icao">${icao}${name?" · "+name:""}</div>
+ </div>`;
+ const cards=parsed.map(renderNotam).join("");
+ $("results").innerHTML=hdr+cards;
+}
+
+function renderNotam(p){
+ const cat=notamCategory(p.qsubj,p.qcond);
+ const summ=notamSummary(p);
+ const start=parseNotamDate(p.b);
+ const endIsPerm=p.c&&/PERM/i.test(p.c);
+ const end=endIsPerm?null:parseNotamDate(p.c);
+ const validity=`${fmtDate(start)} → ${endIsPerm?"PERMANENT":fmtDate(end)}`;
+ const plain=p.e?translateText(p.e):"(No E-field text available)";
+ const id=p.id||"(unknown)";
+ return `<div class="notam">
+  <div class="notam-hdr">
+   <div class="notam-id">${id}</div>
+   <div class="notam-type ${cat.cls}">${cat.label}</div>
+  </div>
+  <div class="notam-subj">${summ}</div>
+  <div class="notam-valid">${validity}</div>
+  <div class="notam-sec">
+   <div class="notam-sec-lbl">Plain English</div>
+   <div class="notam-plain">${plain}</div>
+  </div>
+  <div class="notam-sec">
+   <div class="notam-sec-lbl">Raw NOTAM</div>
+   <div class="notam-raw">${escapeHtml(p.raw)}</div>
+  </div>
+ </div>`;
+}
+
+function escapeHtml(s){return(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+
+// ── Init ──
+renderChips();
+if(!getCreds()){
+ showStatus(`<div class="info">Running in <b>demo mode</b>. Search one of: ${Object.keys(DEMO).join(", ")}.<br>To fetch live NOTAMs worldwide, add FAA API credentials in ☰ → API settings.</div>`);
+}else{
+ showStatus(`<div class="info">Ready. Enter an ICAO code to fetch live NOTAMs.</div>`);
+}
+</script>
+</body>
+</html>
