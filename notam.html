@@ -24,10 +24,18 @@ body{background:#edf0f5;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Tex
 .card{background:#edf1f8;border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid #cdd3e0}
 .card-ttl{font-size:22px;font-weight:700;margin-bottom:10px}
 .card-sub{font-size:13px;color:#6a7a9a;margin-bottom:12px;line-height:1.5}
-.search-row{display:flex;gap:8px;margin-bottom:12px}
-.icao-inp{flex:1;min-width:0;width:0;border:1.5px solid #c0c8d4;border-radius:12px;padding:12px 10px;font-size:20px!important;font-weight:700;font-family:monospace;text-transform:uppercase;letter-spacing:.06em;background:#fff;outline:none;color:#3451d1;text-align:center}
+.search-row{display:flex;gap:8px;margin-bottom:12px;align-items:flex-start}
+.search-wrap{flex:1;min-width:0;position:relative}
+.icao-inp{width:100%;border:1.5px solid #c0c8d4;border-radius:12px;padding:12px 14px;font-size:16px!important;font-weight:600;background:#fff;outline:none;color:#1a1a1a;font-family:inherit}
 .icao-inp:focus{border-color:#3451d1}
-.icao-inp::placeholder{color:#b0b8c4;font-weight:500;letter-spacing:0}
+.icao-inp::placeholder{color:#b0b8c4;font-weight:500}
+.suggest{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1px solid #cdd3e0;border-radius:12px;box-shadow:0 6px 20px rgba(52,81,209,.15);max-height:300px;overflow-y:auto;z-index:50}
+.suggest-item{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;border-bottom:1px solid #eaecf2;font-size:14px;background:#fff}
+.suggest-item:last-child{border-bottom:none}
+.suggest-item:hover,.suggest-item:active{background:#eef2ff}
+.suggest-icao{font-family:monospace;font-weight:700;color:#3451d1;font-size:13px;flex-shrink:0;width:48px}
+.suggest-name{color:#1a1a1a;flex:1;line-height:1.3}
+.suggest-empty{padding:14px;color:#8a9aaa;font-size:13px;font-style:italic;text-align:center}
 .search-btn{background:#3451d1;color:#fff;border:none;border-radius:12px;padding:12px 16px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0}
 .search-btn:disabled{background:#9aa0aa;cursor:not-allowed}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
@@ -104,10 +112,13 @@ body{background:#edf0f5;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Tex
 
   <div class="card">
     <div class="card-ttl">Search NOTAMs</div>
-    <div class="card-sub">Enter an ICAO 4-letter airport code to fetch and translate the current NOTAMs.</div>
+    <div class="card-sub">Enter an ICAO 4-letter code or airport name to fetch and translate the current NOTAMs.</div>
     <div class="search-row">
-      <input class="icao-inp" id="icao" maxlength="4" placeholder="ICAO" autocomplete="off" autocapitalize="characters" spellcheck="false" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')doSearch()">
-      <button class="search-btn" id="search-btn" onclick="doSearch()">Search</button>
+      <div class="search-wrap">
+        <input class="icao-inp" id="icao" maxlength="60" placeholder="ICAO code or airport name" autocomplete="off" spellcheck="false" oninput="onSearchInput()" onfocus="onSearchInput()" onblur="hideSuggestSoon()" onkeydown="if(event.key==='Enter'){hideSuggest();doSearch()}">
+        <div class="suggest hidden" id="suggest"></div>
+      </div>
+      <button class="search-btn" id="search-btn" onclick="hideSuggest();doSearch()">Search</button>
     </div>
     <div class="chip-lbl">Quick select</div>
     <div class="chips" id="chips"></div>
@@ -276,14 +287,111 @@ const PHRASES = [
 ];
 </script>
 <script>
-// ── Quick-select African airports ──
+// ── Airport database (c=ICAO, n=name, a=aliases for search) ──
 const AIRPORTS = [
- {c:"FAJS",n:"Johannesburg OR Tambo"},{c:"FACT",n:"Cape Town"},{c:"FALE",n:"Durban King Shaka"},
- {c:"FAGG",n:"George"},{c:"FAPE",n:"Port Elizabeth"},{c:"FAKN",n:"Kruger Mpumalanga"},
- {c:"FYWH",n:"Windhoek Hosea Kutako"},{c:"FVHA",n:"Harare"},{c:"FBSK",n:"Gaborone"},
- {c:"FLLS",n:"Livingstone"},{c:"FWKI",n:"Lilongwe"},{c:"HKJK",n:"Nairobi Jomo Kenyatta"},
- {c:"HTDA",n:"Dar es Salaam"},{c:"HUEN",n:"Entebbe"},{c:"HAAB",n:"Addis Ababa"}
+ {c:"FAJS",n:"Johannesburg OR Tambo",a:"jnb joburg jhb"},
+ {c:"FALA",n:"Lanseria (Johannesburg)",a:"hla"},
+ {c:"FAGC",n:"Grand Central (Midrand)"},
+ {c:"FAWB",n:"Wonderboom (Pretoria)",a:"prc"},
+ {c:"FACT",n:"Cape Town",a:"cpt"},
+ {c:"FALE",n:"Durban King Shaka",a:"dur"},
+ {c:"FAGG",n:"George",a:"grj"},
+ {c:"FAPE",n:"Port Elizabeth (Gqeberha) Chief Dawid Stuurman",a:"plz pe gqeberha"},
+ {c:"FAEL",n:"East London",a:"els"},
+ {c:"FABL",n:"Bloemfontein Bram Fischer",a:"bfn"},
+ {c:"FAUP",n:"Upington",a:"upn"},
+ {c:"FAKM",n:"Kimberley",a:"kim"},
+ {c:"FAKN",n:"Kruger Mpumalanga (Nelspruit)",a:"mqp"},
+ {c:"FAHS",n:"Hoedspruit",a:"hds"},
+ {c:"FAPN",n:"Pilanesberg (Sun City)",a:"nty"},
+ {c:"FAPB",n:"Plettenberg Bay",a:"pbz"},
+ {c:"FAMG",n:"Margate"},
+ {c:"FARB",n:"Richards Bay",a:"rcb"},
+ {c:"FASZ",n:"Skukuza (Kruger)",a:"szk"},
+ {c:"FASB",n:"Springbok"},
+ {c:"FAPM",n:"Pietermaritzburg",a:"pzb"},
+ {c:"FBSK",n:"Gaborone Sir Seretse Khama",a:"gbe"},
+ {c:"FBKE",n:"Kasane",a:"bbk"},
+ {c:"FBMN",n:"Maun",a:"mub"},
+ {c:"FBFT",n:"Francistown",a:"fra"},
+ {c:"FYWH",n:"Windhoek Hosea Kutako",a:"wdh"},
+ {c:"FYWE",n:"Eros (Windhoek)",a:"ers"},
+ {c:"FYWB",n:"Walvis Bay",a:"wvb"},
+ {c:"FYKT",n:"Keetmanshoop"},
+ {c:"FYRU",n:"Rundu"},
+ {c:"FVHA",n:"Harare Robert Gabriel Mugabe",a:"hre"},
+ {c:"FVFA",n:"Victoria Falls",a:"vfa"},
+ {c:"FVBU",n:"Bulawayo Joshua Mqabuko Nkomo",a:"buq"},
+ {c:"FVKB",n:"Kariba",a:"krb"},
+ {c:"FLKK",n:"Lusaka Kenneth Kaunda",a:"lun"},
+ {c:"FLLS",n:"Livingstone Harry Mwaanga Nkumbula",a:"lvi"},
+ {c:"FLNJ",n:"Ndola Simon Mwansa Kapwepwe",a:"ndo"},
+ {c:"FLMF",n:"Mfuwe",a:"mfu"},
+ {c:"FQMA",n:"Maputo",a:"mpm"},
+ {c:"FQBR",n:"Beira",a:"bew"},
+ {c:"FQVL",n:"Vilanculos",a:"viz"},
+ {c:"FQNP",n:"Nampula",a:"apl"},
+ {c:"FWKI",n:"Lilongwe Kamuzu",a:"llw"},
+ {c:"FWCL",n:"Chileka (Blantyre)",a:"blz"},
+ {c:"FXMM",n:"Maseru Moshoeshoe I",a:"mse"},
+ {c:"FDSM",n:"King Mswati III (Manzini)",a:"sho mts manzini eswatini swaziland"},
+ {c:"FNLU",n:"Luanda Quatro de Fevereiro",a:"lad"},
+ {c:"FMMI",n:"Antananarivo Ivato",a:"tnr"},
+ {c:"FMNN",n:"Nosy Be Fascene",a:"nos"},
+ {c:"FIMP",n:"Mauritius SSR International (Plaisance)",a:"mru port louis"},
+ {c:"FSIA",n:"Seychelles International (Mahé)",a:"sez mahe"},
+ {c:"FMEE",n:"Saint-Denis Roland Garros (Réunion)",a:"run reunion"},
+ {c:"HTDA",n:"Dar es Salaam Julius Nyerere",a:"dar"},
+ {c:"HTKJ",n:"Kilimanjaro",a:"jro"},
+ {c:"HTZA",n:"Zanzibar Abeid Amani Karume",a:"znz"},
+ {c:"HTAR",n:"Arusha",a:"ark"},
+ {c:"HTMW",n:"Mwanza",a:"mwz"},
+ {c:"HKJK",n:"Nairobi Jomo Kenyatta",a:"nbo"},
+ {c:"HKNW",n:"Nairobi Wilson",a:"wil"},
+ {c:"HKMO",n:"Mombasa Moi",a:"mba"},
+ {c:"HKEL",n:"Eldoret",a:"eld"},
+ {c:"HKKI",n:"Kisumu",a:"kis"},
+ {c:"HUEN",n:"Entebbe",a:"ebb kampala"},
+ {c:"HRYR",n:"Kigali",a:"kgl"},
+ {c:"HAAB",n:"Addis Ababa Bole",a:"add"},
+ {c:"HECA",n:"Cairo",a:"cai"},
+ {c:"HEGN",n:"Hurghada",a:"hrg"},
+ {c:"HESH",n:"Sharm el-Sheikh",a:"ssh"},
+ {c:"GMMN",n:"Casablanca Mohammed V",a:"cmn"},
+ {c:"GMMX",n:"Marrakech Menara",a:"rak"},
+ {c:"DNMM",n:"Lagos Murtala Muhammed",a:"los"},
+ {c:"DNAA",n:"Abuja Nnamdi Azikiwe",a:"abv"},
+ {c:"GOBD",n:"Dakar Blaise Diagne",a:"dss"},
+ {c:"DGAA",n:"Accra Kotoka",a:"acc"},
+ {c:"FZAA",n:"Kinshasa N'djili",a:"fih"},
+ {c:"EGLL",n:"London Heathrow",a:"lhr"},
+ {c:"EGKK",n:"London Gatwick",a:"lgw"},
+ {c:"EHAM",n:"Amsterdam Schiphol",a:"ams"},
+ {c:"EDDF",n:"Frankfurt",a:"fra"},
+ {c:"LFPG",n:"Paris Charles de Gaulle",a:"cdg"},
+ {c:"LIRF",n:"Rome Fiumicino",a:"fco"},
+ {c:"OMDB",n:"Dubai International",a:"dxb"},
+ {c:"OTHH",n:"Doha Hamad",a:"doh"},
+ {c:"WSSS",n:"Singapore Changi",a:"sin"},
+ {c:"KJFK",n:"New York JFK",a:"jfk"},
+ {c:"KATL",n:"Atlanta Hartsfield-Jackson",a:"atl"}
 ];
+
+// ── Quick-select chips (subset of AIRPORTS shown as buttons) ──
+const QUICK_ICAOS = ["FAJS","FACT","FALE","FAGG","FAPE","FAKN","FYWH","FVHA","FBSK","HKJK","HUEN","HAAB"];
+
+// ── Find airports matching a free-text query (ICAO or name) ──
+function findAirports(query){
+ const q=query.trim().toLowerCase();
+ if(!q)return[];
+ const exact=AIRPORTS.find(a=>a.c.toLowerCase()===q);
+ if(exact)return[exact];
+ return AIRPORTS.filter(a=>
+  a.c.toLowerCase().includes(q)||
+  a.n.toLowerCase().includes(q)||
+  (a.a&&a.a.toLowerCase().includes(q))
+ ).slice(0,8);
+}
 
 // ── Parse raw ICAO NOTAM text into structured fields ──
 function parseNotam(raw){
@@ -470,16 +578,69 @@ function openAbout(){$("about-modal").classList.remove("hidden");}
 function closeAbout(){$("about-modal").classList.add("hidden");}
 
 function renderChips(){
- $("chips").innerHTML=AIRPORTS.map(a=>`<button class="chip" title="${a.n}" onclick="pickIcao('${a.c}')">${a.c}</button>`).join("");
+ $("chips").innerHTML=QUICK_ICAOS.map(c=>{
+  const a=AIRPORTS.find(x=>x.c===c);
+  return `<button class="chip" title="${a?a.n:c}" onclick="pickIcao('${c}')">${c}</button>`;
+ }).join("");
 }
-function pickIcao(c){$("icao").value=c;doSearch();}
+function pickIcao(c){$("icao").value=c;hideSuggest();doSearch();}
+
+// ── Suggestion dropdown ──
+let _suggestTimer=null;
+function onSearchInput(){
+ const q=$("icao").value;
+ const matches=findAirports(q);
+ const sg=$("suggest");
+ if(!q.trim()){hideSuggest();return;}
+ if(!matches.length){
+  sg.innerHTML=`<div class="suggest-empty">No airport matches. Type any ICAO code or pick a suggestion.</div>`;
+ }else{
+  sg.innerHTML=matches.map(a=>
+   `<div class="suggest-item" onmousedown="pickIcao('${a.c}')"><div class="suggest-icao">${a.c}</div><div class="suggest-name">${a.n}</div></div>`
+  ).join("");
+ }
+ sg.classList.remove("hidden");
+}
+function hideSuggest(){$("suggest").classList.add("hidden");}
+function hideSuggestSoon(){clearTimeout(_suggestTimer);_suggestTimer=setTimeout(hideSuggest,180);}
+
+// ── Resolve free-text query to an ICAO code ──
+function resolveIcao(query){
+ const q=query.trim();
+ if(!q)return null;
+ const upper=q.toUpperCase();
+ // Exact ICAO match in our DB
+ const exact=AIRPORTS.find(a=>a.c===upper);
+ if(exact)return exact.c;
+ // Name / alias match
+ const matches=findAirports(q);
+ if(matches.length===1)return matches[0].c;
+ const lc=q.toLowerCase();
+ const starts=matches.find(a=>a.n.toLowerCase().startsWith(lc));
+ if(starts)return starts.c;
+ // Fallback: 4-letter alpha string treated as ICAO (allows airports not in our DB)
+ if(/^[A-Za-z]{4}$/.test(q))return upper;
+ return null;
+}
 
 function showStatus(html){$("results").innerHTML=`<div class="status">${html}</div>`;}
 function showError(msg){$("results").innerHTML=`<div class="err">${msg}</div>`;}
 
 async function doSearch(){
- const icao=$("icao").value.trim().toUpperCase();
- if(!/^[A-Z]{4}$/.test(icao)){showError("Enter a valid 4-letter ICAO airport code.");return;}
+ const raw=$("icao").value.trim();
+ if(!raw){showError("Enter a 4-letter ICAO code or an airport name.");return;}
+ const icao=resolveIcao(raw);
+ if(!icao){
+  const matches=findAirports(raw);
+  if(matches.length>1){
+   showError(`Multiple airports match \"${raw}\". Pick one from the list above or type a more specific name.`);
+   onSearchInput();
+  }else{
+   showError(`No airport found for \"${raw}\". Try a 4-letter ICAO code or a different name.`);
+  }
+  return;
+ }
+ if(icao!==raw.toUpperCase())$("icao").value=icao;
  $("search-btn").disabled=true;
  showStatus(`<span class="spin"></span> Fetching NOTAMs for ${icao}…`);
  const creds=getCreds();
