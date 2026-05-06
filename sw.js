@@ -1,11 +1,12 @@
 // AeroPlus Deco — Service Worker
 // Bump this version string whenever you deploy a new version of index.html
-const CACHE_VERSION = '2026-03-17l';
+const CACHE_VERSION = '2026-05-06-notam';
 const CACHE_NAME = `aeroplus-deco-${CACHE_VERSION}`;
 
 const ASSETS = [
   '/',
   '/index.html',
+  '/notam.html',
   '/manifest.json',
   '/icon-192.png',
   '/icon-512.png',
