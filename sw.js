@@ -2,7 +2,7 @@
 // Cache-first app shell with background refresh.
 // All paths are RELATIVE so this works on the GitHub Pages subpath
 // (https://sjjan.github.io/aeroplus-deco/) as well as any other origin/root.
-const CACHE_VERSION = '2026-06-19e';
+const CACHE_VERSION = '2026-06-19g';
 const CACHE_NAME = 'aeroplus-deco-' + CACHE_VERSION;
 
 // Must-have for offline start. install fails (and retries next launch) if these fail.
