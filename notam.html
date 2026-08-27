@@ -104,7 +104,7 @@ body{background:#edf0f5;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Tex
 
 <div class="menu-bg hidden" id="menu-bg" onclick="closeMenu()"></div>
 <div class="menu-drop hidden" id="menu-drop">
-  <button class="menu-item" onclick="closeMenu();openSettings()"><span class="menu-icon">⚙</span>API settings</button>
+  <button class="menu-item" onclick="closeMenu();openSettings()"><span class="menu-icon">⚙</span>Data source</button>
   <button class="menu-item" onclick="closeMenu();openAbout()"><span class="menu-icon">ℹ</span>About</button>
 </div>
 
@@ -133,17 +133,28 @@ body{background:#edf0f5;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Tex
 <div class="mbg hidden" id="settings-modal">
   <div class="mpanel">
     <div class="mhdr">
-      <div class="mttl">API settings</div>
+      <div class="mttl">Data source</div>
       <button class="mcls" onclick="closeSettings()">✕</button>
     </div>
-    <div class="mbody" style="margin-bottom:14px">
-      <p>Live NOTAM fetching uses the free <b>FAA External NOTAM API</b>, which covers airports worldwide including African aerodromes.</p>
-      <p>Register at <a href="https://api.faa.gov" target="_blank" rel="noopener">api.faa.gov</a> to obtain a free <code>client_id</code> and <code>client_secret</code>. Credentials are stored locally on this device only.</p>
+    <div class="prov-toggle">
+      <button class="prov-btn" id="prov-faa" onclick="selectProvider('faa')">FAA</button>
+      <button class="prov-btn" id="prov-ar" onclick="selectProvider('autorouter')">AutoRouter</button>
+      <button class="prov-btn" id="prov-demo" onclick="selectProvider('demo')">Demo</button>
     </div>
-    <div class="fld"><label>Client ID</label><input type="text" id="cfg-id" placeholder="FAA API client_id"></div>
-    <div class="fld"><label>Client Secret</label><input type="password" id="cfg-secret" placeholder="FAA API client_secret"></div>
-    <button class="savebtn" onclick="saveSettings()">Save credentials</button>
-    <button class="savebtn" style="background:#e8eaed;color:#5a6472;margin-top:8px" onclick="clearSettings()">Clear and use demo mode</button>
+    <div class="prov-body" id="prov-body-faa">
+      <p>The free <b>FAA External NOTAM API</b> gives worldwide NOTAM coverage. Register at <a href="https://api.faa.gov" target="_blank" rel="noopener">api.faa.gov</a>, create an app, subscribe it to <b>NOTAM API</b>, and paste the Consumer Key / Secret below. International approval can take days.</p>
+    </div>
+    <div class="prov-body hidden" id="prov-body-ar">
+      <p><b>AutoRouter.aero</b> is a free European GA flight-planning service with global NOTAM coverage — easier signup for non-US operators than the FAA. Register at <a href="https://www.autorouter.aero" target="_blank" rel="noopener">autorouter.aero</a>, then go to <b>My account → API access</b> and create OAuth credentials.</p>
+    </div>
+    <div class="prov-body hidden" id="prov-body-demo">
+      <p>Runs on built-in sample NOTAMs for a handful of African airports (FAJS, FACT, FYWH, HKJK, FVHA). Useful for demoing the translator without any API credentials.</p>
+    </div>
+    <div id="cred-fields">
+      <div class="fld"><label id="cred-lbl-id">Client ID</label><input type="text" id="cfg-id" placeholder="client_id"></div>
+      <div class="fld"><label id="cred-lbl-secret">Client Secret</label><input type="password" id="cfg-secret" placeholder="client_secret"></div>
+    </div>
+    <button class="savebtn" onclick="saveSettings()">Save</button>
   </div>
 </div>
 
@@ -526,21 +537,31 @@ const DEMO = {
 };
 
 // ── Settings ──
-function getCreds(){
- try{const s=localStorage.getItem("notam_creds");return s?JSON.parse(s):null;}catch(e){return null;}
+// New shape: {provider:"faa"|"autorouter"|"demo", faa:{id,secret}, autorouter:{id,secret}}
+function getSettings(){
+ try{
+  const s=localStorage.getItem("notam_settings");
+  if(s)return JSON.parse(s);
+  // Migrate old shape (single {id,secret} was FAA)
+  const legacy=localStorage.getItem("notam_creds");
+  if(legacy){
+   const c=JSON.parse(legacy);
+   return {provider:"faa",faa:c,autorouter:{id:"",secret:""}};
+  }
+ }catch(e){}
+ return {provider:"demo",faa:{id:"",secret:""},autorouter:{id:"",secret:""}};
 }
-function setCreds(id,secret){
- localStorage.setItem("notam_creds",JSON.stringify({id:id,secret:secret}));
-}
-function clearCreds(){localStorage.removeItem("notam_creds");}
+function setSettings(s){localStorage.setItem("notam_settings",JSON.stringify(s));}
+function currentProvider(){return getSettings().provider;}
+function providerCreds(prov){const s=getSettings();return s[prov]||{id:"",secret:""};}
 
-// ── Fetch live NOTAMs from FAA External NOTAM API ──
-async function fetchLive(icao,creds){
+// ── FAA External NOTAM API ──
+async function fetchFAA(icao,creds){
  const url=`https://external-api.faa.gov/notamapi/v1/notams?icaoLocation=${encodeURIComponent(icao)}&pageSize=50&pageNum=1&responseFormat=geoJson`;
  const res=await fetch(url,{headers:{client_id:creds.id,client_secret:creds.secret,Accept:"application/json"}});
- if(res.status===401||res.status===403)throw new Error("Invalid API credentials. Check settings.");
- if(res.status===429)throw new Error("API rate limit reached. Try again in a few minutes.");
- if(!res.ok)throw new Error("API returned HTTP "+res.status+". Try again later.");
+ if(res.status===401||res.status===403)throw new Error("FAA: invalid API credentials. Check settings.");
+ if(res.status===429)throw new Error("FAA: rate limit reached. Try again in a few minutes.");
+ if(!res.ok)throw new Error("FAA API returned HTTP "+res.status+".");
  const data=await res.json();
  const items=(data&&data.items)||[];
  return items.map(it=>{
@@ -558,22 +579,94 @@ async function fetchLive(icao,creds){
  }).filter(Boolean);
 }
 
+// ── AutoRouter.aero NOTAM API (OAuth2 client_credentials) ──
+let _arToken=null; // {token, expiresAt}
+async function autorouterToken(creds){
+ const now=Date.now();
+ if(_arToken&&_arToken.expiresAt>now+15000)return _arToken.token;
+ const body=new URLSearchParams({grant_type:"client_credentials",client_id:creds.id,client_secret:creds.secret});
+ const res=await fetch("https://api.autorouter.aero/externalId/token",{
+  method:"POST",
+  headers:{"Content-Type":"application/x-www-form-urlencoded",Accept:"application/json"},
+  body:body.toString()
+ });
+ if(res.status===401||res.status===403)throw new Error("AutoRouter: invalid credentials. Check settings.");
+ if(!res.ok)throw new Error("AutoRouter auth returned HTTP "+res.status+".");
+ const j=await res.json();
+ if(!j.access_token)throw new Error("AutoRouter: no access token returned.");
+ _arToken={token:j.access_token,expiresAt:now+((j.expires_in||300)*1000)};
+ return _arToken.token;
+}
+async function fetchAutoRouter(icao,creds){
+ const token=await autorouterToken(creds);
+ const url=`https://api.autorouter.aero/v1.0/notam?items=${encodeURIComponent(icao)}&offset=0&limit=100`;
+ const res=await fetch(url,{headers:{Authorization:"Bearer "+token,Accept:"application/json"}});
+ if(res.status===401||res.status===403){_arToken=null;throw new Error("AutoRouter: token rejected. Try again.");}
+ if(res.status===429)throw new Error("AutoRouter: rate limit reached. Try again in a few minutes.");
+ if(!res.ok)throw new Error("AutoRouter API returned HTTP "+res.status+".");
+ const data=await res.json();
+ const arr=Array.isArray(data)?data:(data.rows||data.notams||data.items||[]);
+ return arr.map(n=>n.all||n.raw||n.notamText||n.text||buildRawFromParts(n,icao)).filter(Boolean);
+}
+function buildRawFromParts(n,icao){
+ const id=n.ident||n.number||n.id||"";
+ const loc=n.icaoLocation||n.location||icao;
+ const b=n.startvalidity||n.effectiveStart||n.startValidity||"";
+ const c=n.endvalidity||n.effectiveEnd||n.endValidity||"";
+ const e=n.itemE||n.e||n.body||n.notamText||n.text||"";
+ if(!e)return null;
+ const q=n.selectionCode||n.qcode||"";
+ return `${id} NOTAMN\nQ) ${loc}/${q}\nA) ${loc}\nB) ${b} C) ${c}\nE) ${e}`;
+}
+
+// ── Dispatch ──
+async function fetchLive(icao){
+ const s=getSettings();
+ if(s.provider==="faa")return fetchFAA(icao,s.faa||{id:"",secret:""});
+ if(s.provider==="autorouter")return fetchAutoRouter(icao,s.autorouter||{id:"",secret:""});
+ return [];
+}
+
 // ── UI ──
 const $=id=>document.getElementById(id);
 function toggleMenu(){$("menu-drop").classList.toggle("hidden");$("menu-bg").classList.toggle("hidden");}
 function closeMenu(){$("menu-drop").classList.add("hidden");$("menu-bg").classList.add("hidden");}
+let _pendingProvider="demo";
 function openSettings(){
- const c=getCreds()||{id:"",secret:""};
- $("cfg-id").value=c.id;$("cfg-secret").value=c.secret;
+ const s=getSettings();
+ selectProvider(s.provider);
  $("settings-modal").classList.remove("hidden");
 }
 function closeSettings(){$("settings-modal").classList.add("hidden");}
-function saveSettings(){
- const id=$("cfg-id").value.trim(),s=$("cfg-secret").value.trim();
- if(!id||!s){alert("Enter both client_id and client_secret, or use demo mode.");return;}
- setCreds(id,s);closeSettings();
+function selectProvider(p){
+ _pendingProvider=p;
+ ["faa","ar","demo"].forEach(k=>$("prov-"+k).classList.remove("on"));
+ $("prov-"+(p==="autorouter"?"ar":p)).classList.add("on");
+ ["faa","ar","demo"].forEach(k=>$("prov-body-"+k).classList.add("hidden"));
+ $("prov-body-"+(p==="autorouter"?"ar":p)).classList.remove("hidden");
+ const needsCreds=p==="faa"||p==="autorouter";
+ $("cred-fields").classList.toggle("hidden",!needsCreds);
+ if(needsCreds){
+  const c=providerCreds(p);
+  $("cfg-id").value=c.id||"";$("cfg-secret").value=c.secret||"";
+  const isFaa=p==="faa";
+  $("cred-lbl-id").textContent=isFaa?"Consumer Key":"Client ID";
+  $("cred-lbl-secret").textContent=isFaa?"Consumer Secret":"Client Secret";
+  $("cfg-id").placeholder=isFaa?"FAA Consumer Key":"AutoRouter client_id";
+  $("cfg-secret").placeholder=isFaa?"FAA Consumer Secret":"AutoRouter client_secret";
+ }
 }
-function clearSettings(){clearCreds();closeSettings();}
+function saveSettings(){
+ const s=getSettings();
+ s.provider=_pendingProvider;
+ if(_pendingProvider==="faa"||_pendingProvider==="autorouter"){
+  const id=$("cfg-id").value.trim(),sec=$("cfg-secret").value.trim();
+  if(!id||!sec){alert("Enter both credentials, or switch to Demo mode.");return;}
+  s[_pendingProvider]={id:id,secret:sec};
+ }
+ setSettings(s);_arToken=null;closeSettings();showInitBanner();
+}
+function providerLabel(p){return p==="faa"?"FAA":p==="autorouter"?"AutoRouter":"Demo";}
 function openAbout(){$("about-modal").classList.remove("hidden");}
 function closeAbout(){$("about-modal").classList.add("hidden");}
 
@@ -642,23 +735,26 @@ async function doSearch(){
  }
  if(icao!==raw.toUpperCase())$("icao").value=icao;
  $("search-btn").disabled=true;
- showStatus(`<span class="spin"></span> Fetching NOTAMs for ${icao}…`);
- const creds=getCreds();
- let rawList=[],demo=false,err=null;
- if(creds){
-  try{rawList=await fetchLive(icao,creds);}
-  catch(e){err=e.message||"Network error.";}
- }else{demo=true;rawList=DEMO[icao]||[];}
+ const prov=currentProvider();
+ showStatus(`<span class="spin"></span> Fetching NOTAMs for ${icao} via ${providerLabel(prov)}…`);
+ let rawList=[],demo=prov==="demo",err=null;
+ if(demo){rawList=DEMO[icao]||[];}
+ else{try{rawList=await fetchLive(icao);}catch(e){err=e.message||"Network error.";}}
  $("search-btn").disabled=false;
- if(err){showError(err+" Configure API credentials in settings, or clear them to use demo mode.");return;}
+ if(err){showError(err+" Check ☰ → Data source, or switch to Demo mode.");return;}
  if(!rawList.length){
   const ap=AIRPORTS.find(a=>a.c===icao);
   const name=ap?` (${ap.n})`:"";
-  if(demo)showStatus(`<div class="info">No demo NOTAMs bundled for <b>${icao}</b>${name}.<br>Configure FAA API credentials in settings for live data, or try: ${Object.keys(DEMO).join(", ")}.</div>`);
-  else showStatus(`<div class="info">No active NOTAMs for <b>${icao}</b>${name}.</div>`);
+  if(demo)showStatus(`<div class="info">No demo NOTAMs bundled for <b>${icao}</b>${name}.<br>Try: ${Object.keys(DEMO).join(", ")} — or add live API credentials via ☰ → Data source.</div>`);
+  else showStatus(`<div class="info">No active NOTAMs for <b>${icao}</b>${name} (via ${providerLabel(prov)}).</div>`);
   return;
  }
  renderResults(icao,rawList,demo);
+}
+function showInitBanner(){
+ const p=currentProvider();
+ if(p==="demo")showStatus(`<div class="info">Running in <b>demo mode</b>. Search one of: ${Object.keys(DEMO).join(", ")}.<br>For live NOTAMs, add API credentials in ☰ → Data source.</div>`);
+ else showStatus(`<div class="info">Ready. Live NOTAMs via <b>${providerLabel(p)}</b>. Enter an ICAO code or airport name.</div>`);
 }
 
 function renderResults(icao,rawList,demo){
@@ -704,11 +800,7 @@ function escapeHtml(s){return(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&l
 
 // ── Init ──
 renderChips();
-if(!getCreds()){
- showStatus(`<div class="info">Running in <b>demo mode</b>. Search one of: ${Object.keys(DEMO).join(", ")}.<br>To fetch live NOTAMs worldwide, add FAA API credentials in ☰ → API settings.</div>`);
-}else{
- showStatus(`<div class="info">Ready. Enter an ICAO code to fetch live NOTAMs.</div>`);
-}
+showInitBanner();
 </script>
 </body>
 </html>
